@@ -129,5 +129,13 @@
   "footer_bi": "Business Intelligence",
   "footer_pymes": "SMB solutions",
   "footer_rights": "© {year} Urbs Data. All rights reserved.",
-  "footer_made_in": "Made in Argentina"
+  "footer_made_in": "Made in Argentina",
+  "seo_home_title": "Urbs Data | Data engineering, AI and automation",
+  "seo_home_description": "Argentine data engineering, artificial intelligence, automation and Business Intelligence consultancy for centralizing data, structuring metrics and enabling reliable decisions.",
+  "seo_home_keywords": "data engineering, data warehouse, artificial intelligence, automation, business intelligence, dashboards, BigQuery, Metabase, dbt, ETL, data consultancy Argentina, SMB data solutions",
+  "seo_og_image_alt": "Urbs Data logo",
+  "seo_og_image_title": "We turn your data into decisions and automated processes",
+  "seo_json_ld_service_name": "Data engineering, AI and automation services",
+  "seo_json_ld_region_name": "Latin America",
+  "seo_json_ld_area_served": "Argentina and Latin America"
 }

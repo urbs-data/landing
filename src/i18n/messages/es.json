@@ -129,5 +129,13 @@
   "footer_bi": "Business Intelligence",
   "footer_pymes": "Soluciones PyMEs",
   "footer_rights": "© {year} Urbs Data. Todos los derechos reservados.",
-  "footer_made_in": "Hecho en Argentina"
+  "footer_made_in": "Hecho en Argentina",
+  "seo_home_title": "Urbs Data | Ingeniería de datos, IA y automatización",
+  "seo_home_description": "Consultora argentina de data warehousing, inteligencia artificial, automatización y Business Intelligence para centralizar datos, ordenar métricas y activar decisiones confiables.",
+  "seo_home_keywords": "ingeniería de datos, data warehouse, inteligencia artificial, automatización, business intelligence, dashboards, BigQuery, Metabase, dbt, ETL, consultora de datos argentina, datos para PyMEs",
+  "seo_og_image_alt": "Logo de Urbs Data",
+  "seo_og_image_title": "Convertimos tus datos en decisiones y procesos automatizados",
+  "seo_json_ld_service_name": "Servicios de ingeniería de datos, IA y automatización",
+  "seo_json_ld_region_name": "Latinoamérica",
+  "seo_json_ld_area_served": "Argentina y Latinoamérica"
 }

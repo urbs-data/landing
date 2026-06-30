@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "@fontsource-variable/ibm-plex-sans";
 @import "@fontsource-variable/instrument-sans";
+@import "@fontsource-variable/syne";
 @import "@fontsource/pitagon-sans-mono/latin-400.css";
 @import "@fontsource/pitagon-sans-mono/latin-500.css";
 @import "@fontsource/pitagon-sans-mono/latin-600.css";
@@ -172,6 +173,7 @@
     --font-sans: "IBM Plex Sans Variable", sans-serif;
     --font-mono: "Pitagon Sans Mono", monospace;
     --font-heading: "Instrument Sans Variable", sans-serif;
+    --font-logo: "Syne Variable", sans-serif;
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);
     --color-success-muted: var(--success-muted);

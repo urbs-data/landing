@@ -17,6 +17,9 @@ importers:
       '@fontsource-variable/instrument-sans':
         specifier: ^5.2.8
         version: 5.2.8
+      '@fontsource-variable/syne':
+        specifier: ^5.2.7
+        version: 5.2.7
       '@fontsource/pitagon-sans-mono':
         specifier: ^5.2.5
         version: 5.2.5
@@ -423,6 +426,9 @@ packages:
 
   '@fontsource-variable/instrument-sans@5.2.8':
     resolution: {integrity: sha512-mTCaukbdIjjoipj2E3Q5XoZM3ZxJWdzyHevf/LG/0PHlfF9Q85pxOM7B7A9MerFyxmRzz5kVlumgIvgDSG4CPg==}
+
+  '@fontsource-variable/syne@5.2.7':
+    resolution: {integrity: sha512-B2z7P0mGdNSAgz6SmtK7HXReZL22WJ8Z8sk5Z1ZuKiCSRM7DwWLjWXLwhbQ+CvmtNS/+p95jGvVEfQT9bm+UKw==}
 
   '@fontsource/pitagon-sans-mono@5.2.5':
     resolution: {integrity: sha512-jNyWobiLcENpIxsczKFfLvqyQQOBjL3a408G/ky/CFAzii8USg+8SujKhz8T4qzZtCh8UDo9dQrG6Y5OTKs1cw==}
@@ -3160,6 +3166,8 @@ snapshots:
   '@fontsource-variable/ibm-plex-sans@5.2.8': {}
 
   '@fontsource-variable/instrument-sans@5.2.8': {}
+
+  '@fontsource-variable/syne@5.2.7': {}
 
   '@fontsource/pitagon-sans-mono@5.2.5': {}
 

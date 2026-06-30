@@ -93,6 +93,18 @@ export const Route = createRootRoute({
           content: seo.image,
         },
         {
+          property: "og:image:type",
+          content: "image/png",
+        },
+        {
+          property: "og:image:width",
+          content: "1200",
+        },
+        {
+          property: "og:image:height",
+          content: "630",
+        },
+        {
           property: "og:image:alt",
           content: seo.imageAlt,
         },
@@ -106,7 +118,7 @@ export const Route = createRootRoute({
         },
         {
           name: "twitter:card",
-          content: "summary",
+          content: "summary_large_image",
         },
         {
           name: "twitter:title",
@@ -119,6 +131,10 @@ export const Route = createRootRoute({
         {
           name: "twitter:image",
           content: seo.image,
+        },
+        {
+          name: "twitter:image:alt",
+          content: seo.imageAlt,
         },
       ],
       links: [
@@ -143,12 +159,24 @@ export const Route = createRootRoute({
         },
         {
           rel: "icon",
+          href: "/favicon.svg",
+          type: "image/svg+xml",
+        },
+        {
+          rel: "icon",
+          href: "/favicon-96x96.png",
+          type: "image/png",
+          sizes: "96x96",
+        },
+        {
+          rel: "shortcut icon",
           href: "/favicon.ico",
           sizes: "any",
         },
         {
           rel: "apple-touch-icon",
-          href: "/logo192.png",
+          href: "/apple-touch-icon.png",
+          sizes: "180x180",
         },
         {
           rel: "manifest",

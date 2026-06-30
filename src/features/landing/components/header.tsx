@@ -6,6 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { LocaleDropdown } from "#/components/locale-dropdown";
 import { ThemeToggle } from "#/components/theme-toggle";
 import { Button } from "#/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "#/components/ui/navigation-menu";
 import { UrbsLogo } from "#/components/urbs-logo";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
@@ -21,6 +27,43 @@ function getLinks() {
     { href: hrefs.clients, label: m.nav_clients() },
     { href: hrefs.pymes, label: m.nav_pymes() },
   ];
+}
+
+function HeaderNavigationLinks({
+  links,
+  onNavigate,
+  variant = "desktop",
+}: {
+  links: ReturnType<typeof getLinks>;
+  onNavigate?: () => void;
+  variant?: "desktop" | "mobile";
+}) {
+  return (
+    <NavigationMenuList
+      className={cn(
+        variant === "mobile"
+          ? "flex-col items-stretch gap-0"
+          : "items-center gap-1",
+      )}
+    >
+      {links.map((l) => (
+        <NavigationMenuItem key={l.href}>
+          <NavigationMenuLink
+            render={<a href={l.href} />}
+            onClick={onNavigate}
+            className={cn(
+              "text-muted-foreground hover:text-foreground",
+              variant === "desktop"
+                ? "h-9 px-3 py-2"
+                : "w-full rounded-xl px-0 py-2.5 hover:bg-transparent focus:bg-transparent",
+            )}
+          >
+            {l.label}
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      ))}
+    </NavigationMenuList>
+  );
 }
 
 export function Header() {
@@ -97,20 +140,12 @@ export function Header() {
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <UrbsLogo />
-          <nav
-            className="hidden items-center gap-8 md:flex"
+          <NavigationMenu
+            className="hidden flex-none md:flex"
             aria-label={m.nav_primary_label()}
           >
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
+            <HeaderNavigationLinks links={links} />
+          </NavigationMenu>
 
           <div className="hidden items-center gap-3 md:flex">
             <ThemeToggle />
@@ -137,20 +172,15 @@ export function Header() {
 
         {open && (
           <div className="border-t border-border bg-background md:hidden">
-            <nav
-              className="mx-auto flex max-w-6xl flex-col px-4 py-3 sm:px-6"
+            <NavigationMenu
+              className="mx-auto max-w-6xl flex-none items-stretch justify-start px-4 py-3 sm:px-6"
               aria-label={m.nav_mobile_label()}
             >
-              {links.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="py-2.5 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {l.label}
-                </a>
-              ))}
+              <HeaderNavigationLinks
+                links={links}
+                onNavigate={() => setOpen(false)}
+                variant="mobile"
+              />
 
               <Button
                 render={<a href={hrefs.contact} />}
@@ -160,7 +190,7 @@ export function Header() {
               >
                 {m.cta_schedule_demo()}
               </Button>
-            </nav>
+            </NavigationMenu>
           </div>
         )}
       </motion.header>

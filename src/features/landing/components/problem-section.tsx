@@ -4,7 +4,11 @@ import { ClipboardList, Database, EyeOff, type LucideIcon } from "lucide-react";
 import * as motion from "motion/react-client";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type Problem = {
@@ -38,8 +42,9 @@ function getProblems(): Problem[] {
 }
 
 export function ProblemSection() {
-  const headingReveal = revealTransform(18);
-  const cardReveal = revealTransform(12);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const headingReveal = revealTransform(18, prefersReducedMotion);
+  const cardReveal = revealTransform(12, prefersReducedMotion);
   const { ids } = getLandingAnchors();
 
   return (
@@ -50,7 +55,10 @@ export function ProblemSection() {
           whileInView={headingReveal.visible}
           style={headingReveal.initial}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.38, ease: landingEaseOut }}
+          transition={revealTransition({
+            duration: 0.38,
+            prefersReducedMotion,
+          })}
           className="max-w-3xl"
         >
           <SectionKicker>{m.problem_kicker()}</SectionKicker>
@@ -73,12 +81,12 @@ export function ProblemSection() {
                 whileInView={cardReveal.visible}
                 style={cardReveal.initial}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{
+                transition={revealTransition({
                   duration: 0.3,
-                  ease: landingEaseOut,
                   delay: index * 0.05,
-                }}
-                className="flex min-h-48 flex-col will-change-transform"
+                  prefersReducedMotion,
+                })}
+                className="flex min-h-48 flex-col"
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="flex size-8 items-center justify-center border border-border bg-accent text-primary transition-colors duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:bg-primary group-hover:text-primary-foreground">

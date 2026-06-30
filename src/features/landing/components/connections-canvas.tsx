@@ -217,7 +217,7 @@ export function ConnectionsCanvas({
           canvasReady || prefersReducedMotion ? "scale(1)" : "scale(1.015)",
       }}
       transition={{
-        duration: prefersReducedMotion ? 0.18 : 0.7,
+        duration: prefersReducedMotion ? 0.16 : 0.36,
         ease: landingEaseOut,
       }}
     />

@@ -10,7 +10,11 @@ import {
 import * as motion from "motion/react-client";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type Service = {
@@ -74,8 +78,9 @@ function getServices(): Service[] {
 }
 
 export function Services() {
-  const headingReveal = revealTransform(18);
-  const reveal = revealTransform(16);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const headingReveal = revealTransform(18, prefersReducedMotion);
+  const reveal = revealTransform(16, prefersReducedMotion);
   const { ids } = getLandingAnchors();
 
   return (
@@ -89,7 +94,10 @@ export function Services() {
           whileInView={headingReveal.visible}
           style={headingReveal.initial}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.38, ease: landingEaseOut }}
+          transition={revealTransition({
+            duration: 0.38,
+            prefersReducedMotion,
+          })}
           className="max-w-2xl"
         >
           <SectionKicker>{m.services_kicker()}</SectionKicker>
@@ -112,12 +120,11 @@ export function Services() {
                 whileInView={reveal.visible}
                 style={reveal.initial}
                 viewport={{ once: true, margin: "-80px" }}
-                transition={{
+                transition={revealTransition({
                   duration: 0.34,
-                  ease: landingEaseOut,
                   delay: i * 0.05,
-                }}
-                className="will-change-transform"
+                  prefersReducedMotion,
+                })}
               >
                 <div className="flex size-11 items-center justify-center border border-border bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <s.icon className="size-5 dark:brightness-175" />

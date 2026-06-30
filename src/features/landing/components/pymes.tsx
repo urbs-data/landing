@@ -5,7 +5,11 @@ import * as motion from "motion/react-client";
 import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 function getBenefits() {
@@ -20,8 +24,9 @@ function getBenefits() {
 }
 
 export function Pymes() {
-  const headingReveal = revealTransform(18);
-  const reveal = revealTransform(12);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const headingReveal = revealTransform(18, prefersReducedMotion);
+  const reveal = revealTransform(12, prefersReducedMotion);
   const { hrefs, ids } = getLandingAnchors();
 
   return (
@@ -32,7 +37,10 @@ export function Pymes() {
           whileInView={headingReveal.visible}
           style={headingReveal.initial}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.38, ease: landingEaseOut }}
+          transition={revealTransition({
+            duration: 0.38,
+            prefersReducedMotion,
+          })}
         >
           <SectionKicker>{m.pymes_kicker()}</SectionKicker>
           <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
@@ -62,12 +70,12 @@ export function Pymes() {
                 whileInView={reveal.visible}
                 style={reveal.initial}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{
+                transition={revealTransition({
                   duration: 0.3,
-                  ease: landingEaseOut,
                   delay: i * 0.04,
-                }}
-                className="flex items-start gap-3 will-change-transform"
+                  prefersReducedMotion,
+                })}
+                className="flex items-start gap-3"
               >
                 <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-175">
                   <Check className="size-3.5" />

@@ -5,18 +5,23 @@ import * as motion from "motion/react-client";
 import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { ConnectionsCanvas } from "./connections-canvas";
 
 export function Hero() {
-  const badgeReveal = revealTransform(12);
-  const heroReveal = revealTransform(18);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const badgeReveal = revealTransform(12, prefersReducedMotion);
+  const heroReveal = revealTransform(18, prefersReducedMotion);
   const { hrefs, ids } = getLandingAnchors();
 
   return (
     <section
       id={ids.top}
-      className="relative isolate min-h-svh overflow-hidden border-b border-border"
+      className="relative isolate overflow-hidden border-b border-border sm:min-h-svh"
     >
       <div className="absolute inset-x-0 bottom-0 top-16 -z-10">
         <ConnectionsCanvas
@@ -24,14 +29,18 @@ export function Hero() {
           density={2}
         />
         <div className="absolute inset-0 bg-linear-to-b from-background/15 via-background/30 to-background/60 dark:hidden" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-background/90 via-background/72 to-background/15 dark:from-background/82 dark:via-background/56 dark:to-background/10" />
       </div>
 
-      <div className="mx-auto flex min-h-svh max-w-6xl flex-col items-center justify-center px-4 pb-16 pt-28 text-center sm:px-6 sm:pt-32">
+      <div className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-24 pt-40 text-center sm:min-h-svh sm:justify-center sm:px-6 sm:pb-16 sm:pt-32">
         <motion.a
           href={hrefs.flow}
           initial={badgeReveal.initial}
           animate={badgeReveal.visible}
-          transition={{ duration: 0.36, ease: landingEaseOut }}
+          transition={revealTransition({
+            duration: 0.36,
+            prefersReducedMotion,
+          })}
           className="inline-flex items-center gap-2 border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
         >
           <Sparkles className="size-3.5 text-primary dark:brightness-175" />
@@ -42,8 +51,12 @@ export function Hero() {
         <motion.h1
           initial={heroReveal.initial}
           animate={heroReveal.visible}
-          transition={{ duration: 0.42, ease: landingEaseOut, delay: 0.04 }}
-          className="mt-6 max-w-5xl text-balance font-heading text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+          transition={revealTransition({
+            duration: 0.42,
+            delay: 0.04,
+            prefersReducedMotion,
+          })}
+          className="mt-7 w-full max-w-96 text-balance wrap-break-word font-heading text-[1.95rem] font-semibold leading-[1.14] tracking-tight min-[380px]:text-[2.05rem] sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl"
         >
           {m.hero_title_prefix()}{" "}
           <span className="text-primary dark:brightness-175">
@@ -55,8 +68,12 @@ export function Hero() {
         <motion.p
           initial={heroReveal.initial}
           animate={heroReveal.visible}
-          transition={{ duration: 0.42, ease: landingEaseOut, delay: 0.08 }}
-          className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg"
+          transition={revealTransition({
+            duration: 0.42,
+            delay: 0.08,
+            prefersReducedMotion,
+          })}
+          className="mt-7 w-full max-w-96 text-pretty text-base leading-7 text-muted-foreground sm:max-w-2xl sm:text-lg sm:leading-relaxed"
         >
           {m.hero_description()}
         </motion.p>
@@ -64,8 +81,12 @@ export function Hero() {
         <motion.div
           initial={heroReveal.initial}
           animate={heroReveal.visible}
-          transition={{ duration: 0.42, ease: landingEaseOut, delay: 0.12 }}
-          className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
+          transition={revealTransition({
+            duration: 0.42,
+            delay: 0.12,
+            prefersReducedMotion,
+          })}
+          className="mt-10 flex flex-col items-center gap-3.5 sm:flex-row"
         >
           <Button
             render={<a href={hrefs.contact} />}

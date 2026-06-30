@@ -18,7 +18,11 @@ import {
 } from "@/components/ui/hover-card";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type Step = {
@@ -83,8 +87,9 @@ function getSteps(): Step[] {
 }
 
 export function DataFlow() {
-  const headingReveal = revealTransform(18);
-  const reveal = revealTransform(14);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const headingReveal = revealTransform(18, prefersReducedMotion);
+  const reveal = revealTransform(14, prefersReducedMotion);
   const steps = getSteps();
   const { ids } = getLandingAnchors();
 
@@ -99,7 +104,10 @@ export function DataFlow() {
           whileInView={headingReveal.visible}
           style={headingReveal.initial}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.38, ease: landingEaseOut }}
+          transition={revealTransition({
+            duration: 0.38,
+            prefersReducedMotion,
+          })}
           className="max-w-2xl"
         >
           <SectionKicker>{m.flow_kicker()}</SectionKicker>
@@ -118,11 +126,11 @@ export function DataFlow() {
               initial={reveal.initial}
               whileInView={reveal.visible}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{
+              transition={revealTransition({
                 duration: 0.32,
-                ease: landingEaseOut,
                 delay: i * 0.05,
-              }}
+                prefersReducedMotion,
+              })}
               className="relative md:px-3"
             >
               {i < steps.length - 1 && (

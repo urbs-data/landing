@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { buildContactEmailHref, CONTACT_EMAIL } from "../lib/contact-email";
-import { landingEaseOut, revealTransform } from "./animation";
+import {
+  revealTransform,
+  revealTransition,
+  usePrefersReducedMotion,
+} from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 export function CTA() {
-  const reveal = revealTransform(16);
-  const itemReveal = revealTransform(10);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const reveal = revealTransform(16, prefersReducedMotion);
+  const itemReveal = revealTransform(10, prefersReducedMotion);
   const contactEmailHref = buildContactEmailHref({
     subject: m.contact_email_subject(),
     body: m.contact_email_body(),
@@ -48,7 +53,10 @@ export function CTA() {
             initial={reveal.initial}
             whileInView={reveal.visible}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.36, ease: landingEaseOut }}
+            transition={revealTransition({
+              duration: 0.36,
+              prefersReducedMotion,
+            })}
             className="max-w-xl"
           >
             <SectionKicker>{m.contact_kicker()}</SectionKicker>
@@ -66,11 +74,11 @@ export function CTA() {
                   initial={itemReveal.initial}
                   whileInView={itemReveal.visible}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{
+                  transition={revealTransition({
                     duration: 0.28,
                     delay: 0.08 + index * 0.04,
-                    ease: landingEaseOut,
-                  }}
+                    prefersReducedMotion,
+                  })}
                   className="flex items-start gap-3 text-sm text-foreground/85"
                 >
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-175">
@@ -85,7 +93,11 @@ export function CTA() {
               initial={itemReveal.initial}
               whileInView={itemReveal.visible}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.28, delay: 0.2, ease: landingEaseOut }}
+              transition={revealTransition({
+                duration: 0.28,
+                delay: 0.2,
+                prefersReducedMotion,
+              })}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Button
@@ -121,11 +133,11 @@ export function CTA() {
                     initial={itemReveal.initial}
                     whileInView={itemReveal.visible}
                     viewport={{ once: true, margin: "-60px" }}
-                    transition={{
+                    transition={revealTransition({
                       duration: 0.3,
                       delay: index * 0.055,
-                      ease: landingEaseOut,
-                    }}
+                      prefersReducedMotion,
+                    })}
                     className="flex items-start gap-4"
                   >
                     <span className="font-mono text-sm text-primary dark:brightness-175">
@@ -145,7 +157,11 @@ export function CTA() {
               initial={itemReveal.initial}
               whileInView={itemReveal.visible}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.28, delay: 0.18, ease: landingEaseOut }}
+              transition={revealTransition({
+                duration: 0.28,
+                delay: 0.18,
+                prefersReducedMotion,
+              })}
               className="mt-4 font-mono text-xs text-muted-foreground"
             >
               {m.contact_response_note()}

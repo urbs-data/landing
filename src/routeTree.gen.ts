@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './features/landing/routes/index'
+import { Route as OgImageDotpngRouteImport } from './features/landing/routes/og-image.png'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgImageDotpngRoute = OgImageDotpngRouteImport.update({
+  id: '/og-image/png',
+  path: '/og-image/png',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/og-image/png'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/og-image/png'
+  id: '__root__' | '/' | '/og-image/png'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OgImageDotpngRoute: typeof OgImageDotpngRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og-image/png': {
+      id: '/og-image/png'
+      path: '/og-image/png'
+      fullPath: '/og-image/png'
+      preLoaderRoute: typeof OgImageDotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OgImageDotpngRoute: OgImageDotpngRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

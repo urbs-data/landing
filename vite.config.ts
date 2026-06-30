@@ -6,6 +6,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
+import { prerenderRoutes, urlPatterns } from "./src/i18n/routing";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
@@ -15,10 +16,12 @@ const config = defineConfig({
       project: "./project.inlang",
       outdir: "./src/paraglide",
       strategy: ["url", "baseLocale"],
+      urlPatterns,
     }),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
     tanstackStart({
+      pages: prerenderRoutes,
       router: {
         virtualRouteConfig: "src/routes.ts",
       },

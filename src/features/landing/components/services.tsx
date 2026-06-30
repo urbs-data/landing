@@ -120,7 +120,7 @@ export function Services() {
                 className="will-change-transform"
               >
                 <div className="flex size-11 items-center justify-center border border-border bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <s.icon className="size-5" />
+                  <s.icon className="size-5 dark:brightness-175" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -132,7 +132,7 @@ export function Services() {
                       key={it}
                       className="flex items-start gap-2.5 text-sm text-foreground/80"
                     >
-                      <span className="mt-1.5 size-1.5 shrink-0 bg-primary" />
+                      <span className="mt-1.5 size-1.5 shrink-0 bg-primary dark:brightness-175" />
                       {it}
                     </li>
                   ))}

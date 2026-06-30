@@ -148,7 +148,7 @@ export function DataFlow() {
               {i < steps.length - 1 && (
                 <svg
                   aria-hidden="true"
-                  className="absolute left-1/2 top-6 hidden h-px w-full text-primary md:block"
+                  className="absolute left-1/2 top-6 hidden h-px w-full text-primary dark:brightness-175 md:block"
                   preserveAspectRatio="none"
                   viewBox="0 0 100 2"
                 >
@@ -168,7 +168,7 @@ export function DataFlow() {
               <div className="relative z-10 flex items-start gap-4 md:flex-col md:items-center md:text-center">
                 <div className="flex shrink-0 flex-col items-center">
                   <div className="flex size-12 items-center justify-center border border-border bg-card text-primary shadow-sm">
-                    <s.icon className="size-5" />
+                    <s.icon className="size-5 dark:brightness-175" />
                   </div>
                 </div>
 

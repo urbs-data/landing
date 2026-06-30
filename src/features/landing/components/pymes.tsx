@@ -69,7 +69,7 @@ export function Pymes() {
                 }}
                 className="flex items-start gap-3 will-change-transform"
               >
-                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-200">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-175">
                   <Check className="size-3.5" />
                 </span>
                 <p className="text-sm leading-relaxed text-foreground/85">

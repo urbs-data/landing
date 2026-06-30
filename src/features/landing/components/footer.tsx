@@ -45,7 +45,7 @@ export function Footer() {
             </p>
             <a
               href={contactEmailHref}
-              className="mt-4 inline-block font-mono text-sm text-primary hover:underline dark:brightness-200"
+              className="mt-4 inline-block font-mono text-sm text-primary hover:underline dark:brightness-175"
             >
               {CONTACT_EMAIL}
             </a>
@@ -71,7 +71,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 sm:flex-row sm:items-center">
-          <p className="text-xs text-muted-foreground">
+          <p className="font-mono text-xs text-muted-foreground">
             {m.footer_rights({ year: new Date().getFullYear() })}
           </p>
           <p className="font-mono text-xs text-muted-foreground">

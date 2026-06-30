@@ -20,10 +20,10 @@ export function Hero() {
     >
       <div className="absolute inset-x-0 bottom-0 top-16 -z-10">
         <ConnectionsCanvas
-          className="size-full [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_5rem)] mask-[linear-gradient(to_bottom,transparent,black_5rem)]"
+          className="size-full [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_16rem,black_calc(100%-16rem),transparent),linear-gradient(to_right,transparent,black_16rem,black_calc(100%-16rem),transparent)] mask-[linear-gradient(to_bottom,transparent,black_16rem,black_calc(100%-16rem),transparent),linear-gradient(to_right,transparent,black_16rem,black_calc(100%-16rem),transparent)] [-webkit-mask-composite:source-in] mask-intersect"
           density={2}
         />
-        <div className="absolute inset-0 bg-linear-to-b from-background/40 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-linear-to-b from-background/15 via-background/30 to-background/60 dark:hidden" />
       </div>
 
       <div className="mx-auto flex min-h-svh max-w-6xl flex-col items-center justify-center px-4 pb-16 pt-28 text-center sm:px-6 sm:pt-32">
@@ -34,7 +34,7 @@ export function Hero() {
           transition={{ duration: 0.36, ease: landingEaseOut }}
           className="inline-flex items-center gap-2 border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
         >
-          <Sparkles className="size-3.5 text-primary" />
+          <Sparkles className="size-3.5 text-primary dark:brightness-175" />
           <span className="sm:hidden">{m.hero_kicker_short()}</span>
           <span className="hidden sm:inline">{m.hero_kicker()}</span>
         </motion.a>
@@ -46,7 +46,9 @@ export function Hero() {
           className="mt-6 max-w-5xl text-balance font-heading text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
         >
           {m.hero_title_prefix()}{" "}
-          <span className="text-primary">{m.hero_title_highlight()}</span>{" "}
+          <span className="text-primary dark:brightness-175">
+            {m.hero_title_highlight()}
+          </span>{" "}
           {m.hero_title_suffix()}
         </motion.h1>
 

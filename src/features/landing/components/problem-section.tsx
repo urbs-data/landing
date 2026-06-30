@@ -82,7 +82,7 @@ export function ProblemSection() {
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="flex size-8 items-center justify-center border border-border bg-accent text-primary transition-colors duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:bg-primary group-hover:text-primary-foreground">
-                    <problem.icon className="size-4" />
+                    <problem.icon className="size-4 dark:brightness-175" />
                   </span>
                   <span className="font-mono text-xs text-muted-foreground">
                     {problem.tag}

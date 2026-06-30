@@ -8,7 +8,7 @@ export function UrbsIcon({ className }: { className?: string }) {
       height={24}
       viewBox="0 0 24 24"
       fill="none"
-      className={cn("text-primary", className)}
+      className={cn("text-primary dark:brightness-175", className)}
     >
       <title>Logo</title>
       <path

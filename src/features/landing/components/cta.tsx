@@ -73,7 +73,7 @@ export function CTA() {
                   }}
                   className="flex items-start gap-3 text-sm text-foreground/85"
                 >
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-200">
+                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center bg-success/15 text-success dark:brightness-175">
                     <Check className="size-3.5" />
                   </span>
                   <span>{benefit}</span>
@@ -128,7 +128,7 @@ export function CTA() {
                     }}
                     className="flex items-start gap-4"
                   >
-                    <span className="font-mono text-sm text-primary dark:brightness-200">
+                    <span className="font-mono text-sm text-primary dark:brightness-175">
                       {step.tag}
                     </span>
                     <div>

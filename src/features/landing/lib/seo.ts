@@ -8,8 +8,8 @@ const CONTACT_EMAIL = "hola@urbsdata.com";
 const LOGO_URL = `${SITE_URL}/web-app-manifest-512x512.png`;
 const ES_URL = `${SITE_URL}/`;
 const EN_URL = `${SITE_URL}/en/`;
-const ES_OG_IMAGE_URL = `${SITE_URL}/og-image/png`;
-const EN_OG_IMAGE_URL = `${SITE_URL}/en/og-image/png`;
+const ES_OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
+const EN_OG_IMAGE_URL = `${SITE_URL}/en/og-image.png`;
 
 const localeMetadata: Record<
   SupportedLocale,

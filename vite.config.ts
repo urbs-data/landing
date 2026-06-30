@@ -36,6 +36,12 @@ const config = defineConfig({
       presets: [reactCompilerPreset()],
     }),
   ],
+  server: {
+    allowedHosts: [
+      "urbs-landing-page.local",
+      "urbs-landing-page-18.localcan.dev",
+    ],
+  },
 });
 
 export default config;

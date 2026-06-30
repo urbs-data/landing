@@ -1,8 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/ibm-plex-sans";
 @import "@fontsource-variable/instrument-sans";
-@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/pitagon-sans-mono/latin-400.css";
+@import "@fontsource/pitagon-sans-mono/latin-500.css";
+@import "@fontsource/pitagon-sans-mono/latin-600.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -167,8 +169,8 @@
 }
 
 @theme inline {
-    --font-sans: "Inter Variable", sans-serif;
-    --font-mono: "JetBrains Mono Variable", monospace;
+    --font-sans: "IBM Plex Sans Variable", sans-serif;
+    --font-mono: "Pitagon Sans Mono", monospace;
     --font-heading: "Instrument Sans Variable", sans-serif;
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);

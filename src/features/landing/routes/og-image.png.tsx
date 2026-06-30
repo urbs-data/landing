@@ -12,35 +12,19 @@ const instrumentSansUrl = new URL(
   "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2",
   import.meta.url,
 );
-const interUrl = new URL(
-  "../../../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
-  import.meta.url,
-);
-
 let rendererPromise: Promise<Renderer> | undefined;
 
 async function getOgRenderer() {
   rendererPromise ??= (async () => {
     const renderer = new Renderer();
-    const [instrumentSans, inter] = await Promise.all([
-      readFile(instrumentSansUrl),
-      readFile(interUrl),
-    ]);
+    const instrumentSans = await readFile(instrumentSansUrl);
 
-    await Promise.all([
-      renderer.registerFont({
-        name: "Instrument Sans Variable",
-        data: instrumentSans,
-        weight: 500,
-        style: "normal",
-      }),
-      renderer.registerFont({
-        name: "Inter Variable",
-        data: inter,
-        weight: 500,
-        style: "normal",
-      }),
-    ]);
+    await renderer.registerFont({
+      name: "Instrument Sans Variable",
+      data: instrumentSans,
+      weight: 500,
+      style: "normal",
+    });
 
     return renderer;
   })();
@@ -60,7 +44,7 @@ export const Route = createFileRoute("/og-image/png")({
           height: HEIGHT,
           format: "png",
           lang: getLocale(),
-          fontFamilies: ["Instrument Sans Variable", "Inter Variable"],
+          fontFamilies: ["Instrument Sans Variable"],
           headers: {
             "Cache-Control":
               "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",

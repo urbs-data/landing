@@ -54,7 +54,7 @@ function HeaderNavigationLinks({
             className={cn(
               "text-muted-foreground hover:text-foreground",
               variant === "desktop"
-                ? "h-9 px-3 py-2"
+                ? "h-8 rounded-4xl px-2.5 py-0 text-sm font-medium"
                 : "w-full rounded-xl px-0 py-2.5 hover:bg-transparent focus:bg-transparent",
             )}
           >

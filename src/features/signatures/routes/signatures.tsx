@@ -16,7 +16,7 @@ function SignaturesRoute() {
       description={m.signatures_gate_description()}
     >
       <Header />
-      <main className="bg-background pb-16 pt-28 text-foreground sm:pt-36 lg:pb-24 lg:pt-40">
+      <main className="bg-background pb-16 pt-24 text-foreground sm:pt-32 lg:pb-24 lg:pt-36">
         <section className="mx-auto max-w-6xl px-4 sm:px-6">
           <p className="font-medium text-muted-foreground text-sm">
             {m.signatures_kicker()}

@@ -87,6 +87,7 @@ export function getHomeJsonLd(locale: SupportedLocale) {
           "Data Engineering",
           "Business Intelligence",
           "Artificial Intelligence",
+          "Software Development",
           "Automation",
           "ETL",
           "BigQuery",
@@ -138,6 +139,7 @@ export function getHomeJsonLd(locale: SupportedLocale) {
         serviceType: [
           "Data Engineering",
           "Artificial Intelligence",
+          "Software Development",
           "Automation",
           "Business Intelligence",
         ],

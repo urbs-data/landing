@@ -6,6 +6,7 @@ import {
   getSupportedLocale,
   stringifyJsonLd,
 } from "#/features/landing/lib/seo";
+import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 import appCss from "../styles.css?url";
 
@@ -199,16 +200,16 @@ function NotFoundPage() {
       <section className="mx-auto max-w-md text-center">
         <p className="font-medium text-muted-foreground text-sm">404</p>
         <h1 className="mt-3 font-semibold text-3xl tracking-tight">
-          Pagina no encontrada
+          {m.not_found_title()}
         </h1>
         <p className="mt-4 text-muted-foreground">
-          La ruta que intentaste abrir no existe o fue movida.
+          {m.not_found_description()}
         </p>
         <a
           className="mt-8 inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           href="/"
         >
-          Volver al inicio
+          {m.not_found_home()}
         </a>
       </section>
     </main>

@@ -50,6 +50,14 @@ export const translatedPathnames = createTranslatedPathnames({
     en: "/",
     es: "/",
   },
+  "/presentations": {
+    en: "/presentations",
+    es: "/presentations",
+  },
+  "/signatures": {
+    en: "/signatures",
+    es: "/signatures",
+  },
 });
 
 const defaultLocalizedPathPattern: TranslatedPathname = {

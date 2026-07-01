@@ -9,9 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignaturesRouteImport } from './features/signatures/routes/signatures'
+import { Route as PresentationsRouteImport } from './features/presentations/routes/presentations'
 import { Route as IndexRouteImport } from './features/landing/routes/index'
 import { Route as OgImageDotpngRouteImport } from './features/landing/routes/og-image.png'
 
+const SignaturesRoute = SignaturesRouteImport.update({
+  id: '/signatures',
+  path: '/signatures',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresentationsRoute = PresentationsRouteImport.update({
+  id: '/presentations',
+  path: '/presentations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -25,32 +37,54 @@ const OgImageDotpngRoute = OgImageDotpngRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/presentations': typeof PresentationsRoute
+  '/signatures': typeof SignaturesRoute
   '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/presentations': typeof PresentationsRoute
+  '/signatures': typeof SignaturesRoute
   '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/presentations': typeof PresentationsRoute
+  '/signatures': typeof SignaturesRoute
   '/og-image/png': typeof OgImageDotpngRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/og-image/png'
+  fullPaths: '/' | '/presentations' | '/signatures' | '/og-image/png'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/og-image/png'
-  id: '__root__' | '/' | '/og-image/png'
+  to: '/' | '/presentations' | '/signatures' | '/og-image/png'
+  id: '__root__' | '/' | '/presentations' | '/signatures' | '/og-image/png'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PresentationsRoute: typeof PresentationsRoute
+  SignaturesRoute: typeof SignaturesRoute
   OgImageDotpngRoute: typeof OgImageDotpngRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signatures': {
+      id: '/signatures'
+      path: '/signatures'
+      fullPath: '/signatures'
+      preLoaderRoute: typeof SignaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presentations': {
+      id: '/presentations'
+      path: '/presentations'
+      fullPath: '/presentations'
+      preLoaderRoute: typeof PresentationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -70,6 +104,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PresentationsRoute: PresentationsRoute,
+  SignaturesRoute: SignaturesRoute,
   OgImageDotpngRoute: OgImageDotpngRoute,
 }
 export const routeTree = rootRouteImport

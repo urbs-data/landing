@@ -1,5 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 import { useIsHydrated } from "@/hooks/use-is-hydrated";
+import { m } from "@/paraglide/messages";
 import { useManualRouteActivity } from "./route-activity";
 
 export function RouteActivityIndicator() {
@@ -22,7 +23,7 @@ export function RouteActivityIndicator() {
       data-visible={visible ? "true" : "false"}
       role="status"
     >
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only">{m.loading_label()}</span>
     </div>
   );
 }

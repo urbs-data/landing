@@ -1,4 +1,5 @@
 import { m } from "@/paraglide/messages";
+import { localizeHref } from "@/paraglide/runtime";
 
 export function getLandingAnchors() {
   const ids = {
@@ -10,17 +11,18 @@ export function getLandingAnchors() {
     pymes: m.anchor_pymes(),
     contact: m.anchor_contact(),
   };
+  const homeHash = (id: string) => localizeHref(`/#${id}`);
 
   return {
     ids,
     hrefs: {
-      top: `#${ids.top}`,
-      problem: `#${ids.problem}`,
-      services: `#${ids.services}`,
-      flow: `#${ids.flow}`,
-      clients: `#${ids.clients}`,
-      pymes: `#${ids.pymes}`,
-      contact: `#${ids.contact}`,
+      top: homeHash(ids.top),
+      problem: homeHash(ids.problem),
+      services: homeHash(ids.services),
+      flow: homeHash(ids.flow),
+      clients: homeHash(ids.clients),
+      pymes: homeHash(ids.pymes),
+      contact: homeHash(ids.contact),
     },
   };
 }

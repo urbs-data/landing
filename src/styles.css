@@ -3,9 +3,7 @@
 @import "@fontsource-variable/ibm-plex-sans";
 @import "@fontsource-variable/instrument-sans";
 @import "@fontsource-variable/syne";
-@import "@fontsource/pitagon-sans-mono/latin-400.css";
-@import "@fontsource/pitagon-sans-mono/latin-500.css";
-@import "@fontsource/pitagon-sans-mono/latin-600.css";
+@import "@fontsource/pitagon-sans-mono";
 
 @custom-variant dark (&:is(.dark *));
 

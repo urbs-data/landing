@@ -84,7 +84,7 @@ export function getHomeJsonLd(locale: SupportedLocale) {
           },
         ],
         knowsAbout: [
-          "Data Warehousing",
+          "Data Engineering",
           "Business Intelligence",
           "Artificial Intelligence",
           "Automation",
@@ -136,7 +136,7 @@ export function getHomeJsonLd(locale: SupportedLocale) {
           "@id": `${SITE_URL}/#organization`,
         },
         serviceType: [
-          "Data Warehousing",
+          "Data Engineering",
           "Artificial Intelligence",
           "Automation",
           "Business Intelligence",

@@ -1,6 +1,6 @@
 # Urbs Data Landing
 
-Landing page for Urbs Data, a data consultancy focused on data warehousing, artificial intelligence, automation, and Business Intelligence.
+Landing page for Urbs Data, a data consultancy focused on data engineering, artificial intelligence, automation, and Business Intelligence.
 
 The site explains how Urbs Data helps companies centralize scattered data, build reliable metrics, automate manual work, and turn information into better decisions.
 

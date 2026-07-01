@@ -1,11 +1,17 @@
 "use client";
 
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, FileText, Menu, Type, X } from "lucide-react";
 import * as motion from "motion/react-client";
 import { useEffect, useRef, useState } from "react";
 import { LocaleDropdown } from "#/components/locale-dropdown";
 import { ThemeToggle } from "#/components/theme-toggle";
 import { Button } from "#/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "#/components/ui/context-menu";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -19,6 +25,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "#/components/ui/sheet";
+import { UrbsIcon } from "#/components/urbs-icon";
 import { UrbsLogo } from "#/components/urbs-logo";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
@@ -116,6 +123,50 @@ function MobileNavigation({
   );
 }
 
+function HeaderLogo() {
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger className="inline-flex">
+        <UrbsLogo />
+      </ContextMenuTrigger>
+      <ContextMenuContent
+        side="bottom"
+        align="start"
+        sideOffset={8}
+        className="min-w-64 rounded-lg p-1.5"
+      >
+        <ContextMenuItem
+          render={
+            <a href="/urbs-icon.svg" download="urbs-icon.svg">
+              <UrbsIcon className="size-4 text-foreground dark:brightness-100" />
+              Download Icon as SVG
+            </a>
+          }
+        />
+        <ContextMenuItem
+          render={
+            <a href="/urbs-logo.svg" download="urbs-logo.svg">
+              <Type className="size-4" />
+              Download Logo as SVG
+            </a>
+          }
+        />
+        <ContextMenuItem
+          render={
+            <a
+              href="/urbs-brand-guidelines.pdf"
+              download="urbs-brand-guidelines.pdf"
+            >
+              <FileText className="size-4" />
+              Brand Guidelines
+            </a>
+          }
+        />
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+}
+
 export function Header() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -179,7 +230,7 @@ export function Header() {
           )}
         >
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-            <UrbsLogo />
+            <HeaderLogo />
             <NavigationMenu
               className="hidden flex-none md:flex"
               aria-label={m.nav_primary_label()}

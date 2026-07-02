@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownToLine, FileText, Palette, Presentation } from "lucide-react";
+import {
+  ArrowDownToLine,
+  FileText,
+  Palette,
+  Presentation,
+  Type,
+} from "lucide-react";
 import { OtpAccessGate } from "#/components/otp-access-gate";
 import { Button } from "#/components/ui/button";
 import {
@@ -16,6 +22,21 @@ import { getPresentationTemplateCatalog } from "#/features/presentations/lib/tem
 import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
+
+const PRESENTATION_FONT_LINKS = [
+  {
+    name: "Instrument Sans",
+    href: "https://fontsource.org/fonts/instrument-sans",
+  },
+  {
+    name: "IBM Plex Sans",
+    href: "https://fontsource.org/fonts/ibm-plex-sans",
+  },
+  {
+    name: "Pitagon Sans Mono",
+    href: "https://fontsource.org/fonts/pitagon-sans-mono",
+  },
+];
 
 export const Route = createFileRoute("/presentations")({
   loader: () => getEmployeeAccess(),
@@ -58,6 +79,27 @@ function PresentationsRoute() {
             </h1>
             <p className="text-muted-foreground text-base leading-7">
               {m.presentations_description()}
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-3 border border-border bg-secondary/40 p-4 text-muted-foreground text-sm leading-6">
+            <Type className="mt-0.5 size-4 shrink-0 text-primary" />
+            <p>
+              {m.presentations_fonts_note_intro()}{" "}
+              {PRESENTATION_FONT_LINKS.map((font, index) => (
+                <span key={font.href}>
+                  {index > 0 ? ", " : ""}
+                  <a
+                    href={font.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+                  >
+                    {font.name}
+                  </a>
+                </span>
+              ))}
+              . {m.presentations_fonts_note_outro()}
             </p>
           </div>
 

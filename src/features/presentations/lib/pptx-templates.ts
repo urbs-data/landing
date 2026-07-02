@@ -1704,6 +1704,27 @@ async function embedFonts(bytes: Uint8Array): Promise<Uint8Array> {
     return entry.async("string");
   };
 
+  const activateSlideNumbers = async () => {
+    let master = await readXml("ppt/slideMasters/slideMaster1.xml");
+
+    // PptxGenJS hardcodes sldNum="0" in the real slide master, which prevents
+    // PowerPoint from applying layout-level slide numbers to newly inserted
+    // slides. Keep the number fields in the layouts, but remove the global
+    // master field so cover-style layouts do not inherit one accidentally.
+    master = master.replace(
+      /<p:sp>\s*<p:nvSpPr>\s*<p:cNvPr id="25" name="Slide Number Placeholder 0"[\s\S]*?<\/p:sp>/,
+      "",
+    );
+    master = master.replace(
+      /<p:hf\b([^>]*)\bsldNum="0"([^>]*)\/>/,
+      '<p:hf$1sldNum="1"$2/>',
+    );
+
+    zip.file("ppt/slideMasters/slideMaster1.xml", master);
+  };
+
+  await activateSlideNumbers();
+
   // Declare the font part type.
   let ct = await readXml("[Content_Types].xml");
   if (!ct.includes('Extension="fntdata"')) {

@@ -8,6 +8,11 @@ import {
   isPresentationTemplateMode,
 } from "./features/presentations/lib/template-catalog";
 import { defaultLocale, isLocale } from "./i18n";
+import {
+  createEmployeeAccessCookie,
+  isEmployeeAccessGrantedFromCookieHeader,
+  verifyEmployeeAccessCode,
+} from "./lib/employee-access";
 import { paraglideMiddleware } from "./paraglide/server.js";
 
 async function handleEmployeeAccess(req: Request) {
@@ -15,20 +20,28 @@ async function handleEmployeeAccess(req: Request) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const configuredCode = process.env.SIGNATURES_PRESENTATIONS_ACCESS_CODE;
-
-  if (!configuredCode) {
-    return Response.json({ ok: false }, { status: 503 });
-  }
-
   try {
     const body = (await req.json()) as { code?: unknown };
-    const submittedCode = typeof body.code === "string" ? body.code : "";
-    const ok =
-      /^[a-zA-Z0-9]{6}$/.test(submittedCode) &&
-      submittedCode === configuredCode;
+    const result = verifyEmployeeAccessCode(body.code);
 
-    return Response.json({ ok }, { status: ok ? 200 : 401 });
+    if (result === "unavailable") {
+      return Response.json({ ok: false }, { status: 503 });
+    }
+
+    if (result === "invalid") {
+      return Response.json({ ok: false }, { status: 401 });
+    }
+
+    return Response.json(
+      { ok: true },
+      {
+        headers: {
+          "Set-Cookie": await createEmployeeAccessCookie({
+            secure: new URL(req.url).protocol === "https:",
+          }),
+        },
+      },
+    );
   } catch {
     return Response.json({ ok: false }, { status: 400 });
   }
@@ -37,6 +50,14 @@ async function handleEmployeeAccess(req: Request) {
 async function handlePresentationTemplate(req: Request, url: URL) {
   if (req.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
+  }
+
+  const hasAccess = await isEmployeeAccessGrantedFromCookieHeader(
+    req.headers.get("Cookie"),
+  );
+
+  if (!hasAccess) {
+    return new Response("Unauthorized", { status: 401 });
   }
 
   const match = url.pathname.match(

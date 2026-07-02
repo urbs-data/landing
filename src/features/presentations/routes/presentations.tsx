@@ -13,10 +13,12 @@ import {
 import { Footer } from "#/features/landing/components/footer";
 import { Header } from "#/features/landing/components/header";
 import { getPresentationTemplateCatalog } from "#/features/presentations/lib/template-catalog";
+import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 
 export const Route = createFileRoute("/presentations")({
+  loader: () => getEmployeeAccess(),
   component: PresentationsRoute,
 });
 
@@ -34,11 +36,13 @@ function TemplatePreview({ templateKey }: { templateKey: string }) {
 }
 
 function PresentationsRoute() {
+  const { hasAccess } = Route.useLoaderData();
   const locale = getLocale();
   const templates = getPresentationTemplateCatalog();
 
   return (
     <OtpAccessGate
+      hasAccess={hasAccess}
       title={m.presentations_gate_title()}
       description={m.presentations_gate_description()}
     >

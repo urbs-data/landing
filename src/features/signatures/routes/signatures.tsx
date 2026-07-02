@@ -2,16 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { OtpAccessGate } from "#/components/otp-access-gate";
 import { Footer } from "#/features/landing/components/footer";
 import { Header } from "#/features/landing/components/header";
+import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
 import { SignatureBuilder } from "../components/signature-builder";
 
 export const Route = createFileRoute("/signatures")({
+  loader: () => getEmployeeAccess(),
   component: SignaturesRoute,
 });
 
 function SignaturesRoute() {
+  const { hasAccess } = Route.useLoaderData();
+
   return (
     <OtpAccessGate
+      hasAccess={hasAccess}
       title={m.signatures_gate_title()}
       description={m.signatures_gate_description()}
     >

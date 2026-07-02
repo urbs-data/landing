@@ -1,19 +1,14 @@
 "use client";
 
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useRouter } from "@tanstack/react-router";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 import {
   ArrowRight,
   LoaderCircle,
   LockKeyhole,
   ShieldCheck,
 } from "lucide-react";
-import {
-  type FormEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { type FormEvent, type ReactNode, useCallback, useState } from "react";
 import { Button } from "#/components/ui/button";
 import {
   InputOTP,
@@ -24,38 +19,26 @@ import { UrbsLogo } from "#/components/urbs-logo";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
 
-const SESSION_KEY = "urbs:employee-access";
 const ACCESS_ENDPOINT = "/api/employee-access/verify";
 
-type AccessState =
-  | "resolving"
-  | "idle"
-  | "checking"
-  | "granted"
-  | "denied"
-  | "unavailable";
+type AccessState = "idle" | "checking" | "granted" | "denied" | "unavailable";
 
 export function OtpAccessGate({
+  hasAccess,
   title,
   description,
   children,
   className,
 }: {
+  hasAccess: boolean;
   title: string;
   description: string;
   children: ReactNode;
   className?: string;
 }) {
+  const router = useRouter();
   const [value, setValue] = useState("");
-  const [state, setState] = useState<AccessState>("resolving");
-
-  useEffect(() => {
-    setState(
-      window.sessionStorage.getItem(SESSION_KEY) === "granted"
-        ? "granted"
-        : "idle",
-    );
-  }, []);
+  const [state, setState] = useState<AccessState>("idle");
 
   const verifyCode = useCallback(
     async (code: string) => {
@@ -73,8 +56,8 @@ export function OtpAccessGate({
         });
 
         if (response.ok) {
-          window.sessionStorage.setItem(SESSION_KEY, "granted");
           setState("granted");
+          await router.invalidate();
           return;
         }
 
@@ -84,7 +67,7 @@ export function OtpAccessGate({
         setState("unavailable");
       }
     },
-    [state],
+    [router, state],
   );
 
   function verifyAccess(event: FormEvent<HTMLFormElement>) {
@@ -92,23 +75,7 @@ export function OtpAccessGate({
     void verifyCode(value);
   }
 
-  if (state === "granted") return children;
-
-  if (state === "resolving") {
-    return (
-      <main
-        className={cn(
-          "flex min-h-dvh items-center justify-center bg-background px-4 py-24 text-foreground sm:px-6",
-          className,
-        )}
-      >
-        <section className="flex items-center gap-3 text-muted-foreground">
-          <LoaderCircle className="size-4 animate-spin" />
-          <span className="text-sm">{m.otp_resolving()}</span>
-        </section>
-      </main>
-    );
-  }
+  if (hasAccess || state === "granted") return children;
 
   const message =
     state === "denied"
@@ -146,11 +113,11 @@ export function OtpAccessGate({
         <form className="mt-8 space-y-5" onSubmit={verifyAccess}>
           <InputOTP
             maxLength={6}
-            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-            inputMode="text"
+            pattern={REGEXP_ONLY_DIGITS}
+            inputMode="numeric"
             value={value}
             onChange={(nextValue) => {
-              const code = nextValue.replace(/[^a-zA-Z0-9]/g, "");
+              const code = nextValue.replace(/\D/g, "");
 
               setValue(code);
               if (state === "denied") setState("idle");

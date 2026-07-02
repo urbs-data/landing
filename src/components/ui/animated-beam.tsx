@@ -1,426 +1,285 @@
-"use client";
+import * as React from "react";
+import { cn } from "#/lib/utils.ts";
 
-import { motion, useReducedMotion } from "motion/react";
-import {
-  type ComponentPropsWithoutRef,
-  createContext,
-  type ReactNode,
-  type RefObject,
-  useCallback,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
-import { cn } from "@/lib/utils";
-
-type BeamAnchor = "center" | "top" | "bottom" | "left" | "right";
-
-type BeamStore = {
-  containerRef: RefObject<HTMLDivElement | null>;
-  register: (id: string, el: HTMLElement | null) => void;
-  getNode: (id: string) => HTMLElement | null;
-  subscribe: (callback: () => void) => () => void;
-  getRevision: () => number;
-  notify: () => void;
-};
-
-const BeamFlowContext = createContext<BeamStore | null>(null);
-
-function useBeamFlow(component: string): BeamStore {
-  const store = useContext(BeamFlowContext);
-  if (!store) {
-    throw new Error(`<${component}> must be rendered inside <BeamFlow>.`);
-  }
-  return store;
-}
-
-function createBeamStore(
-  containerRef: RefObject<HTMLDivElement | null>,
-): BeamStore {
-  const nodes = new Map<string, HTMLElement>();
-  const listeners = new Set<() => void>();
-  let revision = 0;
-
-  const emit = () => {
-    revision += 1;
-    for (const listener of listeners) listener();
-  };
-
-  return {
-    containerRef,
-    register(id, el) {
-      if (el) {
-        nodes.set(id, el);
-      } else {
-        nodes.delete(id);
-      }
-      emit();
-    },
-    getNode: (id) => nodes.get(id) ?? null,
-    subscribe(callback) {
-      listeners.add(callback);
-      return () => {
-        listeners.delete(callback);
-      };
-    },
-    getRevision: () => revision,
-    notify: emit,
-  };
-}
-
-type BeamFlowProps = ComponentPropsWithoutRef<"div">;
-
-function BeamFlowRoot({ className, children, ...props }: BeamFlowProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const store = useMemo(() => createBeamStore(containerRef), []);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleResize = () => store.notify();
-    const observer = new ResizeObserver(handleResize);
-    observer.observe(container);
-    window.addEventListener("resize", handleResize);
-    // Recompute once layout/fonts have settled.
-    handleResize();
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [store]);
-
-  return (
-    <BeamFlowContext.Provider value={store}>
-      <div ref={containerRef} className={cn("relative", className)} {...props}>
-        {children}
-      </div>
-    </BeamFlowContext.Provider>
-  );
-}
-
-type BeamNodeProps = ComponentPropsWithoutRef<"div"> & {
-  /** Unique id referenced by `<BeamFlow.Beam from / to>`. */
-  id: string;
-};
-
-function BeamNode({ id, className, children, ...props }: BeamNodeProps) {
-  const store = useBeamFlow("BeamFlow.Node");
-  const setRef = useCallback(
-    (el: HTMLDivElement | null) => store.register(id, el),
-    [store, id],
-  );
-
-  return (
-    <div
-      ref={setRef}
-      data-beam-node={id}
-      className={cn("relative", className)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-type BeamProps = {
-  /** Source node id. */
-  from: string;
-  /** Target node id. */
-  to: string;
-  className?: string;
-  /** Where on the source/target node the beam attaches. */
-  startAnchor?: BeamAnchor;
-  endAnchor?: BeamAnchor;
-  /** Vertical bend of the path, in px. Positive curves up, negative down. */
+interface AnimatedBeamProps {
+  /** Reference to the container element */
+  containerRef: React.RefObject<HTMLElement | null>;
+  /** Reference to the start element */
+  fromRef: React.RefObject<HTMLElement | null>;
+  /** Reference to the end element */
+  toRef: React.RefObject<HTMLElement | null>;
+  /** Curvature of the beam (-1 to 1, 0 is straight) */
   curvature?: number;
-  /** Reverse the direction the light travels. */
-  reverse?: boolean;
-  /** Seconds for one sweep of the travelling light. */
+  /** Shape of the beam path */
+  lineType?: "curved" | "straight";
+  /** Animation duration in seconds */
   duration?: number;
-  /** Seconds before the first sweep. */
+  /** Delay before animation starts */
   delay?: number;
-  /** Seconds between sweeps. */
-  repeatDelay?: number;
-  /** Render the static rail as a dashed line. */
-  dashed?: boolean;
-  /** When dashed, march the dashes continuously. Set false for a static dashed line. */
-  animateDash?: boolean;
-  /** Static rail color (any CSS color / variable). */
-  pathColor?: string;
+  /** Reverse the animation direction */
+  reverse?: boolean;
+  /** Width of the beam path */
   pathWidth?: number;
-  pathOpacity?: number;
-  /** Travelling light gradient colors. */
+  /** Color of the beam gradient start */
   gradientStartColor?: string;
+  /** Color of the beam gradient end */
   gradientStopColor?: string;
-  /** Fine-tune the attach points after the anchor is resolved, in px. */
+  /** Starting point offset */
   startXOffset?: number;
   startYOffset?: number;
+  /** Ending point offset */
   endXOffset?: number;
   endYOffset?: number;
-};
-
-type Point = { x: number; y: number };
-
-type GradientCoordinates = Record<"x1" | "x2" | "y1" | "y2", string[]>;
-
-type BeamGeometry = {
-  width: number;
-  height: number;
-  d: string;
-  start: Point;
-  end: Point;
-};
-
-function anchorPoint(
-  rect: DOMRect,
-  container: DOMRect,
-  anchor: BeamAnchor,
-): Point {
-  const left = rect.left - container.left;
-  const top = rect.top - container.top;
-  switch (anchor) {
-    case "top":
-      return { x: left + rect.width / 2, y: top };
-    case "bottom":
-      return { x: left + rect.width / 2, y: top + rect.height };
-    case "left":
-      return { x: left, y: top + rect.height / 2 };
-    case "right":
-      return { x: left + rect.width, y: top + rect.height / 2 };
-    default:
-      return { x: left + rect.width / 2, y: top + rect.height / 2 };
-  }
+  className?: string;
 }
 
-function Beam({
-  from,
-  to,
-  className,
-  startAnchor = "center",
-  endAnchor = "center",
+const AnimatedBeam = ({
+  containerRef,
+  fromRef,
+  toRef,
   curvature = 0,
-  reverse = false,
-  duration = 4,
+  lineType = "curved",
+  duration = 2,
   delay = 0,
-  repeatDelay = 0,
-  dashed = false,
-  animateDash = true,
-  pathColor = "currentColor",
+  reverse = false,
   pathWidth = 2,
-  pathOpacity = 0.16,
-  gradientStartColor = "var(--color-primary)",
-  gradientStopColor = "var(--color-primary)",
+  gradientStartColor = "#18181b",
+  gradientStopColor = "#18181b",
   startXOffset = 0,
   startYOffset = 0,
   endXOffset = 0,
   endYOffset = 0,
-}: BeamProps) {
-  const store = useBeamFlow("BeamFlow.Beam");
-  const gradientId = useId();
-  const prefersReducedMotion = useReducedMotion();
-  const revision = useSyncExternalStore(
-    store.subscribe,
-    store.getRevision,
-    () => 0,
-  );
+  className,
+}: AnimatedBeamProps) => {
+  const [pathD, setPathD] = React.useState("");
+  const [svgDimensions, setSvgDimensions] = React.useState({
+    width: 0,
+    height: 0,
+  });
+  const uniqueId = React.useId();
 
-  const [geometry, setGeometry] = useState<BeamGeometry | null>(null);
+  const updatePath = React.useCallback(() => {
+    if (!containerRef.current || !fromRef.current || !toRef.current) return;
 
-  useEffect(() => {
-    const container = store.containerRef.current;
-    const fromEl = store.getNode(from);
-    const toEl = store.getNode(to);
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const fromRect = fromRef.current.getBoundingClientRect();
+    const toRect = toRef.current.getBoundingClientRect();
 
-    if (!container || !fromEl || !toEl) {
-      setGeometry(null);
-      return;
-    }
+    const startX =
+      fromRect.left - containerRect.left + fromRect.width / 2 + startXOffset;
+    const startY =
+      fromRect.top - containerRect.top + fromRect.height / 2 + startYOffset;
+    const endX =
+      toRect.left - containerRect.left + toRect.width / 2 + endXOffset;
+    const endY =
+      toRect.top - containerRect.top + toRect.height / 2 + endYOffset;
 
-    const containerRect = container.getBoundingClientRect();
-    const start = anchorPoint(
-      fromEl.getBoundingClientRect(),
-      containerRect,
-      startAnchor,
-    );
-    const end = anchorPoint(
-      toEl.getBoundingClientRect(),
-      containerRect,
-      endAnchor,
-    );
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
 
-    start.x += startXOffset;
-    start.y += startYOffset;
-    end.x += endXOffset;
-    end.y += endYOffset;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const controlX = midX - dy * curvature;
+    const controlY = midY + dx * curvature;
 
-    const controlX = (start.x + end.x) / 2;
-    const controlY = (start.y + end.y) / 2 - curvature;
-    const d = `M ${start.x},${start.y} Q ${controlX},${controlY} ${end.x},${end.y}`;
-
-    setGeometry({
+    const path =
+      lineType === "straight"
+        ? `M ${startX},${startY} L ${endX},${endY}`
+        : `M ${startX},${startY} Q ${controlX},${controlY} ${endX},${endY}`;
+    setPathD(path);
+    setSvgDimensions({
       width: containerRect.width,
       height: containerRect.height,
-      d,
-      start,
-      end,
     });
   }, [
-    store,
-    revision,
-    from,
-    to,
-    startAnchor,
-    endAnchor,
+    containerRef,
+    fromRef,
+    toRef,
     curvature,
+    lineType,
     startXOffset,
     startYOffset,
     endXOffset,
     endYOffset,
   ]);
 
-  if (!geometry) return null;
+  React.useEffect(() => {
+    updatePath();
 
-  const { start, end } = geometry;
-  // Sweep the light along the dominant axis so vertical branches flow
-  // vertically and horizontal pipelines flow horizontally.
-  const horizontal = Math.abs(end.x - start.x) >= Math.abs(end.y - start.y);
-  const goesPositive = horizontal ? end.x >= start.x : end.y >= start.y;
-  const forward = reverse ? !goesPositive : goesPositive;
+    const resizeObserver = new ResizeObserver(updatePath);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
 
-  const lead: string[] = forward ? ["10%", "110%"] : ["90%", "-10%"];
-  const trail: string[] = forward ? ["0%", "100%"] : ["100%", "0%"];
-  const constant: string[] = ["0%", "0%"];
-  const gradientCoordinates: GradientCoordinates = horizontal
-    ? { x1: lead, x2: trail, y1: constant, y2: constant }
-    : { x1: constant, x2: constant, y1: lead, y2: trail };
+    window.addEventListener("resize", updatePath);
 
-  // Dashed + animateDash → marching ants; otherwise the rail keeps the
-  // travelling-light "rayo" (dashed or solid).
-  const marching = dashed && animateDash && !prefersReducedMotion;
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updatePath);
+    };
+  }, [updatePath, containerRef]);
 
   return (
     <svg
-      aria-hidden="true"
-      fill="none"
-      width={geometry.width}
-      height={geometry.height}
-      viewBox={`0 0 ${geometry.width} ${geometry.height}`}
-      xmlns="http://www.w3.org/2000/svg"
       className={cn(
-        "pointer-events-none absolute left-0 top-0",
-        prefersReducedMotion ? "" : "transform-gpu",
+        "pointer-events-none absolute top-0 left-0 h-full w-full",
         className,
       )}
+      width={svgDimensions.width}
+      height={svgDimensions.height}
+      viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {marching ? (
-        // Dashed + animateDash: a glowing "packet" glides along the dashed pipe.
-        <>
-          <path
-            d={geometry.d}
-            stroke={pathColor}
-            strokeWidth={pathWidth}
-            strokeOpacity={pathOpacity}
-            strokeLinecap="round"
-            strokeDasharray="6 6"
-          />
-          <motion.g
-            style={{ offsetPath: `path("${geometry.d}")` }}
-            initial={{ offsetDistance: reverse ? "100%" : "0%", opacity: 0 }}
-            animate={{
-              offsetDistance: reverse
-                ? ["100%", "88%", "12%", "0%"]
-                : ["0%", "12%", "88%", "100%"],
-              opacity: [0, 1, 1, 0],
+      <defs>
+        {/* Background path gradient */}
+        <linearGradient
+          id={`beam-gradient-bg-${uniqueId}`}
+          gradientUnits="userSpaceOnUse"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="0%"
+        >
+          <stop offset="0%" stopColor={gradientStartColor} stopOpacity="0.1" />
+          <stop offset="50%" stopColor={gradientStartColor} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={gradientStopColor} stopOpacity="0.1" />
+        </linearGradient>
+
+        {/* Animated beam gradient */}
+        <linearGradient
+          id={`beam-gradient-${uniqueId}`}
+          gradientUnits="userSpaceOnUse"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="0%"
+        >
+          <stop offset="0%" stopColor={gradientStartColor} stopOpacity="0" />
+          <stop offset="5%" stopColor={gradientStartColor} stopOpacity="1" />
+          <stop offset="50%" stopColor={gradientStopColor} stopOpacity="1" />
+          <stop offset="95%" stopColor={gradientStopColor} stopOpacity="1" />
+          <stop offset="100%" stopColor={gradientStopColor} stopOpacity="0" />
+        </linearGradient>
+
+        {/* Glow filter */}
+        <filter
+          id={`beam-glow-${uniqueId}`}
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
+        >
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        {/* Mask for animated beam */}
+        <mask id={`beam-mask-${uniqueId}`}>
+          <rect
+            className="beam-mask-rect"
+            x="-100%"
+            y="0"
+            width="50%"
+            height="100%"
+            fill="url(#beam-mask-gradient)"
+            style={{
+              animation: `beam-flow ${duration}s linear infinite`,
+              animationDelay: `${delay}s`,
+              animationDirection: reverse ? "reverse" : "normal",
             }}
-            transition={{
-              duration,
-              delay,
-              ease: "linear",
-              repeat: Number.POSITIVE_INFINITY,
-              repeatDelay,
-              times: [0, 0.12, 0.88, 1],
-            }}
-          >
-            <circle r={7} fill={gradientStartColor} fillOpacity={0.18} />
-            <circle r={3} fill={gradientStartColor} />
-          </motion.g>
-        </>
-      ) : (
-        <>
-          {/* Static rail (dashed when requested) */}
-          <path
-            d={geometry.d}
-            stroke={pathColor}
-            strokeWidth={pathWidth}
-            strokeOpacity={pathOpacity}
-            strokeLinecap="round"
-            strokeDasharray={dashed ? "6 6" : undefined}
           />
-          {prefersReducedMotion ? (
-            // Reduced motion: a calm, static highlight so the link still reads.
-            <path
-              d={geometry.d}
-              stroke={gradientStartColor}
-              strokeWidth={pathWidth}
-              strokeOpacity={0.5}
-              strokeLinecap="round"
-              strokeDasharray={dashed ? "6 6" : undefined}
-            />
-          ) : (
-            // Travelling light ("rayo") over the rail.
-            <>
-              <path
-                d={geometry.d}
-                stroke={`url(#${gradientId})`}
-                strokeWidth={pathWidth}
-                strokeLinecap="round"
-              />
-              <defs>
-                <motion.linearGradient
-                  id={gradientId}
-                  gradientUnits="userSpaceOnUse"
-                  initial={{ x1: "0%", x2: "0%", y1: "0%", y2: "0%" }}
-                  animate={gradientCoordinates}
-                  transition={{
-                    delay,
-                    duration,
-                    ease: [0.16, 1, 0.3, 1],
-                    repeat: Number.POSITIVE_INFINITY,
-                    repeatDelay,
-                  }}
-                >
-                  <stop stopColor={gradientStartColor} stopOpacity="0" />
-                  <stop stopColor={gradientStartColor} />
-                  <stop offset="32.5%" stopColor={gradientStopColor} />
-                  <stop
-                    offset="100%"
-                    stopColor={gradientStopColor}
-                    stopOpacity="0"
-                  />
-                </motion.linearGradient>
-              </defs>
-            </>
-          )}
-        </>
-      )}
+        </mask>
+
+        <linearGradient
+          id="beam-mask-gradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="0%"
+        >
+          <stop offset="0%" stopColor="black" />
+          <stop offset="25%" stopColor="white" />
+          <stop offset="75%" stopColor="white" />
+          <stop offset="100%" stopColor="black" />
+        </linearGradient>
+      </defs>
+
+      {/* Background path */}
+      <path
+        d={pathD}
+        stroke={`url(#beam-gradient-bg-${uniqueId})`}
+        strokeWidth={pathWidth}
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* Animated glowing beam */}
+      <path
+        d={pathD}
+        stroke={`url(#beam-gradient-${uniqueId})`}
+        strokeWidth={pathWidth}
+        strokeLinecap="round"
+        fill="none"
+        filter={`url(#beam-glow-${uniqueId})`}
+        className="animated-beam-path"
+        style={{
+          strokeDasharray: "20 1000",
+          strokeDashoffset: reverse ? "-1000" : "1000",
+          animation: `beam-dash ${duration}s linear infinite`,
+          animationDelay: `${delay}s`,
+          animationDirection: reverse ? "reverse" : "normal",
+        }}
+      />
     </svg>
   );
-}
-
-type BeamFlowComponent = ((props: BeamFlowProps) => ReactNode) & {
-  Node: typeof BeamNode;
-  Beam: typeof Beam;
 };
 
-const BeamFlow = BeamFlowRoot as BeamFlowComponent;
-BeamFlow.Node = BeamNode;
-BeamFlow.Beam = Beam;
+interface BeamContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
 
-export { BeamFlow, BeamNode, Beam };
-export type { BeamAnchor, BeamProps, BeamNodeProps, BeamFlowProps };
+const BeamContainer = React.forwardRef<HTMLDivElement, BeamContainerProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn("relative", className)} {...props}>
+        {children}
+      </div>
+    );
+  },
+);
+BeamContainer.displayName = "BeamContainer";
+
+interface BeamNodeProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+const BeamNode = React.forwardRef<HTMLDivElement, BeamNodeProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "relative z-10 flex items-center justify-center rounded-xl border bg-background p-3 shadow-sm",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
+BeamNode.displayName = "BeamNode";
+
+export {
+  AnimatedBeam,
+  BeamContainer,
+  BeamNode,
+  type AnimatedBeamProps,
+  type BeamContainerProps,
+  type BeamNodeProps,
+};

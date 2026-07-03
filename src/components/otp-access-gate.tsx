@@ -9,13 +9,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { type FormEvent, type ReactNode, useCallback, useState } from "react";
+import { BrandWordmark } from "#/components/brand-wordmark";
 import { Button } from "#/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "#/components/ui/input-otp";
-import { UrbsWordmark } from "#/components/urbs-wordmark";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
 
@@ -93,7 +93,7 @@ export function OtpAccessGate({
     >
       <section className="w-full max-w-115 border border-border bg-card p-6 shadow-sm sm:p-8">
         <div className="flex items-center justify-between gap-4 border-b border-border pb-6">
-          <UrbsWordmark />
+          <BrandWordmark />
           <div className="flex size-10 items-center justify-center border border-border bg-secondary text-primary">
             <LockKeyhole className="size-5" />
           </div>

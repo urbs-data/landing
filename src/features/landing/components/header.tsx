@@ -3,6 +3,7 @@
 import { ArrowRight, FileText, Menu, Type, X } from "lucide-react";
 import * as motion from "motion/react-client";
 import { useEffect, useRef, useState } from "react";
+import { BrandWordmark } from "#/components/brand-wordmark";
 import { LocaleDropdown } from "#/components/locale-dropdown";
 import { ThemeToggle } from "#/components/theme-toggle";
 import { Button } from "#/components/ui/button";
@@ -25,10 +26,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "#/components/ui/sheet";
-import { UrbsLogo } from "#/components/urbs-logo";
-import { UrbsWordmark } from "#/components/urbs-wordmark";
+import { useThemeMode } from "#/hooks/use-theme-mode";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
+import { getLocale } from "#/paraglide/runtime";
 import { getLandingAnchors } from "../lib/anchors";
 import { revealTransition } from "./animation";
 
@@ -124,10 +125,13 @@ function MobileNavigation({
 }
 
 function HeaderLogo() {
+  const { resolvedTheme } = useThemeMode();
+  const theme = resolvedTheme === "dark" ? "dark" : "light";
+
   return (
     <ContextMenu>
       <ContextMenuTrigger className="inline-flex">
-        <UrbsWordmark />
+        <BrandWordmark />
       </ContextMenuTrigger>
       <ContextMenuContent
         side="bottom"
@@ -137,28 +141,36 @@ function HeaderLogo() {
       >
         <ContextMenuItem
           render={
-            <a href="/urbs-logo.svg" download="urbs-logo.svg">
-              <UrbsLogo className="size-4 text-foreground dark:brightness-100" />
-              Download Logo as SVG
-            </a>
-          }
-        />
-        <ContextMenuItem
-          render={
-            <a href="/urbs-wordmark.svg" download="urbs-wordmark.svg">
-              <Type className="size-4" />
-              Download Wordmark as SVG
+            <a href="/brand/logo.svg" download="urbs-logo.svg">
+              <img
+                src="/brand/logo.svg"
+                alt=""
+                aria-hidden="true"
+                className="size-4"
+              />
+              {m.brand_download_logo_svg()}
             </a>
           }
         />
         <ContextMenuItem
           render={
             <a
-              href="/urbs-brand-guidelines.pdf"
-              download="urbs-brand-guidelines.pdf"
+              href={`/brand/wordmark-${theme}.svg`}
+              download="urbs-wordmark.svg"
+            >
+              <Type className="size-4" />
+              {m.brand_download_wordmark_svg()}
+            </a>
+          }
+        />
+        <ContextMenuItem
+          render={
+            <a
+              href={`/urbs-brand-guidelines-${getLocale()}.pdf`}
+              download={`urbs-brand-guidelines-${getLocale()}.pdf`}
             >
               <FileText className="size-4" />
-              Brand Guidelines
+              {m.brand_guidelines()}
             </a>
           }
         />

@@ -129,7 +129,8 @@ function wordmark(mode: PresentationTemplateMode, white = false) {
   return mode === "dark" ? brandAssets.wordmarkDark : brandAssets.wordmarkLight;
 }
 
-const WORDMARK_RATIO = 162 / 54; // asset aspect ratio
+const WORDMARK_RATIO = 367 / 150; // asset aspect ratio (brand/wordmark-*.svg)
+const LOGO_RATIO = 193 / 150; // asset aspect ratio (brand/logo*.svg)
 
 /* -------------------------------------------------------------------------- */
 /*  Slide masters (reusable layouts + brand furniture)                        */
@@ -227,13 +228,15 @@ function defineMasters(
     fontSize: 7.6,
   });
 
+  const watermarkW = 4.2;
+  const watermarkH = watermarkW / LOGO_RATIO;
   const watermark = (dark = false): MasterObject => ({
     image: {
       data: logo(mode, dark),
       x: LAYOUT.width - 3.5,
-      y: LAYOUT.height - 3.5,
-      w: 4.2,
-      h: 4.2,
+      y: LAYOUT.height - watermarkH + 0.7,
+      w: watermarkW,
+      h: watermarkH,
       transparency: dark ? 92 : 90,
     },
   });

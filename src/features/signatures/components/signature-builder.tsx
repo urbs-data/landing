@@ -39,7 +39,7 @@ const themeTokens = {
 };
 
 function getWordmarkPath(mode: SignatureMode) {
-  return `/signatures/urbs-wordmark-${mode}.png`;
+  return `/brand/wordmark-${mode}.png`;
 }
 
 function getAbsoluteWordmarkSrc(mode: SignatureMode) {
@@ -71,8 +71,8 @@ function buildSignatureHtml(signature: Signature) {
     <td style="padding:18px 26px;">
       <table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
         <tr>
-          <td style="width:154px; height:54px; vertical-align:middle;">
-            <img src="${wordmarkSrc}" width="154" height="54" alt="Urbs" style="display:block; width:154px; height:54px; border:0; outline:none; text-decoration:none;">
+          <td style="width:132px; height:54px; vertical-align:middle;">
+            <img src="${wordmarkSrc}" width="132" height="54" alt="Urbs" style="display:block; width:132px; height:54px; border:0; outline:none; text-decoration:none;">
           </td>
           <td style="width:44px; padding-left:24px; padding-right:25px; vertical-align:middle;">
             <div style="width:1px; height:70px; background:${tokens.divider}; line-height:70px;">&nbsp;</div>
@@ -143,10 +143,10 @@ function SignaturePreview({ signature }: { signature: Signature }) {
     >
       <img
         src={wordmarkSrc}
-        width={154}
+        width={132}
         height={54}
         alt="Urbs"
-        className="h-13.5 w-38.5 shrink-0"
+        className="h-13.5 w-33 shrink-0"
       />
       <div
         className="mx-6.25 h-17.5 w-px shrink-0"

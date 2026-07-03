@@ -79,7 +79,7 @@ export function ProblemSection() {
                   duration: 0.3,
                   delay: index * 0.05,
                 })}
-                className="flex min-h-48 flex-col"
+                className="flex flex-col md:min-h-48"
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="flex size-8 items-center justify-center border border-border bg-accent text-primary transition-colors duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:bg-primary group-hover:text-primary-foreground">

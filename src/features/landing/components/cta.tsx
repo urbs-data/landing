@@ -114,7 +114,7 @@ export function CTA() {
             </motion.div>
           </motion.div>
 
-          <div className="lg:self-center">
+          <div className="hidden md:block lg:self-center">
             <div className="overflow-hidden border border-border bg-card">
               {steps.map((step, index) => (
                 <div

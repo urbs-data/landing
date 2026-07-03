@@ -119,14 +119,20 @@ const companies = [
 export function TrustedCompanies() {
   const { ids } = getLandingAnchors();
   const [api, setApi] = React.useState<CarouselApi>();
-  const [openCompanyCards, setOpenCompanyCards] = React.useState<Set<string>>(
-    () => new Set(),
-  );
+  const [activeCompanyCard, setActiveCompanyCard] = React.useState<
+    string | null
+  >(null);
   const interactionStateRef = React.useRef({
     isMouseOver: false,
     isPointerDown: false,
   });
-  const openCompanyCardsCountRef = React.useRef(0);
+  const activeCompanyCardRef = React.useRef<string | null>(null);
+  const touchTapRef = React.useRef<{
+    companyName: string;
+    pointerId: number;
+    x: number;
+    y: number;
+  } | null>(null);
   const plugins = React.useMemo(
     () => [
       Accessibility({
@@ -166,16 +172,9 @@ export function TrustedCompanies() {
 
   const updateCompanyCardOpen = React.useCallback(
     (companyName: string, open: boolean) => {
-      setOpenCompanyCards((current) => {
-        const next = new Set(current);
-
-        if (open) {
-          next.add(companyName);
-        } else {
-          next.delete(companyName);
-        }
-
-        return next;
+      setActiveCompanyCard((current) => {
+        if (open) return companyName;
+        return current === companyName ? null : current;
       });
     },
     [],
@@ -190,7 +189,7 @@ export function TrustedCompanies() {
       if (
         !isMouseOver &&
         !isPointerDown &&
-        openCompanyCardsCountRef.current === 0
+        activeCompanyCardRef.current === null
       ) {
         autoScroll.play(startDelay);
       }
@@ -199,18 +198,18 @@ export function TrustedCompanies() {
   );
 
   React.useEffect(() => {
-    openCompanyCardsCountRef.current = openCompanyCards.size;
+    activeCompanyCardRef.current = activeCompanyCard;
 
     const autoScroll = api?.plugins().autoScroll;
     if (!autoScroll) return;
 
-    if (openCompanyCards.size > 0) {
+    if (activeCompanyCard !== null) {
       autoScroll.stop();
       return;
     }
 
     playAutoScrollIfIdle();
-  }, [api, openCompanyCards.size, playAutoScrollIfIdle]);
+  }, [activeCompanyCard, api, playAutoScrollIfIdle]);
 
   React.useEffect(() => {
     if (!api) return;
@@ -254,7 +253,7 @@ export function TrustedCompanies() {
       if (
         !isMouseOver &&
         !isPointerDown &&
-        openCompanyCardsCountRef.current === 0
+        activeCompanyCardRef.current === null
       ) {
         playAutoScrollIfIdle();
       }
@@ -266,6 +265,55 @@ export function TrustedCompanies() {
       api.off("autoscroll:interaction", onAutoScrollInteraction);
     };
   }, [api, playAutoScrollIfIdle]);
+
+  const handleCompanyPointerDown = React.useCallback(
+    (companyName: string, event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType === "mouse") return;
+
+      touchTapRef.current = {
+        companyName,
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    [],
+  );
+
+  const handleCompanyPointerUp = React.useCallback(
+    (companyName: string, event: React.PointerEvent<HTMLButtonElement>) => {
+      const tap = touchTapRef.current;
+      touchTapRef.current = null;
+
+      if (
+        event.pointerType === "mouse" ||
+        !tap ||
+        tap.companyName !== companyName ||
+        tap.pointerId !== event.pointerId
+      ) {
+        return;
+      }
+
+      const movementX = event.clientX - tap.x;
+      const movementY = event.clientY - tap.y;
+      const movedPastTapThreshold = Math.hypot(movementX, movementY) > 8;
+
+      if (movedPastTapThreshold) return;
+
+      event.preventDefault();
+      interactionStateRef.current.isPointerDown = false;
+      setActiveCompanyCard((current) =>
+        current === companyName ? null : companyName,
+      );
+    },
+    [],
+  );
+
+  const handleCompanyPointerCancel = React.useCallback(() => {
+    touchTapRef.current = null;
+    interactionStateRef.current.isPointerDown = false;
+    playAutoScrollIfIdle();
+  }, [playAutoScrollIfIdle]);
 
   return (
     <section id={ids.clients} className="border-b border-border py-12">
@@ -292,6 +340,7 @@ export function TrustedCompanies() {
                 className="flex h-16 basis-44 items-center justify-center pl-0 opacity-60 transition-opacity duration-300 sm:h-20 sm:basis-56 [&.is-in-view]:opacity-80"
               >
                 <HoverCard
+                  open={activeCompanyCard === company.name}
                   onOpenChange={(open) =>
                     updateCompanyCardOpen(company.name, open)
                   }
@@ -301,6 +350,13 @@ export function TrustedCompanies() {
                     closeDelay={80}
                     aria-label={company.name}
                     className="flex h-full w-full items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                    onPointerDown={(event) =>
+                      handleCompanyPointerDown(company.name, event)
+                    }
+                    onPointerUp={(event) =>
+                      handleCompanyPointerUp(company.name, event)
+                    }
+                    onPointerCancel={handleCompanyPointerCancel}
                     render={<button type="button" />}
                   >
                     <span

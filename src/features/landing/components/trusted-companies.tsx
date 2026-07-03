@@ -181,6 +181,23 @@ export function TrustedCompanies() {
     [],
   );
 
+  const playAutoScrollIfIdle = React.useCallback(
+    (startDelay = 250) => {
+      const autoScroll = api?.plugins().autoScroll;
+      if (!autoScroll) return;
+
+      const { isMouseOver, isPointerDown } = interactionStateRef.current;
+      if (
+        !isMouseOver &&
+        !isPointerDown &&
+        openCompanyCardsCountRef.current === 0
+      ) {
+        autoScroll.play(startDelay);
+      }
+    },
+    [api],
+  );
+
   React.useEffect(() => {
     openCompanyCardsCountRef.current = openCompanyCards.size;
 
@@ -192,11 +209,22 @@ export function TrustedCompanies() {
       return;
     }
 
-    const { isMouseOver, isPointerDown } = interactionStateRef.current;
-    if (!isMouseOver && !isPointerDown) {
-      autoScroll.play(250);
-    }
-  }, [api, openCompanyCards.size]);
+    playAutoScrollIfIdle();
+  }, [api, openCompanyCards.size, playAutoScrollIfIdle]);
+
+  React.useEffect(() => {
+    if (!api) return;
+
+    const onReInit = () => {
+      playAutoScrollIfIdle();
+    };
+
+    api.on("reinit", onReInit);
+
+    return () => {
+      api.off("reinit", onReInit);
+    };
+  }, [api, playAutoScrollIfIdle]);
 
   React.useEffect(() => {
     if (!api) return;
@@ -228,7 +256,7 @@ export function TrustedCompanies() {
         !isPointerDown &&
         openCompanyCardsCountRef.current === 0
       ) {
-        autoScroll.play(250);
+        playAutoScrollIfIdle();
       }
     };
 
@@ -237,7 +265,7 @@ export function TrustedCompanies() {
     return () => {
       api.off("autoscroll:interaction", onAutoScrollInteraction);
     };
-  }, [api]);
+  }, [api, playAutoScrollIfIdle]);
 
   return (
     <section id={ids.clients} className="border-b border-border py-12">

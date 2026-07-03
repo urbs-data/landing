@@ -2,7 +2,7 @@
 
 import * as motion from "motion/react-client";
 import { useEffect, useRef, useState } from "react";
-import { landingEaseOut } from "./animation";
+import { landingEaseOut, usePrefersReducedMotion } from "./animation";
 
 type Node = {
   x: number;
@@ -29,6 +29,7 @@ const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
 const POINTER_RADIUS = 180;
 const POINTER_RADIUS_SQ = POINTER_RADIUS * POINTER_RADIUS;
 const EDGE_PADDING = 4;
+const OFFSCREEN_POINTER = -9999;
 
 const randomNode = (width: number, height: number): Node => ({
   x: Math.random() * width,
@@ -42,13 +43,28 @@ const randomNode = (width: number, height: number): Node => ({
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+const clampNodePosition = (value: number, size: number) => {
+  const min = Math.min(EDGE_PADDING, size / 2);
+  const max = Math.max(min, size - EDGE_PADDING);
+  return clamp(value, min, max);
+};
+
+const getElementSize = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+
+  return {
+    width: element.clientWidth || Math.round(rect.width),
+    height: element.clientHeight || Math.round(rect.height),
+  };
+};
+
 export function ConnectionsCanvas({
   className,
   density = 1,
 }: ConnectionsCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,10 +78,6 @@ export function ConnectionsCanvas({
     const context = ctx;
     const container = parent;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    setPrefersReducedMotion(reduceMotion);
     setCanvasReady(false);
 
     let width = 0;
@@ -73,20 +85,24 @@ export function ConnectionsCanvas({
     let nodes: Node[] = [];
     let raf = 0;
     let hasPainted = false;
-    const mouse = { x: -9999, y: -9999 };
+    let isMounted = true;
+    const mouse = { x: OFFSCREEN_POINTER, y: OFFSCREEN_POINTER };
     const [pr, pg, pb] = PRIMARY;
     const normalizedDensity = clamp(density, 0, 3);
 
     function resize() {
       const previousWidth = width;
       const previousHeight = height;
-      width = container.clientWidth;
-      height = container.clientHeight;
+
+      const nextSize = getElementSize(container);
+      width = nextSize.width;
+      height = nextSize.height;
+
       if (width === 0 || height === 0) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-      currentCanvas.width = width * dpr;
-      currentCanvas.height = height * dpr;
+      currentCanvas.width = Math.round(width * dpr);
+      currentCanvas.height = Math.round(height * dpr);
       currentCanvas.style.width = `${width}px`;
       currentCanvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -106,30 +122,42 @@ export function ConnectionsCanvas({
           node.x *= width / previousWidth;
           node.y *= height / previousHeight;
         }
-        node.x = clamp(node.x, EDGE_PADDING, width - EDGE_PADDING);
-        node.y = clamp(node.y, EDGE_PADDING, height - EDGE_PADDING);
+        node.x = clampNodePosition(node.x, width);
+        node.y = clampNodePosition(node.y, height);
         return node;
       });
+
+      return true;
     }
 
-    function draw() {
+    function drawFrame(animateNodes: boolean) {
+      if (!width || !height) {
+        const hasSize = resize();
+        if (!hasSize) return false;
+      }
+
       context.clearRect(0, 0, width, height);
 
-      for (const n of nodes) {
-        n.x += n.vx;
-        n.y += n.vy;
-        n.pulse += 0.02;
+      if (animateNodes) {
+        for (const n of nodes) {
+          n.x += n.vx;
+          n.y += n.vy;
+          n.pulse += 0.02;
 
-        if (n.x < 0 || n.x > width) n.vx *= -1;
-        if (n.y < 0 || n.y > height) n.vy *= -1;
+          const mdx = mouse.x - n.x;
+          const mdy = mouse.y - n.y;
+          const pointerDistSq = mdx * mdx + mdy * mdy;
+          if (pointerDistSq > 0 && pointerDistSq < POINTER_RADIUS_SQ) {
+            const md = Math.sqrt(pointerDistSq);
+            n.x += (mdx / md) * 0.25;
+            n.y += (mdy / md) * 0.25;
+          }
 
-        const mdx = mouse.x - n.x;
-        const mdy = mouse.y - n.y;
-        const pointerDistSq = mdx * mdx + mdy * mdy;
-        if (pointerDistSq > 0 && pointerDistSq < POINTER_RADIUS_SQ) {
-          const md = Math.sqrt(pointerDistSq);
-          n.x += (mdx / md) * 0.25;
-          n.y += (mdy / md) * 0.25;
+          if (n.x < EDGE_PADDING || n.x > width - EDGE_PADDING) n.vx *= -1;
+          if (n.y < EDGE_PADDING || n.y > height - EDGE_PADDING) n.vy *= -1;
+
+          n.x = clampNodePosition(n.x, width);
+          n.y = clampNodePosition(n.y, height);
         }
       }
 
@@ -170,7 +198,33 @@ export function ConnectionsCanvas({
         setCanvasReady(true);
       }
 
-      raf = requestAnimationFrame(draw);
+      return true;
+    }
+
+    function requestFrame() {
+      if (raf || !isMounted) return;
+      raf = requestAnimationFrame(runFrame);
+    }
+
+    function cancelFrame() {
+      if (!raf) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    function runFrame() {
+      raf = 0;
+      const didPaint = drawFrame(!prefersReducedMotion);
+
+      if (!isMounted) return;
+      if (!didPaint || !prefersReducedMotion) requestFrame();
+    }
+
+    function paintNow() {
+      cancelFrame();
+      const didPaint = drawFrame(false);
+
+      if (!didPaint || !prefersReducedMotion) requestFrame();
     }
 
     function onMove(e: PointerEvent) {
@@ -180,31 +234,37 @@ export function ConnectionsCanvas({
     }
 
     function onLeave() {
-      mouse.x = -9999;
-      mouse.y = -9999;
+      mouse.x = OFFSCREEN_POINTER;
+      mouse.y = OFFSCREEN_POINTER;
     }
 
-    resize();
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
+    let resizeObserver: ResizeObserver | undefined;
+    const onResize = () => {
+      resize();
+      paintNow();
+    };
 
-    if (reduceMotion) {
-      draw();
-      cancelAnimationFrame(raf);
+    if (typeof ResizeObserver === "function") {
+      resizeObserver = new ResizeObserver(onResize);
+      resizeObserver.observe(container);
     } else {
-      draw();
+      window.addEventListener("resize", onResize);
     }
 
-    container.addEventListener("pointermove", onMove);
+    paintNow();
+
+    container.addEventListener("pointermove", onMove, { passive: true });
     container.addEventListener("pointerleave", onLeave);
 
     return () => {
-      cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
+      isMounted = false;
+      cancelFrame();
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", onResize);
       container.removeEventListener("pointermove", onMove);
       container.removeEventListener("pointerleave", onLeave);
     };
-  }, [density]);
+  }, [density, prefersReducedMotion]);
 
   return (
     <motion.canvas

@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignaturesRouteImport } from './features/signatures/routes/signatures'
 import { Route as PresentationsRouteImport } from './features/presentations/routes/presentations'
 import { Route as IndexRouteImport } from './features/landing/routes/index'
-import { Route as OgImageDotpngRouteImport } from './features/landing/routes/og-image.png'
+import { Route as Char123LangChar125DotogImageRouteImport } from './features/landing/routes/{-$lang}.og-image'
 
 const SignaturesRoute = SignaturesRouteImport.update({
   id: '/signatures',
@@ -29,44 +29,45 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OgImageDotpngRoute = OgImageDotpngRouteImport.update({
-  id: '/og-image/png',
-  path: '/og-image/png',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const Char123LangChar125DotogImageRoute =
+  Char123LangChar125DotogImageRouteImport.update({
+    id: '/{-$lang}/og-image',
+    path: '/{-$lang}/og-image',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
-  '/og-image/png': typeof OgImageDotpngRoute
+  '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
-  '/og-image/png': typeof OgImageDotpngRoute
+  '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
-  '/og-image/png': typeof OgImageDotpngRoute
+  '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/presentations' | '/signatures' | '/og-image/png'
+  fullPaths: '/' | '/presentations' | '/signatures' | '/{-$lang}/og-image'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/presentations' | '/signatures' | '/og-image/png'
-  id: '__root__' | '/' | '/presentations' | '/signatures' | '/og-image/png'
+  to: '/' | '/presentations' | '/signatures' | '/{-$lang}/og-image'
+  id: '__root__' | '/' | '/presentations' | '/signatures' | '/{-$lang}/og-image'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PresentationsRoute: typeof PresentationsRoute
   SignaturesRoute: typeof SignaturesRoute
-  OgImageDotpngRoute: typeof OgImageDotpngRoute
+  Char123LangChar125DotogImageRoute: typeof Char123LangChar125DotogImageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,11 +93,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/og-image/png': {
-      id: '/og-image/png'
-      path: '/og-image/png'
-      fullPath: '/og-image/png'
-      preLoaderRoute: typeof OgImageDotpngRouteImport
+    '/{-$lang}/og-image': {
+      id: '/{-$lang}/og-image'
+      path: '/{-$lang}/og-image'
+      fullPath: '/{-$lang}/og-image'
+      preLoaderRoute: typeof Char123LangChar125DotogImageRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -106,7 +107,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PresentationsRoute: PresentationsRoute,
   SignaturesRoute: SignaturesRoute,
-  OgImageDotpngRoute: OgImageDotpngRoute,
+  Char123LangChar125DotogImageRoute: Char123LangChar125DotogImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -74,8 +74,8 @@ function buildSignatureHtml(signature: Signature) {
           <td style="width:132px; height:54px; vertical-align:middle;">
             <img src="${wordmarkSrc}" width="132" height="54" alt="Urbs" style="display:block; width:132px; height:54px; border:0; outline:none; text-decoration:none;">
           </td>
-          <td style="width:44px; padding-left:24px; padding-right:25px; vertical-align:middle;">
-            <div style="width:1px; height:70px; background:${tokens.divider}; line-height:70px;">&nbsp;</div>
+          <td style="padding-left:25px; padding-right:25px; vertical-align:middle; font-size:0; line-height:0;">
+            <div style="width:1px; height:70px; background:${tokens.divider}; font-size:0; line-height:0;">&nbsp;</div>
           </td>
           <td style="vertical-align:middle; white-space:nowrap;">
             <div style="font-size:14px; line-height:18px; font-weight:700; color:${tokens.title};">${name}</div>

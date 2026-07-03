@@ -127,7 +127,7 @@ const PIN_LEAD = 7;
 const pinOffset = (pct: number) => (pct / 100) * CHIP_SIZE - CHIP_SIZE / 2;
 const FLOW_BEAM_DURATION = 3.8;
 
-/** What the Urbs Gateway does internally (shown on hover). */
+/** What the Urbs node does internally (shown on hover). */
 function getGatewaySteps() {
   return [
     { icon: Boxes, title: m.flow_ingest_title(), desc: m.flow_ingest_desc() },
@@ -598,9 +598,6 @@ function UrbsGateway({
           </ul>
         </HoverCardContent>
       </HoverCard>
-      <span className="absolute left-1/2 top-full mt-3 w-32 -translate-x-1/2 text-center text-xs font-semibold text-foreground">
-        {m.flow_gateway_title()}
-      </span>
     </div>
   );
 }

@@ -3,16 +3,17 @@ import { getLandingAnchors } from "../lib/anchors";
 import { SectionKicker } from "./section-kicker";
 
 const companies = [
-  "Crédito Argentino",
-  "LBO S.A",
-  "Byontek",
-  "CIGRA",
-  "IRIS",
-  "4Plus",
-  "Nexo",
-  "Cahpsa",
-  "Hemisphere",
-  "MacroAgro",
+  { name: "Cahpsa", src: "/companies/cahpsa.svg" },
+  { name: "CIGRA", src: "/companies/cigra.svg" },
+  { name: "Byontek", src: "/companies/byontek.svg" },
+  { name: "Crédito Argentino", src: "/companies/credito-argentino.svg" },
+  { name: "4Plus", src: "/companies/4plus.svg" },
+  { name: "MacroAgro", src: "/companies/macroagro.svg" },
+  { name: "LBO", src: "/companies/lbo.svg" },
+  { name: "Nexo", src: "/companies/nexo.svg" },
+  { name: "Corteva", src: "/companies/corteva.svg" },
+  { name: "Hemisphere", src: "/companies/hemisphere.svg" },
+  { name: "Rosental", src: "/companies/rosental.svg" },
 ];
 
 export function TrustedCompanies() {
@@ -29,14 +30,19 @@ export function TrustedCompanies() {
           <div className="flex w-max animate-marquee">
             {[...companies, ...companies].map((company, i) => (
               <div
-                key={`${company}-${i}`}
-                className="flex items-center gap-2 px-8"
+                key={`${company.name}-${i}`}
+                className="flex h-16 w-44 shrink-0 items-center justify-center sm:h-20 sm:w-56"
                 aria-hidden={i >= companies.length}
               >
-                <span className="size-2 bg-primary" />
-                <span className="whitespace-nowrap text-lg font-medium text-foreground/70">
-                  {company}
-                </span>
+                <span
+                  aria-label={company.name}
+                  role="img"
+                  className="h-10 w-36 bg-current text-foreground opacity-70 sm:h-12 sm:w-48"
+                  style={{
+                    mask: `url(${company.src}) center / contain no-repeat`,
+                    WebkitMask: `url(${company.src}) center / contain no-repeat`,
+                  }}
+                />
               </div>
             ))}
           </div>

@@ -49,7 +49,7 @@ export function Hero() {
             duration: 0.42,
             delay: 0.04,
           })}
-          className="mt-6 w-full max-w-[22rem] text-balance wrap-break-word font-heading text-[1.875rem] font-semibold leading-[1.12] tracking-tight min-[380px]:text-[2rem] sm:mt-7 sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl"
+          className="mt-6 w-full max-w-88 text-balance wrap-break-word font-heading text-[1.875rem] font-semibold leading-[1.12] tracking-tight min-[380px]:text-[2rem] sm:mt-7 sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl"
         >
           {m.hero_title_prefix()}{" "}
           <span className="text-primary dark:brightness-175">
@@ -65,7 +65,7 @@ export function Hero() {
             duration: 0.42,
             delay: 0.08,
           })}
-          className="mt-5 w-full max-w-[21rem] text-pretty text-[0.9375rem] leading-6 text-muted-foreground sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-relaxed"
+          className="mt-5 w-full max-w-84 text-pretty text-[0.9375rem] leading-6 text-muted-foreground sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-relaxed"
         >
           {m.hero_description()}
         </motion.p>
@@ -77,7 +77,7 @@ export function Hero() {
             duration: 0.42,
             delay: 0.12,
           })}
-          className="mt-8 flex w-full max-w-[17rem] flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-3.5"
+          className="mt-8 flex w-full max-w-68 flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-3.5"
         >
           <Button
             render={<a href={hrefs.contact} />}

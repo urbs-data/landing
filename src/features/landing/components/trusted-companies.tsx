@@ -267,7 +267,7 @@ export function TrustedCompanies() {
   }, [api, playAutoScrollIfIdle]);
 
   const handleCompanyPointerDown = React.useCallback(
-    (companyName: string, event: React.PointerEvent<HTMLButtonElement>) => {
+    (companyName: string, event: React.PointerEvent<HTMLElement>) => {
       if (event.pointerType === "mouse") return;
 
       touchTapRef.current = {
@@ -281,7 +281,7 @@ export function TrustedCompanies() {
   );
 
   const handleCompanyPointerUp = React.useCallback(
-    (companyName: string, event: React.PointerEvent<HTMLButtonElement>) => {
+    (companyName: string, event: React.PointerEvent<HTMLElement>) => {
       const tap = touchTapRef.current;
       touchTapRef.current = null;
 

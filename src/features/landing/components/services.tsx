@@ -2,8 +2,8 @@
 
 import {
   BrainCircuit,
+  Code2,
   Database,
-  LineChart,
   type LucideIcon,
   Workflow,
 } from "lucide-react";
@@ -63,7 +63,7 @@ function getServices(): Service[] {
       ],
     },
     {
-      icon: LineChart,
+      icon: Code2,
       title: m.service_bi_title(),
       desc: m.service_bi_desc(),
       items: [

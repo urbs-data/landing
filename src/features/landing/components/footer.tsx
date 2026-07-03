@@ -1,4 +1,4 @@
-import { UrbsLogo } from "#/components/urbs-logo";
+import { UrbsWordmark } from "#/components/urbs-wordmark";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { buildContactEmailHref, CONTACT_EMAIL } from "../lib/contact-email";
@@ -39,7 +39,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <UrbsLogo />
+            <UrbsWordmark />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               {m.footer_description()}
             </p>

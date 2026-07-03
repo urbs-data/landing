@@ -38,12 +38,12 @@ const themeTokens = {
   },
 };
 
-function getLogoPath(mode: SignatureMode) {
-  return `/signatures/urbs-logo-${mode}.png`;
+function getWordmarkPath(mode: SignatureMode) {
+  return `/signatures/urbs-wordmark-${mode}.png`;
 }
 
-function getAbsoluteLogoSrc(mode: SignatureMode) {
-  const path = getLogoPath(mode);
+function getAbsoluteWordmarkSrc(mode: SignatureMode) {
+  const path = getWordmarkPath(mode);
 
   if (typeof window === "undefined") return path;
 
@@ -64,7 +64,7 @@ function buildSignatureHtml(signature: Signature) {
   const name = escapeHtml(signature.name);
   const role = escapeHtml(signature.role);
   const email = escapeHtml(signature.email);
-  const logoSrc = escapeHtml(getAbsoluteLogoSrc(signature.mode));
+  const wordmarkSrc = escapeHtml(getAbsoluteWordmarkSrc(signature.mode));
 
   return `<table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; width:532px; max-width:532px; background:${tokens.background}; font-family:'IBM Plex Sans', Arial, Helvetica, sans-serif;">
   <tr>
@@ -72,7 +72,7 @@ function buildSignatureHtml(signature: Signature) {
       <table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
         <tr>
           <td style="width:154px; height:54px; vertical-align:middle;">
-            <img src="${logoSrc}" width="154" height="54" alt="Urbs" style="display:block; width:154px; height:54px; border:0; outline:none; text-decoration:none;">
+            <img src="${wordmarkSrc}" width="154" height="54" alt="Urbs" style="display:block; width:154px; height:54px; border:0; outline:none; text-decoration:none;">
           </td>
           <td style="width:44px; padding-left:24px; padding-right:25px; vertical-align:middle;">
             <div style="width:1px; height:70px; background:${tokens.divider}; line-height:70px;">&nbsp;</div>
@@ -134,7 +134,7 @@ ${buildSignatureHtml(signature)}
 
 function SignaturePreview({ signature }: { signature: Signature }) {
   const tokens = themeTokens[signature.mode];
-  const logoSrc = getLogoPath(signature.mode);
+  const wordmarkSrc = getWordmarkPath(signature.mode);
 
   return (
     <div
@@ -142,7 +142,7 @@ function SignaturePreview({ signature }: { signature: Signature }) {
       style={{ background: tokens.background }}
     >
       <img
-        src={logoSrc}
+        src={wordmarkSrc}
         width={154}
         height={54}
         alt="Urbs"

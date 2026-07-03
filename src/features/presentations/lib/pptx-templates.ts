@@ -2,8 +2,8 @@ import JSZip from "jszip";
 import PptxGenJS from "pptxgenjs";
 import type { AppLocale } from "#/i18n";
 import { m } from "#/paraglide/messages";
+import { brandAssets } from "./brand-assets";
 import { type FontFace, fontAssets } from "./font-assets";
-import { logoAssets } from "./logo-assets";
 import type {
   PresentationTemplateKey,
   PresentationTemplateMode,
@@ -16,7 +16,7 @@ import type {
 const LAYOUT = { name: "URBS_WIDE", width: 13.333, height: 7.5 };
 
 // Straight corners everywhere ("esquinas rectas"). Brand fonts are referenced
-// by name; the "urbs" wordmark and isotype ship as raster assets so Syne is
+// by name; the logo and "urbs" wordmark ship as raster assets so Syne is
 // never required on the machine that opens the file.
 const FONT = {
   heading: "Instrument Sans", // titulares
@@ -114,22 +114,22 @@ const FOOT_TXT_Y = 6.94;
 type Slide = PptxGenJS.Slide;
 
 /* -------------------------------------------------------------------------- */
-/*  Logo helpers                                                              */
+/*  Brand asset helpers                                                       */
 /* -------------------------------------------------------------------------- */
 
-function isotype(mode: PresentationTemplateMode, white = false) {
-  if (white) return logoAssets.isotypeWhite;
+function logo(mode: PresentationTemplateMode, white = false) {
+  if (white) return brandAssets.logoWhite;
   return mode === "dark"
-    ? logoAssets.isotypeIntensified
-    : logoAssets.isotypePrimary;
+    ? brandAssets.logoIntensified
+    : brandAssets.logoPrimary;
 }
 
-function lockup(mode: PresentationTemplateMode, white = false) {
-  if (white) return logoAssets.lockupWhite;
-  return mode === "dark" ? logoAssets.lockupDark : logoAssets.lockupLight;
+function wordmark(mode: PresentationTemplateMode, white = false) {
+  if (white) return brandAssets.wordmarkWhite;
+  return mode === "dark" ? brandAssets.wordmarkDark : brandAssets.wordmarkLight;
 }
 
-const LOCKUP_RATIO = 162 / 54; // asset aspect ratio
+const WORDMARK_RATIO = 162 / 54; // asset aspect ratio
 
 /* -------------------------------------------------------------------------- */
 /*  Slide masters (reusable layouts + brand furniture)                        */
@@ -156,15 +156,15 @@ function defineMasters(
   const label = deck.label.toUpperCase();
   const lockW = 1.14;
 
-  // Header: brand lockup (isotype + "urbs") top-left, deck label top-right.
+  // Header: brand wordmark (logo + "urbs") top-left, deck label top-right.
   const header = (dark = false): MasterObjects => [
     {
       image: {
-        data: lockup(mode, dark),
+        data: wordmark(mode, dark),
         x: MX,
         y: 0.44,
         w: lockW,
-        h: lockW / LOCKUP_RATIO,
+        h: lockW / WORDMARK_RATIO,
       },
     },
     {
@@ -229,7 +229,7 @@ function defineMasters(
 
   const watermark = (dark = false): MasterObject => ({
     image: {
-      data: isotype(mode, dark),
+      data: logo(mode, dark),
       x: LAYOUT.width - 3.5,
       y: LAYOUT.height - 3.5,
       w: 4.2,
@@ -333,11 +333,11 @@ function defineMasters(
       watermark(),
       {
         image: {
-          data: lockup(mode),
+          data: wordmark(mode),
           x: MX,
           y: 0.92,
           w: 2.9,
-          h: 2.9 / LOCKUP_RATIO,
+          h: 2.9 / WORDMARK_RATIO,
         },
       },
       {
@@ -420,11 +420,11 @@ function defineMasters(
       watermark(true),
       {
         image: {
-          data: lockup(mode, true),
+          data: wordmark(mode, true),
           x: MX,
           y: 0.9,
           w: 2.3,
-          h: 2.3 / LOCKUP_RATIO,
+          h: 2.3 / WORDMARK_RATIO,
         },
       },
       ...footer(true),
@@ -1064,7 +1064,7 @@ function addContentHeadings(
   });
 }
 
-// Cover: furniture (bg, watermark, lockup, signature footer) lives in the
+// Cover: furniture (bg, watermark, wordmark, signature footer) lives in the
 // MASTER.cover layout; here we only add the headline content.
 function renderCover(
   slide: Slide,
@@ -1102,7 +1102,7 @@ function renderCover(
   });
 }
 
-// Closing: furniture (deep-plum bg, white lockup, watermark, footer) lives in
+// Closing: furniture (deep-plum bg, white wordmark, watermark, footer) lives in
 // the MASTER.closing layout; here we add the message and CTA.
 function renderClosing(
   slide: Slide,

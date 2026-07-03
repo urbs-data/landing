@@ -25,8 +25,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "#/components/ui/sheet";
-import { UrbsIcon } from "#/components/urbs-icon";
 import { UrbsLogo } from "#/components/urbs-logo";
+import { UrbsWordmark } from "#/components/urbs-wordmark";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
@@ -127,7 +127,7 @@ function HeaderLogo() {
   return (
     <ContextMenu>
       <ContextMenuTrigger className="inline-flex">
-        <UrbsLogo />
+        <UrbsWordmark />
       </ContextMenuTrigger>
       <ContextMenuContent
         side="bottom"
@@ -137,17 +137,17 @@ function HeaderLogo() {
       >
         <ContextMenuItem
           render={
-            <a href="/urbs-icon.svg" download="urbs-icon.svg">
-              <UrbsIcon className="size-4 text-foreground dark:brightness-100" />
-              Download Icon as SVG
+            <a href="/urbs-logo.svg" download="urbs-logo.svg">
+              <UrbsLogo className="size-4 text-foreground dark:brightness-100" />
+              Download Logo as SVG
             </a>
           }
         />
         <ContextMenuItem
           render={
-            <a href="/urbs-logo.svg" download="urbs-logo.svg">
+            <a href="/urbs-wordmark.svg" download="urbs-wordmark.svg">
               <Type className="size-4" />
-              Download Logo as SVG
+              Download Wordmark as SVG
             </a>
           }
         />

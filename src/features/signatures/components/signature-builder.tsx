@@ -66,10 +66,10 @@ function buildSignatureHtml(signature: Signature) {
   const email = escapeHtml(signature.email);
   const wordmarkSrc = escapeHtml(getAbsoluteWordmarkSrc(signature.mode));
 
-  return `<table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; width:532px; max-width:532px; background:${tokens.background}; font-family:'IBM Plex Sans', Arial, Helvetica, sans-serif;">
+  return `<table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; border-spacing:0; width:auto; background:${tokens.background}; font-family:'IBM Plex Sans', Arial, Helvetica, sans-serif; mso-table-lspace:0pt; mso-table-rspace:0pt;">
   <tr>
-    <td style="padding:18px 26px;">
-      <table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
+    <td style="padding:18px 26px; white-space:nowrap;">
+      <table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse; border-spacing:0; width:auto; mso-table-lspace:0pt; mso-table-rspace:0pt;">
         <tr>
           <td style="width:132px; height:54px; vertical-align:middle;">
             <img src="${wordmarkSrc}" width="132" height="54" alt="Urbs" style="display:block; width:132px; height:54px; border:0; outline:none; text-decoration:none;">
@@ -138,7 +138,7 @@ function SignaturePreview({ signature }: { signature: Signature }) {
 
   return (
     <div
-      className="flex w-133 max-w-133 items-center px-6.5 py-4.5 shadow-sm"
+      className="inline-flex w-fit max-w-none items-center px-6.5 py-4.5 shadow-sm"
       style={{ background: tokens.background }}
     >
       <img

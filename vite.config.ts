@@ -6,7 +6,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-import { prerenderRoutes, urlPatterns } from "./src/i18n/routing";
+import { urlPatterns } from "./src/i18n/url-patterns";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
@@ -21,7 +21,6 @@ const config = defineConfig({
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
     tanstackStart({
-      pages: prerenderRoutes,
       router: {
         virtualRouteConfig: "src/routes.ts",
       },

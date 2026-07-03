@@ -10,11 +10,7 @@ import {
 import * as motion from "motion/react-client";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type Service = {
@@ -78,9 +74,8 @@ function getServices(): Service[] {
 }
 
 export function Services() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const headingReveal = revealTransform(18, prefersReducedMotion);
-  const reveal = revealTransform(16, prefersReducedMotion);
+  const headingReveal = revealTransform(18);
+  const reveal = revealTransform(16);
   const { ids } = getLandingAnchors();
 
   return (
@@ -96,7 +91,6 @@ export function Services() {
           viewport={{ once: true, margin: "-80px" }}
           transition={revealTransition({
             duration: 0.38,
-            prefersReducedMotion,
           })}
           className="max-w-2xl"
         >
@@ -123,7 +117,6 @@ export function Services() {
                 transition={revealTransition({
                   duration: 0.34,
                   delay: i * 0.05,
-                  prefersReducedMotion,
                 })}
               >
                 <div className="flex size-11 items-center justify-center border border-border bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">

@@ -269,46 +269,6 @@
 }
 
 @layer utilities {
-    .animate-marquee {
-        animation: landing-marquee 28s linear infinite;
-        will-change: transform;
-    }
-
-    .landing-flow-line {
-        animation: landing-dash-flow 900ms linear infinite;
-    }
-}
-
-@keyframes landing-marquee {
-    from {
-        transform: translate3d(0, 0, 0);
-    }
-
-    to {
-        transform: translate3d(-50%, 0, 0);
-    }
-}
-
-@keyframes landing-dash-flow {
-    to {
-        stroke-dashoffset: -8;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    ::before,
-    ::after {
-        scroll-behavior: auto !important;
-    }
-
-    .animate-marquee,
-    .landing-flow-line {
-        animation: none !important;
-    }
-}
-
-@layer utilities {
     @keyframes beam-dash {
         from {
             stroke-dashoffset: 1000;

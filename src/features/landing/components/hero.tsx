@@ -5,17 +5,12 @@ import * as motion from "motion/react-client";
 import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { ConnectionsCanvas } from "./connections-canvas";
 
 export function Hero() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const badgeReveal = revealTransform(12, prefersReducedMotion);
-  const heroReveal = revealTransform(18, prefersReducedMotion);
+  const badgeReveal = revealTransform(12);
+  const heroReveal = revealTransform(18);
   const { hrefs, ids } = getLandingAnchors();
 
   return (
@@ -39,7 +34,6 @@ export function Hero() {
           animate={badgeReveal.visible}
           transition={revealTransition({
             duration: 0.36,
-            prefersReducedMotion,
           })}
           className="inline-flex items-center gap-2 border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
         >
@@ -54,7 +48,6 @@ export function Hero() {
           transition={revealTransition({
             duration: 0.42,
             delay: 0.04,
-            prefersReducedMotion,
           })}
           className="mt-7 w-full max-w-96 text-balance wrap-break-word font-heading text-[1.95rem] font-semibold leading-[1.14] tracking-tight min-[380px]:text-[2.05rem] sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl"
         >
@@ -71,7 +64,6 @@ export function Hero() {
           transition={revealTransition({
             duration: 0.42,
             delay: 0.08,
-            prefersReducedMotion,
           })}
           className="mt-7 w-full max-w-96 text-pretty text-base leading-7 text-muted-foreground sm:max-w-2xl sm:text-lg sm:leading-relaxed"
         >
@@ -84,7 +76,6 @@ export function Hero() {
           transition={revealTransition({
             duration: 0.42,
             delay: 0.12,
-            prefersReducedMotion,
           })}
           className="mt-10 flex flex-col items-center gap-3.5 sm:flex-row"
         >

@@ -30,7 +30,7 @@ import { UrbsWordmark } from "#/components/urbs-wordmark";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { revealTransition, usePrefersReducedMotion } from "./animation";
+import { revealTransition } from "./animation";
 
 function getLinks() {
   const { hrefs } = getLandingAnchors();
@@ -172,7 +172,6 @@ export function Header() {
 
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const prefersReducedMotion = usePrefersReducedMotion();
   const { hrefs } = getLandingAnchors();
   const links = getLinks();
   const isElevated = scrolled || open;
@@ -212,15 +211,12 @@ export function Header() {
         <motion.header
           initial={{
             opacity: 0,
-            transform: prefersReducedMotion
-              ? "translate3d(0, 0, 0)"
-              : "translate3d(0, -12px, 0)",
+            transform: "translate3d(0, -12px, 0)",
           }}
           animate={{ opacity: 1, transform: "translate3d(0, 0, 0)" }}
           transition={revealTransition({
             duration: 0.38,
             delay: 0.08,
-            prefersReducedMotion,
           })}
           className={cn(
             "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",

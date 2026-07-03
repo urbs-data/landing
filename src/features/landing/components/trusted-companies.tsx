@@ -278,9 +278,6 @@ export function TrustedCompanies() {
           setApi={setApi}
           opts={{
             align: "start",
-            breakpoints: {
-              "(prefers-reduced-motion: reduce)": { duration: 0 },
-            },
             containScroll: false,
             dragFree: true,
             loop: true,

@@ -187,7 +187,10 @@ const AnimatedBeam = ({
             height="100%"
             fill="url(#beam-mask-gradient)"
             style={{
-              animation: `beam-flow ${duration}s linear infinite`,
+              animationName: "beam-flow",
+              animationDuration: `${duration}s`,
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
               animationDelay: `${delay}s`,
               animationDirection: reverse ? "reverse" : "normal",
             }}
@@ -229,7 +232,10 @@ const AnimatedBeam = ({
         style={{
           strokeDasharray: "20 1000",
           strokeDashoffset: reverse ? "-1000" : "1000",
-          animation: `beam-dash ${duration}s linear infinite`,
+          animationName: "beam-dash",
+          animationDuration: `${duration}s`,
+          animationTimingFunction: "linear",
+          animationIterationCount: "infinite",
           animationDelay: `${delay}s`,
           animationDirection: reverse ? "reverse" : "normal",
         }}

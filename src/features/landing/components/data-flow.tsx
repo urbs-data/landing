@@ -31,11 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type FlowNode = {
@@ -490,12 +486,10 @@ function NodeTile({
 
 function UrbsGateway({
   gatewayRef,
-  reducedMotion,
   x,
   y,
 }: {
   gatewayRef: React.RefObject<HTMLDivElement | null>;
-  reducedMotion: boolean;
   x: number;
   y: number;
 }) {
@@ -549,18 +543,16 @@ function UrbsGateway({
               className="relative z-30 flex size-24 flex-col items-center justify-center gap-1 rounded-xl border border-primary/50 bg-card p-0 shadow-md transition-[border-color,box-shadow] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:border-primary group-hover:shadow-lg"
             >
               <div className="pointer-events-none absolute inset-2 rounded-lg border border-primary/20" />
-              {!reducedMotion && (
-                <motion.div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-2 rounded-lg bg-primary/10"
-                  animate={{ opacity: [0.2, 0.55, 0.2] }}
-                  transition={{
-                    duration: 2.6,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                />
-              )}
+              <motion.div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-2 rounded-lg bg-primary/10"
+                animate={{ opacity: [0.2, 0.55, 0.2] }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
+              />
               <Cpu className="relative size-7 text-primary dark:brightness-175" />
               <span className="relative text-[10px] font-semibold uppercase tracking-wide text-primary">
                 Urbs
@@ -643,7 +635,6 @@ function FlowDiagram({
   className: string;
   layout: FlowLayout;
 }) {
-  const prefersReducedMotion = usePrefersReducedMotion();
   const nodes = getNodes(layout);
   const beams = getBeams(layout);
   const gatewayPosition = GATEWAY_POSITIONS[layout];
@@ -681,7 +672,7 @@ function FlowDiagram({
           curvature={b.curvature}
           lineType={b.lineType}
           delay={b.delay}
-          duration={prefersReducedMotion ? 1000 : FLOW_BEAM_DURATION}
+          duration={FLOW_BEAM_DURATION}
           pathWidth={b.dashed ? 1.5 : 2}
           gradientStartColor={b.gradientStartColor}
           gradientStopColor={b.gradientStopColor}
@@ -710,7 +701,6 @@ function FlowDiagram({
 
       <UrbsGateway
         gatewayRef={nodeRefs.gateway}
-        reducedMotion={prefersReducedMotion}
         x={gatewayPosition.x}
         y={gatewayPosition.y}
       />
@@ -719,8 +709,7 @@ function FlowDiagram({
 }
 
 export function DataFlow() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const headingReveal = revealTransform(18, prefersReducedMotion);
+  const headingReveal = revealTransform(18);
   const { ids } = getLandingAnchors();
 
   return (
@@ -736,7 +725,6 @@ export function DataFlow() {
           viewport={{ once: true, margin: "-80px" }}
           transition={revealTransition({
             duration: 0.38,
-            prefersReducedMotion,
           })}
           className="max-w-2xl"
         >

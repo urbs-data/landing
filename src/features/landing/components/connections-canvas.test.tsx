@@ -60,22 +60,10 @@ const createContextMock = (): CanvasContextMock => ({
   strokeStyle: "",
 });
 
-function mockMatchMedia(matches: boolean) {
-  vi.stubGlobal(
-    "matchMedia",
-    vi.fn().mockReturnValue({
-      matches,
-      media: "(prefers-reduced-motion: reduce)",
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }),
-  );
-}
-
 describe("ConnectionsCanvas", () => {
   let context: CanvasContextMock;
+  let animationFrameId = 0;
+  let animationFrames = new Map<number, FrameRequestCallback>();
   let width = 640;
   let height = 360;
 
@@ -92,15 +80,23 @@ describe("ConnectionsCanvas", () => {
     );
     vi.stubGlobal(
       "requestAnimationFrame",
-      vi.fn(() => 1),
+      vi.fn((callback: FrameRequestCallback) => {
+        animationFrameId += 1;
+        animationFrames.set(animationFrameId, callback);
+        return animationFrameId;
+      }),
     );
-    vi.stubGlobal("cancelAnimationFrame", vi.fn());
-    mockMatchMedia(false);
+    vi.stubGlobal(
+      "cancelAnimationFrame",
+      vi.fn((id: number) => animationFrames.delete(id)),
+    );
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    animationFrameId = 0;
+    animationFrames = new Map();
     width = 640;
     height = 360;
   });
@@ -116,8 +112,7 @@ describe("ConnectionsCanvas", () => {
     expect(context.clearRect).toHaveBeenCalledWith(0, 0, width, height);
   });
 
-  it("repaints a static frame after a delayed resize in reduced-motion mode", async () => {
-    mockMatchMedia(true);
+  it("continues animating after a delayed resize", async () => {
     width = 0;
     height = 0;
     let onResize: ResizeObserverCallback | undefined;
@@ -147,5 +142,16 @@ describe("ConnectionsCanvas", () => {
 
     await waitFor(() => expect(canvas?.style.opacity).toBe("1"));
     expect(context.arc).toHaveBeenCalled();
+    expect(animationFrames.size).toBe(1);
+
+    const paintedFrames = vi.mocked(context.clearRect).mock.calls.length;
+    await act(async () => {
+      const [frameId, frameCallback] = Array.from(animationFrames)[0];
+      animationFrames.delete(frameId);
+      frameCallback(performance.now());
+    });
+
+    expect(context.clearRect).toHaveBeenCalledTimes(paintedFrames + 1);
+    expect(animationFrames.size).toBe(1);
   });
 });

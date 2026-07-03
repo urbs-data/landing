@@ -5,11 +5,7 @@ import * as motion from "motion/react-client";
 import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 function getBenefits() {
@@ -24,9 +20,8 @@ function getBenefits() {
 }
 
 export function Pymes() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const headingReveal = revealTransform(18, prefersReducedMotion);
-  const reveal = revealTransform(12, prefersReducedMotion);
+  const headingReveal = revealTransform(18);
+  const reveal = revealTransform(12);
   const { hrefs, ids } = getLandingAnchors();
 
   return (
@@ -39,7 +34,6 @@ export function Pymes() {
           viewport={{ once: true, margin: "-80px" }}
           transition={revealTransition({
             duration: 0.38,
-            prefersReducedMotion,
           })}
         >
           <SectionKicker>{m.pymes_kicker()}</SectionKicker>
@@ -73,7 +67,6 @@ export function Pymes() {
                 transition={revealTransition({
                   duration: 0.3,
                   delay: i * 0.04,
-                  prefersReducedMotion,
                 })}
                 className="flex items-start gap-3"
               >

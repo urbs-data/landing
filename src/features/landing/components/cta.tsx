@@ -6,17 +6,12 @@ import { Button } from "@/components/ui/button";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { buildContactEmailHref, CONTACT_EMAIL } from "../lib/contact-email";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 export function CTA() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const reveal = revealTransform(16, prefersReducedMotion);
-  const itemReveal = revealTransform(10, prefersReducedMotion);
+  const reveal = revealTransform(16);
+  const itemReveal = revealTransform(10);
   const contactEmailHref = buildContactEmailHref({
     subject: m.contact_email_subject(),
     body: m.contact_email_body(),
@@ -55,7 +50,6 @@ export function CTA() {
             viewport={{ once: true, margin: "-80px" }}
             transition={revealTransition({
               duration: 0.36,
-              prefersReducedMotion,
             })}
             className="max-w-xl"
           >
@@ -77,7 +71,6 @@ export function CTA() {
                   transition={revealTransition({
                     duration: 0.28,
                     delay: 0.08 + index * 0.04,
-                    prefersReducedMotion,
                   })}
                   className="flex items-start gap-3 text-sm text-foreground/85"
                 >
@@ -96,7 +89,6 @@ export function CTA() {
               transition={revealTransition({
                 duration: 0.28,
                 delay: 0.2,
-                prefersReducedMotion,
               })}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
@@ -136,7 +128,6 @@ export function CTA() {
                     transition={revealTransition({
                       duration: 0.3,
                       delay: index * 0.055,
-                      prefersReducedMotion,
                     })}
                     className="flex items-start gap-4"
                   >
@@ -160,7 +151,6 @@ export function CTA() {
               transition={revealTransition({
                 duration: 0.28,
                 delay: 0.18,
-                prefersReducedMotion,
               })}
               className="mt-4 font-mono text-xs text-muted-foreground"
             >

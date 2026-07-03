@@ -4,11 +4,7 @@ import { ClipboardList, Database, EyeOff, type LucideIcon } from "lucide-react";
 import * as motion from "motion/react-client";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import {
-  revealTransform,
-  revealTransition,
-  usePrefersReducedMotion,
-} from "./animation";
+import { revealTransform, revealTransition } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 type Problem = {
@@ -42,9 +38,8 @@ function getProblems(): Problem[] {
 }
 
 export function ProblemSection() {
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const headingReveal = revealTransform(18, prefersReducedMotion);
-  const cardReveal = revealTransform(12, prefersReducedMotion);
+  const headingReveal = revealTransform(18);
+  const cardReveal = revealTransform(12);
   const { ids } = getLandingAnchors();
 
   return (
@@ -57,7 +52,6 @@ export function ProblemSection() {
           viewport={{ once: true, margin: "-80px" }}
           transition={revealTransition({
             duration: 0.38,
-            prefersReducedMotion,
           })}
           className="max-w-3xl"
         >
@@ -84,7 +78,6 @@ export function ProblemSection() {
                 transition={revealTransition({
                   duration: 0.3,
                   delay: index * 0.05,
-                  prefersReducedMotion,
                 })}
                 className="flex min-h-48 flex-col"
               >

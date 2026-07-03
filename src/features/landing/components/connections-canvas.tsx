@@ -2,7 +2,7 @@
 
 import * as motion from "motion/react-client";
 import { useEffect, useRef, useState } from "react";
-import { landingEaseOut, usePrefersReducedMotion } from "./animation";
+import { landingEaseOut } from "./animation";
 
 type Node = {
   x: number;
@@ -64,7 +64,6 @@ export function ConnectionsCanvas({
 }: ConnectionsCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvasReady, setCanvasReady] = useState(false);
-  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,17 +213,17 @@ export function ConnectionsCanvas({
 
     function runFrame() {
       raf = 0;
-      const didPaint = drawFrame(!prefersReducedMotion);
+      const didPaint = drawFrame(true);
 
       if (!isMounted) return;
-      if (!didPaint || !prefersReducedMotion) requestFrame();
+      if (!didPaint || nodes.length > 0) requestFrame();
     }
 
     function paintNow() {
       cancelFrame();
       const didPaint = drawFrame(false);
 
-      if (!didPaint || !prefersReducedMotion) requestFrame();
+      if (!didPaint || nodes.length > 0) requestFrame();
     }
 
     function onMove(e: PointerEvent) {
@@ -264,7 +263,7 @@ export function ConnectionsCanvas({
       container.removeEventListener("pointermove", onMove);
       container.removeEventListener("pointerleave", onLeave);
     };
-  }, [density, prefersReducedMotion]);
+  }, [density]);
 
   return (
     <motion.canvas
@@ -273,11 +272,10 @@ export function ConnectionsCanvas({
       initial={false}
       animate={{
         opacity: canvasReady ? 1 : 0,
-        transform:
-          canvasReady || prefersReducedMotion ? "scale(1)" : "scale(1.015)",
+        transform: canvasReady ? "scale(1)" : "scale(1.015)",
       }}
       transition={{
-        duration: prefersReducedMotion ? 0.16 : 0.36,
+        duration: 0.36,
         ease: landingEaseOut,
       }}
     />

@@ -3,6 +3,7 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import * as motion from "motion/react-client";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { revealTransform, revealTransition } from "./animation";
@@ -16,18 +17,24 @@ export function Hero() {
   return (
     <section
       id={ids.top}
-      className="relative isolate overflow-hidden border-b border-border sm:min-h-svh"
+      className="relative isolate overflow-hidden border-b border-border min-h-svh"
     >
       <div className="absolute inset-x-0 bottom-0 top-16 -z-10">
         <ConnectionsCanvas
-          className="size-full [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_16rem,black_calc(100%-16rem),transparent),linear-gradient(to_right,transparent,black_16rem,black_calc(100%-16rem),transparent)] mask-[linear-gradient(to_bottom,transparent,black_16rem,black_calc(100%-16rem),transparent),linear-gradient(to_right,transparent,black_16rem,black_calc(100%-16rem),transparent)] [-webkit-mask-composite:source-in] mask-intersect"
-          density={2}
+          className={cn(
+            "size-full [--mask-fade:2rem] sm:[--mask-fade:16rem]",
+            "[-webkit-mask-image:linear-gradient(to_bottom,transparent,black_var(--mask-fade),black_calc(100%-var(--mask-fade)),transparent),linear-gradient(to_right,transparent,black_var(--mask-fade),black_calc(100%-var(--mask-fade)),transparent)]",
+            "mask-[linear-gradient(to_bottom,transparent,black_var(--mask-fade),black_calc(100%-var(--mask-fade)),transparent),linear-gradient(to_right,transparent,black_var(--mask-fade),black_calc(100%-var(--mask-fade)),transparent)]",
+            "[-webkit-mask-composite:source-in] mask-intersect",
+          )}
+          density={2.5}
         />
         <div className="absolute inset-0 bg-linear-to-b from-background/15 via-background/30 to-background/60 dark:hidden" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-background/90 via-background/72 to-background/15 dark:from-background/82 dark:via-background/56 dark:to-background/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-background/92 via-background/78 to-background/10 sm:from-background/90 sm:via-background/72 sm:to-background/15 dark:from-background/85 dark:via-background/60 dark:to-background/8 dark:sm:from-background/82 dark:sm:via-background/56 dark:sm:to-background/10" />
+        <div className="absolute inset-0 [background:radial-gradient(58%_44%_at_50%_50%,var(--background)_38%,transparent_78%)] sm:[background:radial-gradient(42%_46%_at_50%_50%,var(--background)_34%,transparent_74%)]" />
       </div>
 
-      <div className="mx-auto flex max-w-6xl flex-col items-center px-5 pb-24 pt-36 text-center sm:min-h-svh sm:justify-center sm:px-6 sm:pb-16 sm:pt-32">
+      <div className="mx-auto flex min-h-svh max-w-6xl flex-col items-center justify-center px-5 pb-16 pt-28 text-center sm:px-6 sm:pb-16 sm:pt-32">
         <motion.a
           href={hrefs.flow}
           initial={badgeReveal.initial}

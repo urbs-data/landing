@@ -9,6 +9,10 @@ type ThemeState = {
 };
 
 const THEME_STORAGE_KEY = "theme";
+const DEFAULT_THEME_STATE: ThemeState = {
+  mode: "light",
+  resolvedTheme: "light",
+};
 
 function isThemeMode(value: string | null): value is ThemeMode {
   return value === "light" || value === "dark" || value === "auto";
@@ -91,7 +95,7 @@ function applyThemeMode(mode: ThemeMode) {
  * in sync via `MutationObserver`, system `prefers-color-scheme`, and cross-tab `storage` events.
  */
 export function useThemeMode() {
-  const [theme, setTheme] = useState<ThemeState>(() => getThemeState());
+  const [theme, setTheme] = useState<ThemeState>(DEFAULT_THEME_STATE);
 
   const syncTheme = useCallback(() => {
     setTheme(getThemeState());

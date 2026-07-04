@@ -23,6 +23,8 @@ export function getLandingAnchors() {
       clients: homeHash(ids.clients),
       pymes: homeHash(ids.pymes),
       contact: homeHash(ids.contact),
+      blog: localizeHref("/blog"),
+      careers: localizeHref("/careers"),
     },
   };
 }

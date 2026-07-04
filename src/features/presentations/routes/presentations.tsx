@@ -16,8 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "#/components/ui/card";
-import { Footer } from "#/features/landing/components/footer";
-import { Header } from "#/features/landing/components/header";
 import { getPresentationTemplateCatalog } from "#/features/presentations/lib/template-catalog";
 import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
@@ -67,7 +65,6 @@ function PresentationsRoute() {
       title={m.presentations_gate_title()}
       description={m.presentations_gate_description()}
     >
-      <Header />
       <main className="bg-background pb-16 pt-32 text-foreground lg:pb-24 lg:pt-36">
         <section className="mx-auto max-w-6xl px-4 sm:px-6">
           <p className="font-medium text-muted-foreground text-sm">
@@ -164,7 +161,6 @@ function PresentationsRoute() {
           </div>
         </section>
       </main>
-      <Footer />
     </OtpAccessGate>
   );
 }

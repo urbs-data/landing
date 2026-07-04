@@ -1,7 +1,26 @@
+import { Link } from "@tanstack/react-router";
 import { BrandWordmark } from "#/components/brand-wordmark";
-import { m } from "@/paraglide/messages";
-import { getLandingAnchors } from "../lib/anchors";
-import { buildContactEmailHref, CONTACT_EMAIL } from "../lib/contact-email";
+import { getLandingAnchors } from "#/features/landing/lib/anchors";
+import {
+  buildContactEmailHref,
+  CONTACT_EMAIL,
+} from "#/features/landing/lib/contact-email";
+import { m } from "#/paraglide/messages";
+import { deLocalizeHref } from "#/paraglide/runtime";
+
+type InternalNavigationPath = "/" | "/blog" | "/careers";
+
+function getRouterLinkParts(href: string) {
+  const url = new URL(deLocalizeHref(href), "http://localhost");
+  const pathname = url.pathname as InternalNavigationPath;
+
+  return {
+    to: (["/", "/blog", "/careers"].includes(pathname)
+      ? pathname
+      : "/") satisfies InternalNavigationPath,
+    hash: url.hash ? url.hash.slice(1) : undefined,
+  };
+}
 
 function getGroups() {
   const { hrefs } = getLandingAnchors();
@@ -19,10 +38,17 @@ function getGroups() {
     {
       title: m.footer_company_group(),
       links: [
-        { label: m.nav_flow(), href: hrefs.flow },
+        { label: m.nav_careers(), href: hrefs.careers },
         { label: m.nav_clients(), href: hrefs.clients },
-        { label: m.footer_pymes(), href: hrefs.pymes },
         { label: m.nav_contact(), href: hrefs.contact },
+      ],
+    },
+    {
+      title: m.footer_resources_group(),
+      links: [
+        { label: m.nav_flow(), href: hrefs.flow },
+        { label: m.footer_pymes(), href: hrefs.pymes },
+        { label: m.footer_blog(), href: hrefs.blog },
       ],
     },
   ];
@@ -55,16 +81,25 @@ export function Footer() {
             <div key={g.title}>
               <h3 className="text-sm font-semibold">{g.title}</h3>
               <ul className="mt-4 space-y-2.5">
-                {g.links.map((l) => (
-                  <li key={l.label}>
-                    <a
-                      href={l.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {l.label}
-                    </a>
-                  </li>
-                ))}
+                {g.links.map((l) => {
+                  const link = getRouterLinkParts(l.href);
+
+                  return (
+                    <li key={l.label}>
+                      <Link
+                        {...link}
+                        activeOptions={{
+                          exact: true,
+                          includeHash: Boolean(link.hash),
+                        }}
+                        hashScrollIntoView={{ block: "start" }}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

@@ -1,4 +1,6 @@
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Footer } from "#/components/layout/footer";
+import { Header } from "#/components/layout/header";
 import { RouteActivityIndicator } from "#/components/route-activity-indicator";
 import {
   getHomeJsonLd,
@@ -140,10 +142,6 @@ export const Route = createRootRoute({
       ],
       links: [
         {
-          rel: "canonical",
-          href: seo.url,
-        },
-        {
           rel: "alternate",
           hrefLang: "es-AR",
           href: seo.alternates.es,
@@ -237,7 +235,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="font-sans antialiased">
+        <Header />
         {children}
+        <Footer />
         <RouteActivityIndicator />
         <Scripts />
       </body>

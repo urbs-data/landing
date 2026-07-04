@@ -56,6 +56,10 @@ export function getHomeSeo(locale: SupportedLocale) {
   };
 }
 
+export function getSeoTitle(title: string) {
+  return title.startsWith(`${BRAND_NAME} |`) ? title : `${BRAND_NAME} | ${title}`;
+}
+
 export function getOgImageUrl(
   locale: SupportedLocale,
   params?: {

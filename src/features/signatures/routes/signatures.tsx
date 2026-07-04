@@ -1,11 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { OtpAccessGate } from "#/components/otp-access-gate";
+import { getSeoTitle } from "#/features/landing/lib/seo";
 import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
 import { SignatureBuilder } from "../components/signature-builder";
 
 export const Route = createFileRoute("/signatures")({
   loader: () => getEmployeeAccess(),
+  head: () => ({
+    meta: [
+      {
+        title: getSeoTitle(m.signatures_title()),
+      },
+      {
+        name: "description",
+        content: m.signatures_description(),
+      },
+    ],
+  }),
   component: SignaturesRoute,
 });
 

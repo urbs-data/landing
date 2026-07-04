@@ -4,6 +4,7 @@ import { getBlogArticle } from "#/features/blog/lib/blog";
 import {
   getHomeSeo,
   getOgImageUrl,
+  getSeoTitle,
   getSupportedLocale,
 } from "#/features/landing/lib/seo";
 import { m } from "#/paraglide/messages";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/blog/$slug")({
     return {
       meta: [
         {
-          title: `${title} | ${seo.siteName}`,
+          title: getSeoTitle(title),
         },
         {
           name: "description",

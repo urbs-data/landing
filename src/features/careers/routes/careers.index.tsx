@@ -13,6 +13,7 @@ import {
 import {
   getHomeSeo,
   getOgImageUrl,
+  getSeoTitle,
   getSupportedLocale,
 } from "#/features/landing/lib/seo";
 import { m } from "#/paraglide/messages";
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/careers/")({
     return {
       meta: [
         {
-          title: `${m.careers_title()} | ${seo.siteName}`,
+          title: getSeoTitle(m.careers_title()),
         },
         {
           name: "description",

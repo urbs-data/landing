@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "#/components/ui/card";
+import { getSeoTitle } from "#/features/landing/lib/seo";
 import { getPresentationTemplateCatalog } from "#/features/presentations/lib/template-catalog";
 import { getEmployeeAccess } from "#/lib/employee-access";
 import { m } from "#/paraglide/messages";
@@ -38,6 +39,17 @@ const PRESENTATION_FONT_LINKS = [
 
 export const Route = createFileRoute("/presentations")({
   loader: () => getEmployeeAccess(),
+  head: () => ({
+    meta: [
+      {
+        title: getSeoTitle(m.presentations_title()),
+      },
+      {
+        name: "description",
+        content: m.presentations_description(),
+      },
+    ],
+  }),
   component: PresentationsRoute,
 });
 

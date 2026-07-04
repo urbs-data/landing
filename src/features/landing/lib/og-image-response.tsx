@@ -28,6 +28,11 @@ let markDataUriPromise: Promise<string> | undefined;
 
 type OgLocale = "es" | "en";
 
+type OgImageContent = {
+  title?: string;
+  description?: string;
+};
+
 const messages = {
   en: enMessages,
   es: esMessages,
@@ -79,6 +84,17 @@ function getOgLocale(request?: Request): OgLocale {
   return getLocale() === "en" ? "en" : "es";
 }
 
+function getOgImageContent(request?: Request): OgImageContent {
+  if (!request) return {};
+
+  const { searchParams } = new URL(request.url);
+
+  return {
+    title: searchParams.get("title") ?? undefined,
+    description: searchParams.get("description") ?? undefined,
+  };
+}
+
 export async function createOgImageResponse(request?: Request) {
   const [renderer, wordmarkDataUri, markDataUri] = await Promise.all([
     getOgRenderer(),
@@ -86,9 +102,11 @@ export async function createOgImageResponse(request?: Request) {
     getMarkDataUri(),
   ]);
   const locale = getOgLocale(request);
+  const content = getOgImageContent(request);
 
   return new ImageResponse(
     <OgImage
+      content={content}
       markDataUri={markDataUri}
       text={messages[locale]}
       wordmarkDataUri={wordmarkDataUri}
@@ -109,14 +127,20 @@ export async function createOgImageResponse(request?: Request) {
 }
 
 function OgImage({
+  content,
   markDataUri,
   text,
   wordmarkDataUri,
 }: {
+  content: OgImageContent;
   markDataUri: string;
   text: typeof esMessages;
   wordmarkDataUri: string;
 }) {
+  const isCustom = Boolean(content.title);
+  const titleFontSize =
+    isCustom && (content.title?.length ?? 0) > 62 ? 56 : 64;
+
   return (
     <div
       style={{
@@ -195,40 +219,47 @@ function OgImage({
           position: "relative",
           display: "flex",
           flexDirection: "column",
-          width: 860,
+          width: isCustom ? 930 : 860,
         }}
       >
         <div
           style={{
             display: "flex",
             color: "#1f2230",
-            fontSize: 76,
+            flexWrap: "wrap",
+            fontSize: isCustom ? titleFontSize : 76,
             fontWeight: 750,
-            lineHeight: 0.96,
+            lineHeight: isCustom ? 1.02 : 0.96,
             letterSpacing: 0,
           }}
         >
-          Urbs Data
+          {isCustom ? content.title : "Urbs Data"}
         </div>
 
         <div
           style={{
             display: "flex",
-            marginTop: 18,
+            marginTop: isCustom ? 20 : 18,
             flexWrap: "wrap",
             columnGap: 8,
             rowGap: 0,
             color: "#3f4050",
-            fontSize: 27,
+            fontSize: isCustom ? 26 : 27,
             fontWeight: 500,
             lineHeight: 1.22,
           }}
         >
-          <span>{text.hero_title_prefix}</span>
-          <span style={{ color: "#6E4DAB", fontWeight: 700 }}>
-            {text.hero_title_highlight}
-          </span>
-          <span>{text.hero_title_suffix}</span>
+          {isCustom ? (
+            <span>{content.description}</span>
+          ) : (
+            <>
+              <span>{text.hero_title_prefix}</span>
+              <span style={{ color: "#6E4DAB", fontWeight: 700 }}>
+                {text.hero_title_highlight}
+              </span>
+              <span>{text.hero_title_suffix}</span>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -56,6 +56,23 @@ export function getHomeSeo(locale: SupportedLocale) {
   };
 }
 
+export function getOgImageUrl(
+  locale: SupportedLocale,
+  params?: {
+    title?: string;
+    description?: string;
+  },
+) {
+  const url = new URL(localeMetadata[locale].image);
+
+  if (params?.title) url.searchParams.set("title", params.title);
+  if (params?.description) {
+    url.searchParams.set("description", params.description);
+  }
+
+  return url.toString();
+}
+
 export function getHomeJsonLd(locale: SupportedLocale) {
   const seo = getHomeSeo(locale);
 

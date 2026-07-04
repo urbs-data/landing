@@ -54,6 +54,22 @@ export const translatedPathnames = createTranslatedPathnames({
     en: "/presentations",
     es: "/presentations",
   },
+  "/blog": {
+    en: "/blog",
+    es: "/blog",
+  },
+  "/blog/$slug": {
+    en: "/blog/$slug",
+    es: "/blog/$slug",
+  },
+  "/careers": {
+    en: "/careers",
+    es: "/careers",
+  },
+  "/careers/$slug": {
+    en: "/careers/$slug",
+    es: "/careers/$slug",
+  },
   "/signatures": {
     en: "/signatures",
     es: "/signatures",

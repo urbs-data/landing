@@ -6,6 +6,7 @@ import { getSupportedLocale } from "#/features/landing/lib/seo";
 type SupportedLocale = ReturnType<typeof getSupportedLocale>;
 
 export type BlogArticleMetadata = {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -35,7 +36,7 @@ function normalizeLocale(locale: string | undefined): SupportedLocale {
   return getSupportedLocale(locale ?? "es");
 }
 
-function getArticleSlug(path: string) {
+function getArticleFileId(path: string) {
   return path.split("/").at(-1)?.replace(/\.md$/, "") ?? "";
 }
 
@@ -44,18 +45,20 @@ function getArticleLocale(path: string) {
 }
 
 function getMarkdownArticles(locale: SupportedLocale) {
-  return Object.entries(markdownFiles).reduce<Record<string, string>>(
+  return Object.entries(markdownFiles).reduce<
+    Array<{ fileId: string; content: string }>
+  >(
     (articles, [path, content]) => {
       if (getArticleLocale(path) !== locale || typeof content !== "string") {
         return articles;
       }
 
-      const slug = getArticleSlug(path);
+      const fileId = getArticleFileId(path);
 
-      if (slug) articles[slug] = content;
+      if (fileId) articles.push({ fileId, content });
       return articles;
     },
-    {},
+    [],
   );
 }
 
@@ -73,13 +76,15 @@ function readTags(data: Record<string, unknown>) {
 }
 
 function parseArticleMetadata(
-  slug: string,
+  fileId: string,
   fileContents: string,
 ): BlogArticleMetadata {
   const { data } = matter(fileContents);
+  const id = readStringField(data, "id") || fileId;
 
   return {
-    slug,
+    id,
+    slug: readStringField(data, "slug") || id,
     title: readStringField(data, "title"),
     description: readStringField(data, "description"),
     date: readStringField(data, "date"),
@@ -89,26 +94,27 @@ function parseArticleMetadata(
   };
 }
 
-function parseArticle(slug: string, fileContents: string): BlogArticle {
+function parseArticle(fileId: string, fileContents: string): BlogArticle {
   const { content } = matter(fileContents);
 
   return {
-    ...parseArticleMetadata(slug, fileContents),
+    ...parseArticleMetadata(fileId, fileContents),
     html: markdown.render(content),
   };
 }
 
 function getAllBlogArticlesForLocale(locale: SupportedLocale) {
-  return Object.entries(getMarkdownArticles(locale))
-    .map(([slug, content]) => parseArticleMetadata(slug, content))
+  return getMarkdownArticles(locale)
+    .map(({ fileId, content }) => parseArticleMetadata(fileId, content))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 function getBlogArticleForLocale(locale: SupportedLocale, slug: string) {
-  const articles = getMarkdownArticles(locale);
-  const article = articles[slug];
+  const article = getMarkdownArticles(locale).find(
+    ({ fileId, content }) => parseArticleMetadata(fileId, content).slug === slug,
+  );
 
-  return article ? parseArticle(slug, article) : null;
+  return article ? parseArticle(article.fileId, article.content) : null;
 }
 
 export const getAllBlogArticles = createServerFn({ method: "GET" })

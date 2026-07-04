@@ -1,4 +1,6 @@
 ---
+id: "company-evolution-is-designed"
+slug: "the-evolution-of-a-company-is-designed-too"
 title: "The evolution of a company is designed too"
 description: "How the evolution of Urbs Data led us to rethink our identity, our architecture, and the way we build products."
 date: "2026-07-04"

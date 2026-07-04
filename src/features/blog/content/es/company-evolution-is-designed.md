@@ -1,4 +1,6 @@
 ---
+id: "company-evolution-is-designed"
+slug: "la-evolucion-de-una-empresa-tambien-se-disena"
 title: "La evolución de una empresa también se diseña"
 description: "Cómo la evolución de Urbs Data nos llevó a replantear nuestra identidad, nuestra arquitectura y la forma en la que construimos productos."
 date: "2026-07-04"

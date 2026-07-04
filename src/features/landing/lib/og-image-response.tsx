@@ -1,7 +1,9 @@
-import { readFile } from "node:fs/promises";
 import { Renderer } from "takumi-js/node";
 import { ImageResponse } from "takumi-js/response";
 import { getLocale } from "#/paraglide/runtime";
+import instrumentSansDataUri from "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?inline";
+import markSvg from "../../../../public/brand/logo.svg?raw";
+import wordmarkSvg from "../../../../public/brand/wordmark-light.svg?raw";
 import enMessages from "../../../../src/i18n/messages/en.json" with {
   type: "json",
 };
@@ -12,19 +14,7 @@ import esMessages from "../../../../src/i18n/messages/es.json" with {
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-const instrumentSansUrl = new URL(
-  "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2",
-  import.meta.url,
-);
-const wordmarkUrl = new URL(
-  "../../../../public/brand/wordmark-light.svg",
-  import.meta.url,
-);
-const markUrl = new URL("../../../../public/brand/logo.svg", import.meta.url);
-
 let rendererPromise: Promise<Renderer> | undefined;
-let wordmarkDataUriPromise: Promise<string> | undefined;
-let markDataUriPromise: Promise<string> | undefined;
 
 type OgLocale = "es" | "en";
 
@@ -38,14 +28,27 @@ const messages = {
   es: esMessages,
 } satisfies Record<OgLocale, typeof esMessages>;
 
+function dataUriToBuffer(dataUri: string) {
+  const base64 = dataUri.split(",").at(1);
+
+  if (!base64) {
+    throw new Error("Invalid OG image font data URI");
+  }
+
+  return Buffer.from(base64, "base64");
+}
+
+function svgToDataUri(svg: string) {
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+}
+
 async function getOgRenderer() {
   rendererPromise ??= (async () => {
     const renderer = new Renderer();
-    const instrumentSans = await readFile(instrumentSansUrl);
 
     await renderer.registerFont({
       name: "Instrument Sans Variable",
-      data: instrumentSans,
+      data: dataUriToBuffer(instrumentSansDataUri),
       weight: 500,
       style: "normal",
     });
@@ -54,22 +57,6 @@ async function getOgRenderer() {
   })();
 
   return rendererPromise;
-}
-
-async function getWordmarkDataUri() {
-  wordmarkDataUriPromise ??= readFile(wordmarkUrl, "utf8").then(
-    (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`,
-  );
-
-  return wordmarkDataUriPromise;
-}
-
-async function getMarkDataUri() {
-  markDataUriPromise ??= readFile(markUrl, "utf8").then(
-    (svg) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`,
-  );
-
-  return markDataUriPromise;
 }
 
 function getOgLocale(request?: Request): OgLocale {
@@ -96,20 +83,16 @@ function getOgImageContent(request?: Request): OgImageContent {
 }
 
 export async function createOgImageResponse(request?: Request) {
-  const [renderer, wordmarkDataUri, markDataUri] = await Promise.all([
-    getOgRenderer(),
-    getWordmarkDataUri(),
-    getMarkDataUri(),
-  ]);
+  const renderer = await getOgRenderer();
   const locale = getOgLocale(request);
   const content = getOgImageContent(request);
 
   return new ImageResponse(
     <OgImage
       content={content}
-      markDataUri={markDataUri}
+      markDataUri={svgToDataUri(markSvg)}
       text={messages[locale]}
-      wordmarkDataUri={wordmarkDataUri}
+      wordmarkDataUri={svgToDataUri(wordmarkSvg)}
     />,
     {
       renderer,

@@ -15,6 +15,7 @@ const config = defineConfig({
     paraglideVitePlugin({
       project: "./project.inlang",
       outdir: "./src/paraglide",
+      outputStructure: "message-modules",
       strategy: ["url", "baseLocale"],
       urlPatterns,
     }),

@@ -8,8 +8,7 @@
   "scripts": {
     "dev": "vite dev --port 3100",
     "generate-routes": "tsr generate",
-    "paraglide:compile": "node --experimental-strip-types scripts/compile-paraglide.ts",
-    "build": "pnpm paraglide:compile && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "format": "biome format",

@@ -1,6 +1,7 @@
-import { useRouter, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import { ChevronDownIcon, GlobeIcon } from "lucide-react";
 import { useMemo } from "react";
+import { getLocaleChangeAction } from "#/components/locale-change";
 import { Button } from "#/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import { type AppLocale, isLocale, localeLabels, locales } from "@/i18n";
+import { type AppLocale, localeLabels, locales } from "@/i18n";
 import { m } from "@/paraglide/messages";
 import { getLocale, setLocale } from "@/paraglide/runtime";
 
@@ -68,7 +69,6 @@ export function LocaleMenuSection() {
 }
 
 function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
-  const router = useRouter();
   const matches = useRouterState({ select: (state) => state.matches });
   const localizedPaths = useMemo(() => {
     const loaderData = matches.at(-1)?.loaderData;
@@ -82,15 +82,15 @@ function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
     <DropdownMenuRadioGroup
       value={currentLocale}
       onValueChange={(value) => {
-        if (typeof value === "string" && isLocale(value)) {
-          const localizedPath = localizedPaths?.[value];
+        const action = getLocaleChangeAction(value, localizedPaths);
 
-          if (localizedPath) {
-            router.history.push(localizedPath);
-            return;
-          }
+        if (action?.kind === "navigate") {
+          window.location.assign(action.href);
+          return;
+        }
 
-          setLocale(value);
+        if (action?.kind === "set-locale") {
+          setLocale(action.locale);
         }
       }}
     >

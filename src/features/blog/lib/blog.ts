@@ -125,7 +125,13 @@ function splitAssetReference(value: string) {
   };
 }
 
-function resolveBlogAssetUrl(filePath: string, value: string) {
+function resolvePublicBlogAssetUrl(value: string) {
+  const path = normalizeBlogPath(value);
+
+  return path.startsWith("blog/") ? `/assets/${path}` : null;
+}
+
+export function resolveBlogAssetUrl(filePath: string, value: string) {
   if (shouldPreserveAssetUrl(value)) return value;
 
   const asset = splitAssetReference(value);
@@ -133,8 +139,12 @@ function resolveBlogAssetUrl(filePath: string, value: string) {
     `${getContainingDirectory(filePath)}/${asset.path}`,
   );
   const resolved = imageFiles[path];
+  const publicBlogAssetUrl = resolvePublicBlogAssetUrl(asset.path);
 
-  return resolved ? `${resolved}${asset.suffix}` : value;
+  if (resolved) return `${resolved}${asset.suffix}`;
+  if (publicBlogAssetUrl) return `${publicBlogAssetUrl}${asset.suffix}`;
+
+  return value;
 }
 
 type MarkdownArticleSource = {

@@ -181,8 +181,18 @@ function BlogArticleRoute() {
           </div>
         </header>
 
+        {article.coverImage ? (
+          <figure className="mt-8">
+            <img
+              src={article.coverImage}
+              alt={article.coverImageAlt || article.title}
+              className="aspect-video w-full border border-border bg-secondary object-cover"
+            />
+          </figure>
+        ) : null}
+
         <div
-          className="mt-10 max-w-none text-foreground leading-8 [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:decoration-primary/30 [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_blockquote]:text-muted-foreground [&_code]:border [&_code]:border-border [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_h2]:mt-12 [&_h2]:border-t [&_h2]:border-border [&_h2]:pt-8 [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-3xl [&_h2]:tracking-normal [&_h3]:mt-8 [&_h3]:font-heading [&_h3]:font-semibold [&_h3]:text-2xl [&_h3]:tracking-normal [&_li]:pl-1 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_p]:my-6 [&_pre]:my-7 [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-border [&_pre]:bg-secondary [&_pre]:p-4 [&_pre_code]:border-0 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_strong]:font-semibold [&_table]:my-7 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-3 [&_th]:border [&_th]:border-border [&_th]:bg-secondary [&_th]:p-3 [&_th]:text-left [&_ul]:my-6 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6"
+          className="mt-10 max-w-none text-foreground leading-8 [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:decoration-primary/30 [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-primary [&_blockquote]:pl-5 [&_blockquote]:text-muted-foreground [&_code]:border [&_code]:border-border [&_code]:bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_h2]:mt-12 [&_h2]:border-t [&_h2]:border-border [&_h2]:pt-8 [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-3xl [&_h2]:tracking-normal [&_h3]:mt-8 [&_h3]:font-heading [&_h3]:font-semibold [&_h3]:text-2xl [&_h3]:tracking-normal [&_img]:my-8 [&_img]:w-full [&_img]:border [&_img]:border-border [&_img]:bg-secondary [&_img]:object-cover [&_li]:pl-1 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_p]:my-6 [&_pre]:my-7 [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-border [&_pre]:bg-secondary [&_pre]:p-4 [&_pre_code]:border-0 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_strong]:font-semibold [&_table]:my-7 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-3 [&_th]:border [&_th]:border-border [&_th]:bg-secondary [&_th]:p-3 [&_th]:text-left [&_ul]:my-6 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6"
           dangerouslySetInnerHTML={{ __html: article.html }}
         />
       </article>

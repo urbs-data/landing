@@ -6,6 +6,8 @@ description: "Cómo la evolución de Urbs Data nos llevó a replantear nuestra i
 date: "2026-07-04"
 author: "Damián Ricobelli, Lead Frontend Engineer de Urbs Data"
 readTime: "9 min"
+coverImage: "/assets/blog/company-evolution-is-designed/cover.webp"
+coverImageAlt: "Sistema unificado de Data Engineering, Software Development, Automation, Business Intelligence e Inteligencia Artificial"
 tags:
   - Branding
   - Frontend

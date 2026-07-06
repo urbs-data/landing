@@ -1,20 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
+import { type ZodIssue, z } from "zod";
 import { getSupportedLocale } from "#/features/landing/lib/seo";
+import { type AppLocale, baseLocale, isLocale } from "#/i18n";
 
 type SupportedLocale = ReturnType<typeof getSupportedLocale>;
 
-export type CareerPostMetadata = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  date: string;
-  team: string;
-  location: string;
-  type: string;
-  applyUrl: string;
+const careerFrontmatterSchema = z
+  .object({
+    id: z.string().min(1),
+    slug: z.string().min(1),
+    title: z.string().min(1),
+    description: z.string().min(1),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD"),
+    team: z.string().min(1),
+    location: z.string().min(1),
+    type: z.string().min(1),
+    applyUrl: z.string().default(""),
+  })
+  .strict();
+
+export type CareerPostMetadata = z.infer<typeof careerFrontmatterSchema> & {
+  localizedPaths: Partial<Record<AppLocale, string>>;
 };
 
 export type CareerPost = CareerPostMetadata & {
@@ -37,78 +45,107 @@ function normalizeLocale(locale: string | undefined): SupportedLocale {
   return getSupportedLocale(locale ?? "es");
 }
 
-function getPostFileId(path: string) {
-  return path.split("/").at(-1)?.replace(/\.md$/, "") ?? "";
-}
-
 function getPostLocale(path: string) {
   return path.split("/").at(-2) ?? "";
 }
 
-function getMarkdownPosts(locale: SupportedLocale) {
-  return Object.entries(markdownFiles).reduce<
-    Array<{ fileId: string; content: string }>
-  >(
-    (posts, [path, content]) => {
-      if (getPostLocale(path) !== locale || typeof content !== "string") {
-        return posts;
-      }
-
-      const fileId = getPostFileId(path);
-
-      if (fileId) posts.push({ fileId, content });
-      return posts;
-    },
-    [],
-  );
+function localizeCareerPath(locale: AppLocale, slug: string) {
+  const path = `/careers/${slug}`;
+  return locale === baseLocale ? path : `/${locale}${path}`;
 }
 
-function readStringField(data: Record<string, unknown>, field: string) {
-  const value = data[field];
-  return typeof value === "string" ? value : "";
+function getMarkdownPosts(locale: SupportedLocale) {
+  return Object.entries(markdownFiles).reduce<
+    Array<{ filePath: string; content: string }>
+  >((posts, [path, content]) => {
+    if (getPostLocale(path) !== locale || typeof content !== "string") {
+      return posts;
+    }
+
+    posts.push({ filePath: path, content });
+    return posts;
+  }, []);
+}
+
+function formatIssuePath(issue: ZodIssue) {
+  return issue.path.length > 0 ? issue.path.join(".") : "frontmatter";
+}
+
+function formatFrontmatterIssue(issue: ZodIssue) {
+  return `- ${formatIssuePath(issue)}: ${issue.message}`;
+}
+
+function readCareerFrontmatter(filePath: string, data: unknown) {
+  const result = careerFrontmatterSchema.safeParse(data);
+
+  if (!result.success) {
+    throw new Error(
+      [
+        `Invalid career frontmatter in ${filePath}:`,
+        ...result.error.issues.map(formatFrontmatterIssue),
+      ].join("\n"),
+    );
+  }
+
+  return result.data;
+}
+
+function getCareerPostLocalizedPaths(id: string) {
+  return Object.entries(markdownFiles).reduce<
+    Partial<Record<AppLocale, string>>
+  >((paths, [path, content]) => {
+    const locale = getPostLocale(path);
+
+    if (!isLocale(locale) || typeof content !== "string") {
+      return paths;
+    }
+
+    const { data } = matter(content);
+    const frontmatter = readCareerFrontmatter(path, data);
+
+    if (frontmatter.id === id) {
+      paths[locale] = localizeCareerPath(locale, frontmatter.slug);
+    }
+
+    return paths;
+  }, {});
 }
 
 function parsePostMetadata(
-  fileId: string,
+  filePath: string,
   fileContents: string,
 ): CareerPostMetadata {
   const { data } = matter(fileContents);
-  const id = readStringField(data, "id") || fileId;
+  const frontmatter = readCareerFrontmatter(filePath, data);
 
   return {
-    id,
-    slug: readStringField(data, "slug") || id,
-    title: readStringField(data, "title"),
-    description: readStringField(data, "description"),
-    date: readStringField(data, "date"),
-    team: readStringField(data, "team"),
-    location: readStringField(data, "location"),
-    type: readStringField(data, "type"),
-    applyUrl: readStringField(data, "applyUrl"),
+    ...frontmatter,
+    localizedPaths: getCareerPostLocalizedPaths(frontmatter.id),
   };
 }
 
-function parsePost(fileId: string, fileContents: string): CareerPost {
+function parsePost(filePath: string, fileContents: string): CareerPost {
   const { content } = matter(fileContents);
 
   return {
-    ...parsePostMetadata(fileId, fileContents),
+    ...parsePostMetadata(filePath, fileContents),
     html: markdown.render(content),
   };
 }
 
 function getAllCareerPostsForLocale(locale: SupportedLocale) {
   return getMarkdownPosts(locale)
-    .map(({ fileId, content }) => parsePostMetadata(fileId, content))
+    .map(({ filePath, content }) => parsePostMetadata(filePath, content))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 function getCareerPostForLocale(locale: SupportedLocale, slug: string) {
   const post = getMarkdownPosts(locale).find(
-    ({ fileId, content }) => parsePostMetadata(fileId, content).slug === slug,
+    ({ filePath, content }) =>
+      parsePostMetadata(filePath, content).slug === slug,
   );
 
-  return post ? parsePost(post.fileId, post.content) : null;
+  return post ? parsePost(post.filePath, post.content) : null;
 }
 
 export const getAllCareerPosts = createServerFn({ method: "GET" })

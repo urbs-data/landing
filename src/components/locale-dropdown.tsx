@@ -1,4 +1,6 @@
+import { useRouter, useRouterState } from "@tanstack/react-router";
 import { ChevronDownIcon, GlobeIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Button } from "#/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +12,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import { isLocale, localeLabels, locales } from "@/i18n";
+import { type AppLocale, isLocale, localeLabels, locales } from "@/i18n";
 import { m } from "@/paraglide/messages";
 import { getLocale, setLocale } from "@/paraglide/runtime";
 
@@ -66,11 +68,28 @@ export function LocaleMenuSection() {
 }
 
 function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
+  const router = useRouter();
+  const matches = useRouterState({ select: (state) => state.matches });
+  const localizedPaths = useMemo(() => {
+    const loaderData = matches.at(-1)?.loaderData;
+
+    if (!hasLocalizedPaths(loaderData)) return undefined;
+
+    return loaderData.localizedPaths;
+  }, [matches]);
+
   return (
     <DropdownMenuRadioGroup
       value={currentLocale}
       onValueChange={(value) => {
         if (typeof value === "string" && isLocale(value)) {
+          const localizedPath = localizedPaths?.[value];
+
+          if (localizedPath) {
+            router.history.push(localizedPath);
+            return;
+          }
+
           setLocale(value);
         }
       }}
@@ -81,5 +100,19 @@ function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
         </DropdownMenuRadioItem>
       ))}
     </DropdownMenuRadioGroup>
+  );
+}
+
+type LocalizedPathLoaderData = {
+  localizedPaths?: Partial<Record<AppLocale, string>>;
+};
+
+function hasLocalizedPaths(value: unknown): value is LocalizedPathLoaderData {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "localizedPaths" in value &&
+      value.localizedPaths &&
+      typeof value.localizedPaths === "object",
   );
 }

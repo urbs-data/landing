@@ -6,6 +6,8 @@ description: "How the evolution of Urbs Data led us to rethink our identity, our
 date: "2026-07-04"
 author: "Damián Ricobelli, Lead Frontend Engineer at Urbs Data"
 readTime: "9 min"
+coverImage: "/assets/blog/company-evolution-is-designed/cover.webp"
+coverImageAlt: "Unified system of Data Engineering, Software Development, Automation, Business Intelligence and Artificial Intelligence"
 tags:
   - Branding
   - Frontend
@@ -29,6 +31,8 @@ For a long time, our website did its job perfectly. It explained who we were, wh
 With every project, we deepened our experience in data engineering, automation, business intelligence, artificial intelligence, and application development. Little by little, we stopped seeing those disciplines as independent services and started understanding them as parts of the same system: data feeds processes, processes drive automation, and artificial intelligence operates on reliable information to help organizations make better decisions.
 
 The problem was that our website was still telling the story of the company we had been, not the company we had become. And when that happens, the challenge stops being visual. It becomes a communication problem.
+
+![Arquitectura del sitio](./blog/company-evolution-is-designed/cover.webp)
 
 ## Before design, we needed a strategy
 

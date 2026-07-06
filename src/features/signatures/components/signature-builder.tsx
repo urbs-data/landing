@@ -39,7 +39,7 @@ const themeTokens = {
 };
 
 function getWordmarkPath(mode: SignatureMode) {
-  return `/brand/wordmark-${mode}.png`;
+  return `/assets/brand/wordmark-${mode}.png`;
 }
 
 function getAbsoluteWordmarkSrc(mode: SignatureMode) {

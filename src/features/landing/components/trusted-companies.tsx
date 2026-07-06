@@ -28,7 +28,7 @@ import { SectionKicker } from "./section-kicker";
 const companies = [
   {
     name: "Cahpsa",
-    src: "/companies/cahpsa.svg",
+    src: "/assets/companies/cahpsa.svg",
     sector: () => m.company_cahpsa_sector(),
     location: () => m.company_cahpsa_location(),
     detail: () => m.company_cahpsa_detail(),
@@ -36,7 +36,7 @@ const companies = [
   },
   {
     name: "CIGRA",
-    src: "/companies/cigra.svg",
+    src: "/assets/companies/cigra.svg",
     sector: () => m.company_cigra_sector(),
     location: () => m.company_cigra_location(),
     detail: () => m.company_cigra_detail(),
@@ -44,7 +44,7 @@ const companies = [
   },
   {
     name: "Byontek",
-    src: "/companies/byontek.svg",
+    src: "/assets/companies/byontek.svg",
     sector: () => m.company_byontek_sector(),
     location: () => m.company_byontek_location(),
     detail: () => m.company_byontek_detail(),
@@ -52,7 +52,7 @@ const companies = [
   },
   {
     name: "Credito Argentino",
-    src: "/companies/credito-argentino.svg",
+    src: "/assets/companies/credito-argentino.svg",
     sector: () => m.company_credito_argentino_sector(),
     location: () => m.company_credito_argentino_location(),
     detail: () => m.company_credito_argentino_detail(),
@@ -60,7 +60,7 @@ const companies = [
   },
   {
     name: "4Plus",
-    src: "/companies/4plus.svg",
+    src: "/assets/companies/4plus.svg",
     sector: () => m.company_fourplus_sector(),
     location: () => m.company_fourplus_location(),
     detail: () => m.company_fourplus_detail(),
@@ -68,7 +68,7 @@ const companies = [
   },
   {
     name: "MacroAgro",
-    src: "/companies/macroagro.svg",
+    src: "/assets/companies/macroagro.svg",
     sector: () => m.company_macroagro_sector(),
     location: () => m.company_macroagro_location(),
     detail: () => m.company_macroagro_detail(),
@@ -76,7 +76,7 @@ const companies = [
   },
   {
     name: "LBO",
-    src: "/companies/lbo.svg",
+    src: "/assets/companies/lbo.svg",
     sector: () => m.company_lbo_sector(),
     location: () => m.company_lbo_location(),
     detail: () => m.company_lbo_detail(),
@@ -84,7 +84,7 @@ const companies = [
   },
   {
     name: "Nexo",
-    src: "/companies/nexo.svg",
+    src: "/assets/companies/nexo.svg",
     sector: () => m.company_nexo_sector(),
     location: () => m.company_nexo_location(),
     detail: () => m.company_nexo_detail(),
@@ -92,7 +92,7 @@ const companies = [
   },
   {
     name: "Corteva",
-    src: "/companies/corteva.svg",
+    src: "/assets/companies/corteva.svg",
     sector: () => m.company_corteva_sector(),
     location: () => m.company_corteva_location(),
     detail: () => m.company_corteva_detail(),
@@ -100,7 +100,7 @@ const companies = [
   },
   {
     name: "Hemisphere",
-    src: "/companies/hemisphere.svg",
+    src: "/assets/companies/hemisphere.svg",
     sector: () => m.company_hemisphere_sector(),
     location: () => m.company_hemisphere_location(),
     detail: () => m.company_hemisphere_detail(),
@@ -108,7 +108,7 @@ const companies = [
   },
   {
     name: "Rosental",
-    src: "/companies/rosental.svg",
+    src: "/assets/companies/rosental.svg",
     sector: () => m.company_rosental_sector(),
     location: () => m.company_rosental_location(),
     detail: () => m.company_rosental_detail(),

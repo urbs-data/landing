@@ -57,7 +57,7 @@ function TemplatePreview({ templateKey }: { templateKey: string }) {
   return (
     <div className="mb-4 aspect-video overflow-hidden border border-border bg-secondary">
       <img
-        src={`/presentations/${templateKey}.png`}
+        src={`/assets/presentations/${templateKey}.png`}
         alt=""
         loading="lazy"
         className="size-full object-cover"

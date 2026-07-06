@@ -1,9 +1,9 @@
 // Generates every raster asset of the Urbs brand from the canonical SVGs in
-// public/brand/:
+// public/assets/brand/:
 //
 //   node scripts/generate-brand-assets.mjs
 //
-//   - public/brand/wordmark-{light,dark}.png — hosted images referenced by the
+//   - public/assets/brand/wordmark-{light,dark}.png — hosted images referenced by the
 //     email-signature HTML (email clients need a real URL).
 //   - src/features/presentations/lib/brand-assets.ts — logo/wordmark as base64
 //     data URIs baked into the .pptx generator (no runtime fs dependency).
@@ -19,7 +19,7 @@ import { join } from "node:path";
 const chromePath =
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const tempDir = mkdtempSync(join(tmpdir(), "urbs-brand-assets-"));
-const brandDir = join(process.cwd(), "public", "brand");
+const brandDir = join(process.cwd(), "public", "assets", "brand");
 
 function readSvg(file) {
   return readFileSync(join(brandDir, file), "utf8");
@@ -61,7 +61,7 @@ function shoot(name, pngPath, svg, scale) {
   console.log(`✓ ${pngPath}`);
 }
 
-/* ---- Email signature wordmarks (served from public/brand/) ---- */
+/* ---- Email signature wordmarks (served from public/assets/brand/) ---- */
 
 for (const mode of ["light", "dark"]) {
   shoot(

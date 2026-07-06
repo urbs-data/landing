@@ -8,7 +8,7 @@ type BrandWordmarkProps = {
 };
 
 /**
- * Urbs wordmark rendered from the brand SVG assets (`public/brand/wordmark-*.svg`).
+ * Urbs wordmark rendered from the brand SVG assets (`public/assets/brand/wordmark-*.svg`).
  * The light/dark variants are toggled with the `.dark` class so it stays correct
  * without a theme hook (SSR-safe, no hydration flash).
  */
@@ -19,13 +19,13 @@ export function BrandWordmark({
   const images = (
     <>
       <img
-        src="/brand/wordmark-light.svg"
+        src="/assets/brand/wordmark-light.svg"
         alt=""
         aria-hidden="true"
         className="block h-8 w-auto dark:hidden"
       />
       <img
-        src="/brand/wordmark-dark.svg"
+        src="/assets/brand/wordmark-dark.svg"
         alt=""
         aria-hidden="true"
         className="hidden h-8 w-auto dark:block brightness-150"

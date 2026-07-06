@@ -2,14 +2,10 @@ import { Renderer } from "takumi-js/node";
 import { ImageResponse } from "takumi-js/response";
 import { getLocale } from "#/paraglide/runtime";
 import instrumentSansDataUri from "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?inline";
-import markSvg from "../../../../public/brand/logo.svg?raw";
-import wordmarkSvg from "../../../../public/brand/wordmark-light.svg?raw";
-import enMessages from "../../../../src/i18n/messages/en.json" with {
-  type: "json",
-};
-import esMessages from "../../../../src/i18n/messages/es.json" with {
-  type: "json",
-};
+import markSvg from "../../../../public/assets/brand/logo.svg?raw";
+import wordmarkSvg from "../../../../public/assets/brand/wordmark-light.svg?raw";
+import enMessages from "../../../../src/i18n/messages/en.json" with { type: "json" };
+import esMessages from "../../../../src/i18n/messages/es.json" with { type: "json" };
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -121,8 +117,9 @@ function OgImage({
   wordmarkDataUri: string;
 }) {
   const isCustom = Boolean(content.title);
-  const titleFontSize =
-    isCustom && (content.title?.length ?? 0) > 62 ? 56 : 64;
+  const titleLength = content.title?.length ?? 0;
+  const titleFontSize = !isCustom ? 104 : titleLength > 10 ? 56 : 64;
+  const descriptionFontSize = isCustom ? 32 : 36;
 
   return (
     <div
@@ -134,7 +131,7 @@ function OgImage({
         overflow: "hidden",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "64px 72px 72px",
+        padding: "56px 72px 68px",
         background:
           "linear-gradient(105deg, #f3f7fa 0%, #f4efff 48%, #b67cff 100%)",
         color: "#28252d",
@@ -153,23 +150,23 @@ function OgImage({
       <div
         style={{
           position: "absolute",
-          right: -44,
-          top: 120,
+          right: -64,
+          top: 108,
           display: "flex",
-          width: 420,
-          height: 326,
-          opacity: 0.12,
+          width: 460,
+          height: 356,
+          opacity: 0.11,
         }}
       >
         <img
           src={markDataUri}
           alt=""
-          width={420}
-          height={326}
+          width={460}
+          height={356}
           style={{
             display: "block",
-            width: 420,
-            height: 326,
+            width: 460,
+            height: 356,
             objectFit: "contain",
           }}
         />
@@ -179,19 +176,19 @@ function OgImage({
         style={{
           position: "relative",
           display: "flex",
-          width: 168,
-          height: 68,
+          width: 190,
+          height: 76,
         }}
       >
         <img
           src={wordmarkDataUri}
           alt="Urbs Data"
-          width={168}
-          height={68}
+          width={190}
+          height={76}
           style={{
             display: "block",
-            width: 168,
-            height: 68,
+            width: 190,
+            height: 76,
             objectFit: "contain",
           }}
         />
@@ -202,7 +199,7 @@ function OgImage({
           position: "relative",
           display: "flex",
           flexDirection: "column",
-          width: isCustom ? 930 : 860,
+          width: isCustom ? 990 : 940,
         }}
       >
         <div
@@ -210,9 +207,9 @@ function OgImage({
             display: "flex",
             color: "#1f2230",
             flexWrap: "wrap",
-            fontSize: isCustom ? titleFontSize : 76,
+            fontSize: titleFontSize,
             fontWeight: 750,
-            lineHeight: isCustom ? 1.02 : 0.96,
+            lineHeight: isCustom ? 1.04 : 0.92,
             letterSpacing: 0,
           }}
         >
@@ -222,14 +219,14 @@ function OgImage({
         <div
           style={{
             display: "flex",
-            marginTop: isCustom ? 20 : 18,
+            marginTop: isCustom ? 22 : 20,
             flexWrap: "wrap",
-            columnGap: 8,
+            columnGap: 10,
             rowGap: 0,
             color: "#3f4050",
-            fontSize: isCustom ? 26 : 27,
+            fontSize: descriptionFontSize,
             fontWeight: 500,
-            lineHeight: 1.22,
+            lineHeight: 1.18,
           }}
         >
           {isCustom ? (

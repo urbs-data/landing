@@ -372,9 +372,9 @@ function HeaderLogo() {
       >
         <ContextMenuItem
           render={
-            <a href="/brand/logo.svg" download="urbs-logo.svg">
+            <a href="/assets/brand/logo.svg" download="urbs-logo.svg">
               <img
-                src="/brand/logo.svg"
+                src="/assets/brand/logo.svg"
                 alt=""
                 aria-hidden="true"
                 className="size-4"
@@ -386,7 +386,7 @@ function HeaderLogo() {
         <ContextMenuItem
           render={
             <a
-              href={`/brand/wordmark-${theme}.svg`}
+              href={`/assets/brand/wordmark-${theme}.svg`}
               download="urbs-wordmark.svg"
             >
               <Type className="size-4" />
@@ -397,7 +397,7 @@ function HeaderLogo() {
         <ContextMenuItem
           render={
             <a
-              href={`/urbs-brand-guidelines-${getLocale()}.pdf`}
+              href={`/assets/urbs-brand-guidelines-${getLocale()}.pdf`}
               download={`urbs-brand-guidelines-${getLocale()}.pdf`}
             >
               <FileText className="size-4" />

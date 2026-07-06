@@ -30,8 +30,6 @@ With every project, we deepened our experience in data engineering, automation, 
 
 The problem was that our website was still telling the story of the company we had been, not the company we had become. And when that happens, the challenge stops being visual. It becomes a communication problem.
 
-![Arquitectura del sitio](./blog/company-evolution-is-designed/cover.webp)
-
 ## Before design, we needed a strategy
 
 Before opening Figma or writing a single line of code, there was a much more important question to answer.

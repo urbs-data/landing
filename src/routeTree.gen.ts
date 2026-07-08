@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SocialRouteImport } from './features/social/routes/social'
 import { Route as SignaturesRouteImport } from './features/signatures/routes/signatures'
 import { Route as PresentationsRouteImport } from './features/presentations/routes/presentations'
 import { Route as CareersRouteImport } from './features/careers/routes/careers'
@@ -20,6 +21,11 @@ import { Route as Char123LangChar125DotogImageRouteImport } from './features/lan
 import { Route as CareersDotslugRouteImport } from './features/careers/routes/careers.$slug'
 import { Route as BlogDotslugRouteImport } from './features/blog/routes/blog.$slug'
 
+const SocialRoute = SocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignaturesRoute = SignaturesRouteImport.update({
   id: '/signatures',
   path: '/signatures',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/careers': typeof CareersRouteWithChildren
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
+  '/social': typeof SocialRoute
   '/blog/$slug': typeof BlogDotslugRoute
   '/careers/$slug': typeof CareersDotslugRoute
   '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
+  '/social': typeof SocialRoute
   '/blog/$slug': typeof BlogDotslugRoute
   '/careers/$slug': typeof CareersDotslugRoute
   '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/careers': typeof CareersRouteWithChildren
   '/presentations': typeof PresentationsRoute
   '/signatures': typeof SignaturesRoute
+  '/social': typeof SocialRoute
   '/blog/$slug': typeof BlogDotslugRoute
   '/careers/$slug': typeof CareersDotslugRoute
   '/{-$lang}/og-image': typeof Char123LangChar125DotogImageRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/careers'
     | '/presentations'
     | '/signatures'
+    | '/social'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/{-$lang}/og-image'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/presentations'
     | '/signatures'
+    | '/social'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/{-$lang}/og-image'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/careers'
     | '/presentations'
     | '/signatures'
+    | '/social'
     | '/blog/$slug'
     | '/careers/$slug'
     | '/{-$lang}/og-image'
@@ -150,11 +162,19 @@ export interface RootRouteChildren {
   CareersRoute: typeof CareersRouteWithChildren
   PresentationsRoute: typeof PresentationsRoute
   SignaturesRoute: typeof SignaturesRoute
+  SocialRoute: typeof SocialRoute
   Char123LangChar125DotogImageRoute: typeof Char123LangChar125DotogImageRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/social': {
+      id: '/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof SocialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signatures': {
       id: '/signatures'
       path: '/signatures'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   CareersRoute: CareersRouteWithChildren,
   PresentationsRoute: PresentationsRoute,
   SignaturesRoute: SignaturesRoute,
+  SocialRoute: SocialRoute,
   Char123LangChar125DotogImageRoute: Char123LangChar125DotogImageRoute,
 }
 export const routeTree = rootRouteImport

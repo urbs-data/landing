@@ -7,6 +7,10 @@ import {
   isPresentationTemplateKey,
   isPresentationTemplateMode,
 } from "./features/presentations/lib/template-catalog";
+import {
+  isSocialAssetKey,
+  socialAssetFiles,
+} from "./features/social/lib/social-assets";
 import { defaultLocale, isLocale } from "./i18n";
 import {
   createEmployeeAccessCookie,
@@ -94,6 +98,47 @@ async function handlePresentationTemplate(req: Request, url: URL) {
   });
 }
 
+async function handleSocialAsset(req: Request, url: URL) {
+  if (req.method !== "GET") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+
+  const hasAccess = await isEmployeeAccessGrantedFromCookieHeader(
+    req.headers.get("Cookie"),
+  );
+
+  if (!hasAccess) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const match = url.pathname.match(/^\/api\/social\/assets\/([^/]+)$/);
+
+  if (!match) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const [, key] = match;
+
+  if (!isSocialAssetKey(key)) {
+    return new Response("Asset not found", { status: 404 });
+  }
+
+  const asset = socialAssetFiles[key];
+  const response = await fetch(new URL(asset.sourcePath, url.origin));
+
+  if (!response.ok) {
+    return new Response("Asset not found", { status: 404 });
+  }
+
+  return new Response(await response.arrayBuffer(), {
+    headers: {
+      "Content-Type": asset.contentType,
+      "Content-Disposition": `attachment; filename="${asset.filename}"`,
+      "Cache-Control": "private, max-age=300",
+    },
+  });
+}
+
 export default {
   fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
@@ -104,6 +149,10 @@ export default {
 
     if (url.pathname.startsWith("/api/presentations/templates/")) {
       return handlePresentationTemplate(req, url);
+    }
+
+    if (url.pathname.startsWith("/api/social/assets/")) {
+      return handleSocialAsset(req, url);
     }
 
     return paraglideMiddleware(req, () => handler.fetch(req));

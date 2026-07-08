@@ -74,6 +74,10 @@ export const translatedPathnames = createTranslatedPathnames({
     en: "/signatures",
     es: "/signatures",
   },
+  "/social": {
+    en: "/social",
+    es: "/social",
+  },
 });
 
 const defaultLocalizedPathPattern: TranslatedPathname = {

@@ -95,6 +95,7 @@ Spanish is the base locale and does not use a URL prefix. English uses the `/en`
 | Career post | `/careers/:slug` | `/en/careers/:slug` |
 | Signatures | `/signatures` | `/en/signatures` |
 | Presentations | `/presentations` | `/en/presentations` |
+| Social assets | `/social` | `/en/social` |
 
 Localized path patterns live in `src/i18n/url-patterns.ts`. The route segments currently match across both locales, but each Markdown document can still define a locale-specific `slug`.
 
@@ -109,13 +110,13 @@ SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET=
 
 `SERVER_URL` and `VITE_APP_TITLE` are optional.
 
-`SIGNATURES_PRESENTATIONS_ACCESS_CODE` enables access to the employee-only signatures and presentations tools. Do not document, commit, or publicly share the actual value. Employees who need access should request the code from their leaders.
+`SIGNATURES_PRESENTATIONS_ACCESS_CODE` enables access to the employee-only signatures, presentations, and social assets tools. Do not document, commit, or publicly share the actual value. Employees who need access should request the code from their leaders.
 
 `SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET` is optional, but recommended in shared or production environments. If it is not set, the access code is used as the cookie signing secret.
 
 ## Employee-Only Routes
 
-The signatures and presentations routes share the same access gate. Access is granted with a 6-digit code and stored in an HTTP-only cookie for 8 hours.
+The signatures, presentations, and social assets routes share the same access gate. Access is granted with a 6-digit code and stored in an HTTP-only cookie for 8 hours.
 
 ```mermaid
 graph TD
@@ -201,6 +202,46 @@ The page also links to the template fonts:
 - Instrument Sans
 - IBM Plex Sans
 - Pitagon Sans Mono
+
+### Social Assets
+
+Routes:
+
+```text
+/social
+/en/social
+```
+
+This page lets employees download social profile assets using the Urbs Data visual identity. It is also protected by the employee access gate.
+
+Available assets:
+
+```text
+linkedin
+meet
+```
+
+Downloads go through:
+
+```text
+GET /api/social/assets/:asset
+```
+
+Example endpoint:
+
+```text
+/api/social/assets/linkedin
+/api/social/assets/meet
+```
+
+The endpoint returns `401 Unauthorized` when there is no valid access cookie. The visible catalog lives in `src/features/social/lib/social-assets.ts`.
+
+Asset source files live in:
+
+```text
+public/assets/social/linkedin.png
+public/assets/social/meet.png
+```
 
 ## Content Workflow
 
@@ -484,6 +525,6 @@ pnpm build
 
 - Never commit secrets or access codes.
 - Never document the real value of `SIGNATURES_PRESENTATIONS_ACCESS_CODE`.
-- `/signatures` and `/presentations` are employee-only routes.
+- `/signatures`, `/presentations`, and `/social` are employee-only routes.
 - Employees should request the access code from their leaders.
 - If the access mechanism changes, update `src/lib/employee-access.ts`, `src/server.ts`, and this README together.

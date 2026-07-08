@@ -6,6 +6,7 @@ const featureRoutes = [
   physical("../features/careers/routes"),
   physical("../features/signatures/routes"),
   physical("../features/presentations/routes"),
+  physical("../features/social/routes"),
 ];
 
 export const routes = rootRoute("__root.tsx", [...featureRoutes]);

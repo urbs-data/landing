@@ -32,7 +32,6 @@ export function getSocialAssetCatalog() {
       description: m.social_asset_linkedin_cover_description(),
       dimensions: m.social_asset_linkedin_cover_dimensions(),
       format: "PNG",
-      previewAspectRatio: "4 / 1",
       previewPath: socialAssetFiles.linkedin.sourcePath,
       downloadPath: "/api/social/assets/linkedin",
     },
@@ -42,7 +41,6 @@ export function getSocialAssetCatalog() {
       description: m.social_asset_meet_background_description(),
       dimensions: m.social_asset_meet_background_dimensions(),
       format: "PNG",
-      previewAspectRatio: "16 / 9",
       previewPath: socialAssetFiles.meet.sourcePath,
       downloadPath: "/api/social/assets/meet",
     },
@@ -52,7 +50,6 @@ export function getSocialAssetCatalog() {
     description: string;
     dimensions: string;
     format: string;
-    previewAspectRatio: string;
     previewPath: string;
     downloadPath: string;
   }[];

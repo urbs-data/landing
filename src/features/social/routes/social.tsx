@@ -58,15 +58,12 @@ function SocialRoute() {
             {assets.map((asset) => (
               <Card key={asset.key} className="rounded-none">
                 <CardHeader>
-                  <div
-                    className="mb-4 overflow-hidden border border-border bg-secondary"
-                    style={{ aspectRatio: asset.previewAspectRatio }}
-                  >
+                  <div className="mb-4 aspect-4/1 overflow-hidden border border-border bg-white">
                     <img
                       src={asset.previewPath}
                       alt=""
                       loading="lazy"
-                      className="size-full object-cover"
+                      className="size-full object-cover object-right-top"
                     />
                   </div>
                   <CardTitle>{asset.name}</CardTitle>

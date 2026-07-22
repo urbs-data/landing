@@ -80,12 +80,6 @@ export const Route = createFileRoute("/careers/")({
           content: m.careers_title(),
         },
       ],
-      links: [
-        {
-          rel: "canonical",
-          href: url,
-        },
-      ],
     };
   },
   component: CareersIndexRoute,

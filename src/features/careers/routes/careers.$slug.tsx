@@ -14,6 +14,7 @@ import {
 import {
   getHomeSeo,
   getOgImageUrl,
+  getPageSeoLinks,
   getSeoTitle,
   getSupportedLocale,
 } from "#/features/landing/lib/seo";
@@ -80,12 +81,13 @@ export const Route = createFileRoute("/careers/$slug")({
           content: title,
         },
       ],
-      links: [
-        {
-          rel: "canonical",
-          href: url,
-        },
-      ],
+      // Emitted here rather than in __root.tsx: the post slug differs per
+      // locale, so the alternates have to come from the loader's mapping.
+      links: getPageSeoLinks(
+        locale,
+        `/careers/${params.slug}`,
+        loaderData?.localizedPaths,
+      ),
     };
   },
   component: CareerPostRoute,

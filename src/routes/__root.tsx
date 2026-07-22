@@ -5,7 +5,9 @@ import { RouteActivityIndicator } from "#/components/route-activity-indicator";
 import {
   getHomeJsonLd,
   getHomeSeo,
+  getPageSeoLinks,
   getSupportedLocale,
+  isNoIndexPath,
   stringifyJsonLd,
 } from "#/features/landing/lib/seo";
 import { m } from "#/paraglide/messages";
@@ -23,8 +25,19 @@ export const Route = createRootRoute({
     }
   },
 
-  head: () => {
-    const seo = getHomeSeo(getSupportedLocale(getLocale()));
+  head: ({ matches }) => {
+    const locale = getSupportedLocale(getLocale());
+    const seo = getHomeSeo(locale);
+    // De-localized pathname of the deepest match; the router rewrite strips the
+    // locale prefix on the way in, so this is the shared path across locales.
+    const deepestMatch = matches.at(-1);
+    const pathname = deepestMatch?.pathname ?? "/";
+    // Blog articles and career posts have a different slug per locale, so the
+    // identity path mapping below would produce wrong alternates. Those routes
+    // build their own canonical/hreflang from the loader's `localizedPaths`.
+    const ownsSeoLinks =
+      deepestMatch?.routeId === "/blog/$slug" ||
+      deepestMatch?.routeId === "/careers/$slug";
 
     return {
       meta: [
@@ -52,8 +65,9 @@ export const Route = createRootRoute({
         },
         {
           name: "robots",
-          content:
-            "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+          content: isNoIndexPath(pathname)
+            ? "noindex, nofollow"
+            : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
         },
         {
           name: "theme-color",
@@ -141,21 +155,7 @@ export const Route = createRootRoute({
         },
       ],
       links: [
-        {
-          rel: "alternate",
-          hrefLang: "es-AR",
-          href: seo.alternates.es,
-        },
-        {
-          rel: "alternate",
-          hrefLang: "en",
-          href: seo.alternates.en,
-        },
-        {
-          rel: "alternate",
-          hrefLang: "x-default",
-          href: seo.alternates.default,
-        },
+        ...(ownsSeoLinks ? [] : getPageSeoLinks(locale, pathname)),
         {
           rel: "icon",
           href: "/favicon.svg",

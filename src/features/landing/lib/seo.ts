@@ -1,3 +1,4 @@
+import { baseLocale, locales } from "#/i18n";
 import { m } from "#/paraglide/messages";
 
 type SupportedLocale = "es" | "en";
@@ -38,6 +39,101 @@ export function getSupportedLocale(locale: string): SupportedLocale {
   return locale === "en" ? "en" : "es";
 }
 
+/**
+ * Internal-only pages. They render an access gate (or no content at all) to a
+ * crawler, so Google reads them as soft 404s and clusters them as duplicates.
+ * Kept out of the index and out of the sitemap.
+ */
+const noIndexPaths = new Set([
+  "/presentations",
+  "/signatures",
+  "/social",
+]);
+
+/**
+ * Normalizes a de-localized router pathname into the form used to build
+ * absolute URLs: no trailing slash, "/" for the home page.
+ */
+export function normalizePath(pathname: string) {
+  const path = pathname.replace(/\/+$/, "");
+  return path.startsWith("/") ? path || "/" : `/${path}`;
+}
+
+export function isNoIndexPath(pathname: string) {
+  return noIndexPaths.has(normalizePath(pathname));
+}
+
+/**
+ * Absolute URL for a de-localized path in a given locale. The base locale (es)
+ * lives at the root; other locales are prefixed. The home page keeps its
+ * trailing slash, every other path drops it.
+ */
+export function getLocalizedUrl(locale: SupportedLocale, pathname: string) {
+  const path = normalizePath(pathname);
+  const prefix = locale === "es" ? "" : `/${locale}`;
+
+  return path === "/" ? `${SITE_URL}${prefix}/` : `${SITE_URL}${prefix}${path}`;
+}
+
+const HREFLANG_BY_LOCALE: Record<SupportedLocale, string> = {
+  es: "es-AR",
+  en: "en",
+};
+
+/**
+ * Canonical + hreflang links for the page currently being rendered. Declared
+ * once at the root so every route emits alternates that point at itself
+ * instead of at the home page.
+ *
+ * `localizedPaths` covers routes whose slug differs per locale (blog articles,
+ * career posts). It holds already-prefixed paths, e.g.
+ * `{ es: "/blog/la-evolucion...", en: "/en/blog/the-evolution..." }`. When it
+ * only carries one locale — a post published in a single language — we emit an
+ * alternate for that locale alone. Emitting the other one would advertise a
+ * URL that does not exist, which Google reports as a soft 404 / duplicate.
+ */
+export function getPageSeoLinks(
+  locale: SupportedLocale,
+  pathname: string,
+  localizedPaths?: Partial<Record<SupportedLocale, string>>,
+) {
+  if (isNoIndexPath(pathname)) return [];
+
+  // Absolute URL per locale that actually has a page. Static routes exist in
+  // every locale, so we synthesize both from the shared path; slug routes only
+  // list the locales present in `localizedPaths`.
+  const urlByLocale = new Map<SupportedLocale, string>(
+    localizedPaths
+      ? locales
+          .filter((value) => Boolean(localizedPaths[value]))
+          .map((value) => [value, `${SITE_URL}${localizedPaths[value]}`])
+      : locales.map((value) => [value, getLocalizedUrl(value, pathname)]),
+  );
+
+  const canonicalHref = urlByLocale.get(locale);
+
+  // Should never happen (the page renders in `locale`, so its own URL exists),
+  // but guard rather than emit a broken canonical.
+  if (!canonicalHref) return [];
+
+  const links: Array<{ rel: string; href: string; hrefLang?: string }> = [
+    { rel: "canonical", href: canonicalHref },
+  ];
+
+  for (const [value, href] of urlByLocale) {
+    links.push({ rel: "alternate", hrefLang: HREFLANG_BY_LOCALE[value], href });
+  }
+
+  // x-default points at the base locale when it exists, else the canonical.
+  links.push({
+    rel: "alternate",
+    hrefLang: "x-default",
+    href: urlByLocale.get(baseLocale) ?? canonicalHref,
+  });
+
+  return links;
+}
+
 export function getHomeSeo(locale: SupportedLocale) {
   const metadata = localeMetadata[locale];
 
@@ -57,7 +153,9 @@ export function getHomeSeo(locale: SupportedLocale) {
 }
 
 export function getSeoTitle(title: string) {
-  return title.startsWith(`${BRAND_NAME} |`) ? title : `${BRAND_NAME} | ${title}`;
+  return title.startsWith(`${BRAND_NAME} |`)
+    ? title
+    : `${BRAND_NAME} | ${title}`;
 }
 
 export function getOgImageUrl(

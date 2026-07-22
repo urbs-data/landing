@@ -4,6 +4,7 @@ import { getBlogArticle } from "#/features/blog/lib/blog";
 import {
   getHomeSeo,
   getOgImageUrl,
+  getPageSeoLinks,
   getSeoTitle,
   getSupportedLocale,
 } from "#/features/landing/lib/seo";
@@ -90,12 +91,13 @@ export const Route = createFileRoute("/blog/$slug")({
           content: title,
         },
       ],
-      links: [
-        {
-          rel: "canonical",
-          href: url,
-        },
-      ],
+      // Emitted here rather than in __root.tsx: the article slug differs per
+      // locale, so the alternates have to come from the loader's mapping.
+      links: getPageSeoLinks(
+        locale,
+        `/blog/${params.slug}`,
+        loaderData?.localizedPaths,
+      ),
     };
   },
   component: BlogArticleRoute,

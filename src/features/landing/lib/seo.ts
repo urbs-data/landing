@@ -1,9 +1,8 @@
-import { baseLocale, locales } from "#/i18n";
+import { baseLocale, hreflangByLocale, locales, SITE_URL } from "#/i18n";
 import { m } from "#/paraglide/messages";
 
 type SupportedLocale = "es" | "en";
 
-const SITE_URL = "https://urbsdata.com";
 const BRAND_NAME = "Urbs Data";
 const CONTACT_EMAIL = "hola@urbsdata.com";
 const LOGO_URL = `${SITE_URL}/web-app-manifest-512x512.png`;
@@ -44,11 +43,7 @@ export function getSupportedLocale(locale: string): SupportedLocale {
  * crawler, so Google reads them as soft 404s and clusters them as duplicates.
  * Kept out of the index and out of the sitemap.
  */
-const noIndexPaths = new Set([
-  "/presentations",
-  "/signatures",
-  "/social",
-]);
+const noIndexPaths = new Set(["/presentations", "/signatures", "/social"]);
 
 /**
  * Normalizes a de-localized router pathname into the form used to build
@@ -74,11 +69,6 @@ export function getLocalizedUrl(locale: SupportedLocale, pathname: string) {
 
   return path === "/" ? `${SITE_URL}${prefix}/` : `${SITE_URL}${prefix}${path}`;
 }
-
-const HREFLANG_BY_LOCALE: Record<SupportedLocale, string> = {
-  es: "es-AR",
-  en: "en",
-};
 
 /**
  * Canonical + hreflang links for the page currently being rendered. Declared
@@ -121,7 +111,7 @@ export function getPageSeoLinks(
   ];
 
   for (const [value, href] of urlByLocale) {
-    links.push({ rel: "alternate", hrefLang: HREFLANG_BY_LOCALE[value], href });
+    links.push({ rel: "alternate", hrefLang: hreflangByLocale[value], href });
   }
 
   // x-default points at the base locale when it exists, else the canonical.

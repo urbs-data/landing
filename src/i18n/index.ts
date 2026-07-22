@@ -6,6 +6,13 @@ export type AppLocale = (typeof locales)[number];
 
 export const defaultLocale = baseLocale;
 
+export const SITE_URL = "https://urbsdata.com";
+
+export const hreflangByLocale: Record<AppLocale, string> = {
+  es: "es-AR",
+  en: "en",
+};
+
 /**
  * Header the client attaches to auth requests so server-side email rendering
  * (which has no localized URL to infer from) can pick the recipient's locale.

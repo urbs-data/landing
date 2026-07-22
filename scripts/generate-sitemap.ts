@@ -6,20 +6,29 @@
  * purpose — they carry a `noindex` tag (see `noIndexPaths` in
  * src/features/landing/lib/seo.ts) and must not be advertised here.
  *
- * Usage: node scripts/generate-sitemap.mjs
+ * Usage: node scripts/generate-sitemap.ts
  */
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-
-const SITE_URL = "https://urbsdata.com";
-const LOCALES = ["es", "en"];
-const BASE_LOCALE = "es";
-const HREFLANG = { es: "es-AR", en: "en" };
+import {
+  type AppLocale,
+  baseLocale,
+  hreflangByLocale,
+  locales,
+  SITE_URL,
+} from "../src/i18n/index.ts";
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const blogContentDir = join(rootDir, "src/features/blog/content");
 const outputFile = join(rootDir, "public/sitemap.xml");
+
+type SitemapEntry = {
+  urls: Partial<Record<AppLocale, string>>;
+  lastmod?: string;
+  priority: string;
+  changefreq: string;
+};
 
 /** Static routes, as de-localized paths, with their crawl priority. */
 const staticRoutes = [
@@ -28,15 +37,15 @@ const staticRoutes = [
   { path: "/careers", priority: "0.6", changefreq: "weekly" },
 ];
 
-function localizeUrl(locale, path) {
-  const prefix = locale === BASE_LOCALE ? "" : `/${locale}`;
+function localizeUrl(locale: AppLocale, path: string) {
+  const prefix = locale === baseLocale ? "" : `/${locale}`;
   return path === "/"
     ? `${SITE_URL}${prefix}/`
     : `${SITE_URL}${prefix}${path}`;
 }
 
 /** Minimal frontmatter reader — only the scalar fields the sitemap needs. */
-function readFrontmatter(source) {
+function readFrontmatter(source: string): Record<string, string> {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return {};
 
@@ -44,7 +53,7 @@ function readFrontmatter(source) {
     match[1]
       .split(/\r?\n/)
       .map((line) => line.match(/^([a-zA-Z0-9_]+):\s*"?([^"]*?)"?\s*$/))
-      .filter(Boolean)
+      .filter((entry): entry is RegExpMatchArray => entry !== null)
       .map(([, key, value]) => [key, value]),
   );
 }
@@ -53,12 +62,12 @@ function readFrontmatter(source) {
  * Blog articles use a different slug per locale, linked by their `id`.
  * Groups them so each entry carries every localized URL as an alternate.
  */
-async function readBlogEntries() {
-  const byId = new Map();
+async function readBlogEntries(): Promise<SitemapEntry[]> {
+  const byId = new Map<string, { urls: Partial<Record<AppLocale, string>>; lastmod?: string }>();
 
-  for (const locale of LOCALES) {
+  for (const locale of locales) {
     const dir = join(blogContentDir, locale);
-    let files;
+    let files: string[];
 
     try {
       files = await readdir(dir);
@@ -87,23 +96,25 @@ async function readBlogEntries() {
   }));
 }
 
-function renderUrl({ urls, lastmod, priority, changefreq }) {
-  const alternates = LOCALES.filter((locale) => urls[locale])
+function renderUrl({ urls, lastmod, priority, changefreq }: SitemapEntry) {
+  const alternates = locales
+    .filter((locale) => urls[locale])
     .map(
       (locale) =>
-        `    <xhtml:link rel="alternate" hreflang="${HREFLANG[locale]}" href="${urls[locale]}" />`,
+        `    <xhtml:link rel="alternate" hreflang="${hreflangByLocale[locale]}" href="${urls[locale]}" />`,
     )
     .concat(
-      urls[BASE_LOCALE]
+      urls[baseLocale]
         ? [
-            `    <xhtml:link rel="alternate" hreflang="x-default" href="${urls[BASE_LOCALE]}" />`,
+            `    <xhtml:link rel="alternate" hreflang="x-default" href="${urls[baseLocale]}" />`,
           ]
         : [],
     )
     .join("\n");
 
   // One <url> block per locale, each advertising the full alternate set.
-  return LOCALES.filter((locale) => urls[locale])
+  return locales
+    .filter((locale) => urls[locale])
     .map((locale) =>
       [
         "  <url>",
@@ -111,7 +122,7 @@ function renderUrl({ urls, lastmod, priority, changefreq }) {
         alternates,
         lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
         `    <changefreq>${changefreq}</changefreq>`,
-        `    <priority>${locale === BASE_LOCALE ? priority : (Number(priority) - 0.1).toFixed(1)}</priority>`,
+        `    <priority>${locale === baseLocale ? priority : (Number(priority) - 0.1).toFixed(1)}</priority>`,
         "  </url>",
       ]
         .filter(Boolean)
@@ -120,11 +131,11 @@ function renderUrl({ urls, lastmod, priority, changefreq }) {
     .join("\n");
 }
 
-const entries = [
+const entries: SitemapEntry[] = [
   ...staticRoutes.map(({ path, priority, changefreq }) => ({
     urls: Object.fromEntries(
-      LOCALES.map((locale) => [locale, localizeUrl(locale, path)]),
-    ),
+      locales.map((locale) => [locale, localizeUrl(locale, path)]),
+    ) as Partial<Record<AppLocale, string>>,
     priority,
     changefreq,
   })),

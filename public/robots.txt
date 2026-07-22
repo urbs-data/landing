@@ -1,5 +1,13 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Download and auth endpoints only.
+#
+# The internal pages (/presentations, /signatures, /social) are intentionally
+# NOT disallowed here: they carry a `noindex` meta tag, and Google has to be
+# able to crawl them to see it. Blocking them in robots.txt would freeze them
+# in the index instead of removing them.
+Disallow: /api/
 
 Sitemap: https://urbsdata.com/sitemap.xml

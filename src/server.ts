@@ -139,9 +139,48 @@ async function handleSocialAsset(req: Request, url: URL) {
   });
 }
 
+/**
+ * Canonical URL shape: no trailing slash, except the per-locale home pages
+ * ("/" and "/en/"). Returns a 301 target when the request needs normalizing.
+ *
+ * Without this, "/en" 404s while "/en/" resolves, and "/blog/" answers with a
+ * temporary 307 — both of which Search Console reports as indexing errors.
+ */
+function getCanonicalRedirect(url: URL) {
+  const { pathname } = url;
+
+  if (pathname.length <= 1) return null;
+
+  const segments = pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+  const isLocaleHome = segments.length === 1 && isLocale(segments[0]);
+  const normalized = isLocaleHome
+    ? `/${segments[0]}/`
+    : `/${segments.join("/")}`;
+
+  if (normalized === pathname) return null;
+
+  const target = new URL(url);
+  target.pathname = normalized;
+
+  return target.toString();
+}
+
 export default {
   fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
+
+    if (req.method === "GET" || req.method === "HEAD") {
+      const redirectTo = getCanonicalRedirect(url);
+
+      if (redirectTo) {
+        return Promise.resolve(
+          new Response(null, {
+            status: 301,
+            headers: { Location: redirectTo },
+          }),
+        );
+      }
+    }
 
     if (url.pathname === "/api/employee-access/verify") {
       return handleEmployeeAccess(req);

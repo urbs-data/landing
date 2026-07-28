@@ -1,5 +1,5 @@
 ---
-id: "acortar-distancia-usuarios-informacion"
+id: "shortening-distance-users-information"
 slug: "acortar-la-distancia-self-service"
 title: "Acortar la distancia: por qué lo intangible necesita salir antes de la cocina"
 description: "Cómo tangibilizar proyectos de datos intangibles como un Lakehouse, y por qué la IA está por fin habilitando la promesa del self-service que veníamos escuchando desde 2017."

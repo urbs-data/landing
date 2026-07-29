@@ -30,11 +30,11 @@ For four years now we've been thinking about how to shorten that distance. And t
 
 ## The Prelude
 
-From that combination — the need to make things tangible quickly, and the accelerators AI now enables — project Metis was born: a tool that sits between your Lakehouse and your BI tool, letting you query your Data Warehouse and visualize the results in your Metabase. All of it in natural language.
+From that combination — the need to make things tangible quickly, and the accelerators AI now enables — project Metis was born: a tool that sits between your Lakehouse or other data sources and your BI tool, letting you query your Data Warehouse and visualize the results in your Metabase. All of it in natural language.
 
 And here's where something important comes in, something I think stems from my experience working on business teams. Business consistency in data can't be skipped. The work of our Data Analysts can't be replaced by an LLM. Because it's not just about surveying how the business works to define KPIs and generate text mindlessly — it's about collaborating to discover and name situations that were never formally documented or defined. Companies often run very well without having their daily processes documented or outlined. But when the time comes to automate them, the need for deep understanding emerges — and, often, humans still do that better.
 
-That's why our project Metis sits between the Lakehouse, with its business definitions already resolved, and the BI tool, with its queries and visualizations. Lakehouse development continues to be done by our Data Analysts, using tools that today help speed up the process. That's also where the business semantic model lives. By using dbt, we can document the definition of tables and columns, along with the definitions agreed upon with the business. This, moreover, is public and accessible to all users — not just the Data team. We make it available in Metabase and also in Metis, so anyone can consult it.
+That's why our project Metis sits between the data with its business definitions already resolved, and the BI tool, with its queries and visualizations. Lakehouse development continues to be done by our Data Analysts, using tools that today help speed up the process. That's also where the business semantic model lives. By using dbt, we can document the definition of tables and columns, along with the definitions agreed upon with the business. This, moreover, is public and accessible to all users — not just the Data team. We make it available in Metabase and also in Metis, so anyone can consult it.
 
 ## The Business Semantic Model
 

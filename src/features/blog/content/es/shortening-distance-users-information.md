@@ -2,8 +2,8 @@
 id: "shortening-distance-users-information"
 slug: "shortening-the-distance-self-service"
 title: "Tus datos, en manos de quien los necesita"
-description: "Encontramos la manera de garantizar el acceso rápido y consistente a la información de la organización sin necesidad de exigir conocimientos técnicos a los usuarios"
-date: "2026-07-27"
+description: "Encontramos la manera de garantizar el acceso rápido y consistente a la información de la organización sin necesidad de exigir conocimientos técnicos a los usuarios."
+date: "2026-07-29"
 author: "Martina Di Carlo, Data Lead de Urbs Data"
 readTime: "6 min"
 tags:
@@ -13,7 +13,7 @@ tags:
   - Producto
 ---
 
-Todo el tiempo estamos negociando entre tres fuerzas que tironean para lados distintos: la urgencia, la consistencia en los datos y la disponibilidad de los mismos. Rara vez podemos maximizar las tres a la vez. Y en esa tensión aprendimos algo que hoy nos parece obvio, pero que nos costó bastante entender. Es importante que las preguntas de negocio que surgen en momentos críticos sean respondidas rápido y de manera consistente. Y es más importante aún que esa respuesta sea la correcta. Desde Urbs Data trabajamos para que esto sea posible. Pero muchas veces tambien sucede, que nuestros productos se quedan en las sombras. Cuando hablamos de un producto de Data, nuestro entregable suele ser un Lakehouse o un Data Warehouse. Nos ha costado mucho encontrar puntos que unan ese Lakehouse con un analista financiero o un gerente comercial. Si bien nosotros encontramos un gran valor en tener un Lakehouse ordenado y maduro, somos responsables tambien de encontrar lazos hacia el negocio, para que perciban el mismo valor agregado. Traducimos esto en nuestra frase de cabecera **"acortar la distancia entre los usuarios y la información"**. Y en esa búsqueda estamos.
+Todo el tiempo estamos negociando entre tres fuerzas que tironean para lados distintos: la urgencia, la consistencia en los datos y la disponibilidad de los mismos. Rara vez podemos maximizar las tres a la vez, y en esa tensión aprendimos algo que hoy nos parece obvio, pero que nos costó bastante entender. Es importante que las preguntas de negocio que surgen en momentos críticos sean respondidas rápido y de manera consistente, y es más importante aún que esa respuesta sea la correcta. Desde Urbs Data trabajamos para que esto sea posible. Pero muchas veces tambien sucede, que nuestros productos se quedan en las sombras, ya que cuando hablamos de un producto de Data, nuestro entregable suele ser un Lakehouse o un Data Warehouse. Nos ha costado mucho encontrar puntos que unan ese Lakehouse con un analista financiero o un gerente comercial. Si bien nosotros encontramos un gran valor en tener un Lakehouse ordenado y maduro, somos responsables tambien de encontrar lazos hacia el negocio, para que perciban el mismo valor agregado, por eso traducimos esto en nuestra frase de cabecera **"acortar la distancia entre los usuarios y la información"**. Y en esa búsqueda estamos.
 
 ## ¿Cómo medís el impacto en tus clientes cuando tu producto es, muchas veces, intangible?
 

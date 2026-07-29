@@ -47,6 +47,6 @@ With the semantic model in place, users can start building solutions. The proble
 It's not magic: it's about getting the work out of the kitchen sooner, putting it in the hands of those who need it, and finally letting the distance between the user and their information be exactly what we always wanted it to be.
 
 ## Definitions
-*Lakehouse*: The set of tables and columns that make up the organization's database.
-*Metabase*: The BI tool we use most at Urbs Data, which allows you to visualize the organization's data. [Visit their website](https://metabase.com)
-*Metis*: The tool that allows you to build one-shot solutions, or dashboards meant to stay alive forever, answer quick business questions — all from a traditional chat. No need to jump between different platforms; everything from one place.  
+*Lakehouse*: *"The set of tables and columns that make up the organization's database."*  
+*Metabase*: *"The BI tool we use most at Urbs Data, which allows you to visualize the organization's data."* [Visit their website](https://metabase.com)  
+*Metis*: *"The tool that allows you to build one-shot solutions, or dashboards meant to stay alive forever, answer quick business questions — all from a traditional chat. No need to jump between different platforms; everything from one place."*    

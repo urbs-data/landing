@@ -45,7 +45,7 @@ Con el modelo semántico, los usuarios pasan a poder construir soluciones. El pr
 No es magia: es sacar el trabajo de la cocina antes, ponerlo en manos de quien lo necesita, y dejar que la distancia entre el usuario y su información sea, por fin, la que siempre quisimos que fuera. 
 
 ## Definiciones 
-*Lakehouse*: Es el conjunto de tablas y columnas que conforman la base de datos de la organización.
-*Metabase*: Es la herramienta de BI que más utilizamos en Urbs Data, que permite visualizar los datos de la organización. [Visita su website](https://metabase.com) 
-*Metis*: Es la herramienta que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar.
+*Lakehouse*: *"El conjunto de tablas y columnas que conforman la base de datos de la organización."*  
+*Metabase*: *"Es la herramienta de BI que más utilizamos en Urbs Data, que permite visualizar los datos de la organización."* [Visita su website](https://metabase.com)   
+*Metis*: *"Es la herramienta que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar."*    
 

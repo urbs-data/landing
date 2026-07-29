@@ -40,13 +40,14 @@ That's why our project Metis sits between the Lakehouse, with its business defin
 
 The business semantic model is the set of definitions, rules, and relationships that describe the structure and meaning of data within an organization. It's the foundation on which users' decisions and actions are built. For example, in the semantic model we can define what a product's contribution margin is, or a business's gross margin, or what we consider a loyal customer. These are non-trivial matters, and they need to be public and accessible to all users.
 
-## Project Metis
+# Metis Project
 
-With the semantic model in place, users can start building solutions. The problem is that not all users know SQL or BI tools. That's where Metis comes in: a platform that lets you build one-shot solutions, or dashboards meant to stay alive forever, answer quick business questions — all from a traditional chat. No need to jump between different platforms; everything from one place.
+With the semantic model in place, users can finally start building solutions. The challenge is that not everyone knows SQL or how to use BI tools. That's where **Metis** comes in.
+Metis is a platform that enables users to build ad hoc solutions, create dashboards that remain up to date over time, and get quick answers to business questions—all through a familiar chat interface. There's no need to switch between multiple platforms; everything happens in one place. We believe Metis will be a game changer for business analysts, allowing them to focus on high-value work instead of spending countless hours building complex spreadsheets.
 
-It's not magic: it's about getting the work out of the kitchen sooner, putting it in the hands of those who need it, and finally letting the distance between the user and their information be exactly what we always wanted it to be.
+This isn't magic. It's the result of years spent analyzing how Analytics, Data, and Business teams work together, identifying the real pain points across the organizations we've partnered with. Based on those insights, we built Metis to finally make the vision a reality: our data products are truly **100% self-service**.
 
 ## Definitions
-*Lakehouse*: *"The set of tables and columns that make up the organization's database."*  
-*Metabase*: *"The BI tool we use most at Urbs Data, which allows you to visualize the organization's data."* [Visit their website](https://metabase.com)  
-*Metis*: *"The tool that allows you to build one-shot solutions, or dashboards meant to stay alive forever, answer quick business questions — all from a traditional chat. No need to jump between different platforms; everything from one place."*    
+*Lakehouse*: *The collection of tables and columns that make up the organization's database.*  
+*Metabase*: *The BI tool we use most frequently at Urbs Data to explore and visualize the organization's data.* [Visit their website](https://metabase.com)  
+*Metis*: *The platform that enables users to build ad hoc solutions, create dashboards that stay up to date over time, and get quick answers to business questions—all through a familiar chat interface. No need to switch between different platforms; everything happens in one place.*  

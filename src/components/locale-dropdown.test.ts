@@ -14,19 +14,15 @@ describe("getLocaleChangeAction", () => {
     });
   });
 
-  it("navigates to the localized self-service article", () => {
-    const localizedPaths = {
-      es: "/blog/acortando-la-distancia-del-self-service",
-      en: "/en/blog/shortening-the-distance-self-service",
-    };
-
-    expect(getLocaleChangeAction("en", localizedPaths)).toEqual({
+  it("uses document navigation for the self-service article", () => {
+    expect(
+      getLocaleChangeAction("en", {
+        en: "/en/blog/shortening-the-distance-self-service",
+        es: "/blog/acortando-la-distancia-del-self-service",
+      }),
+    ).toEqual({
       kind: "navigate",
       href: "/en/blog/shortening-the-distance-self-service",
-    });
-    expect(getLocaleChangeAction("es", localizedPaths)).toEqual({
-      kind: "navigate",
-      href: "/blog/acortando-la-distancia-del-self-service",
     });
   });
 

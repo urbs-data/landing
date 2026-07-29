@@ -1,11 +1,11 @@
 ---
 id: "shortening-distance-users-information"
-slug: "acortar-la-distancia-self-service"
-title: "Acortar la distancia: por qué lo intangible necesita salir antes de la cocina"
-description: "Cómo tangibilizar proyectos de datos intangibles como un Lakehouse, y por qué la IA está por fin habilitando la promesa del self-service que veníamos escuchando desde 2017."
-date: "2026-07-27"
+slug: "shortening-the-distance-self-service"
+title: "Tus datos, en manos de quien los necesita"
+description: "Encontramos la manera de garantizar el acceso rápido y consistente a la información de la organización sin necesidad de exigir conocimientos técnicos a los usuarios."
+date: "2026-07-29"
 author: "Martina Di Carlo, Data Lead de Urbs Data"
-readTime: "3 min"
+readTime: "6 min"
 tags:
   - Data
   - Self-Service
@@ -13,9 +13,7 @@ tags:
   - Producto
 ---
 
-Todo el tiempo estamos negociando entre tres fuerzas que tironean para lados distintos: la urgencia, la consistencia en los datos y la disponibilidad de los mismos. Rara vez podemos maximizar las tres a la vez. Y en esa tensión aprendimos algo que hoy nos parece obvio, pero que nos costó bastante entender. Es importante que las preguntas de negocio que surgen en momentos críticos sean respondidas rápido y de manera consistente. Y es más importante aún que esa respuesta sea la correcta. 
-
-Desde Urbs Data trabajamos para que esto sea posible. Pero muchas veces tambien sucede, que nuestro trabajo se queda en las sombras. Cuando hablamos de un producto de Data, nuestro entregable suele ser un Lakehouse o un Data Warehouse. Y a los equipos de negocio, de qué les sirve si no saben SQL, no conocen las tablas, no saben que campos hay? Traducimos esto en nuestra frase de cabecera **"acortar la distancia entre los usuarios y la información"**. 
+Todo el tiempo estamos negociando entre tres fuerzas que tironean para lados distintos: la urgencia, la consistencia en los datos y la disponibilidad de los mismos. Rara vez podemos maximizar las tres a la vez, y en esa tensión aprendimos algo que hoy nos parece obvio, pero que nos costó bastante entender. Es importante que las preguntas de negocio que surgen en momentos críticos sean respondidas rápido y de manera consistente, y es más importante aún que esa respuesta sea la correcta. Desde Urbs Data trabajamos para que esto sea posible. Pero muchas veces tambien sucede, que nuestros productos se quedan en las sombras, ya que cuando hablamos de un producto de Data, nuestro entregable suele ser un Lakehouse o un Data Warehouse. Nos ha costado mucho encontrar puntos que unan ese Lakehouse con un analista financiero o un gerente comercial. Si bien nosotros encontramos un gran valor en tener un Lakehouse ordenado y maduro, somos responsables tambien de encontrar lazos hacia el negocio, para que perciban el mismo valor agregado, por eso traducimos esto en nuestra frase de cabecera **"acortar la distancia entre los usuarios y la información"**. Y en esa búsqueda estamos.
 
 ## ¿Cómo medís el impacto en tus clientes cuando tu producto es, muchas veces, intangible?
 
@@ -31,18 +29,23 @@ Hace 4 años venimos pensando en como poder acortar esa distancia. Y el aumento 
 
 ## La antesala
 
-De esa combinación —la necesidad de tangibilizar rápido y los aceleradores que la IA nos habilita— nació proyecto Metis: una tool que se inserta entre tu Lakehouse y tu herramienta de BI, una herramienta que te permite hacer consultas a tu Data Warehouse, y que te permite visualizar los resultados en tu Metabase. Todo esto conversando en lenguaje natural.
+De esa combinación —la necesidad de tangibilizar rápido y los aceleradores que la IA nos habilita— nació proyecto Metis: una tool que se inserta entre tu Lakehouse u otras fuentes de datos y tu herramienta de BI, permitiéndote hacer consultas a tus datos, y visualizar los resultados en tu herramienta de BI favorita. Todo esto conversando en lenguaje natural.
 
 Y acá surge algo importante, que creo que es un germen que viene de mi experiencia trabajando en equipos de negocio. La consistencia de negocio de los datos, no se puede ahorrar. El trabajo de nuestros Data Analysts no se puede sustituir por un LLM. Ya que no es solo relevar como funciona el negocio para poder definir los KPIs y generar texto a lo bobo, sino que es colaborar para descubrir y nomenclar situaciones que jamas fueron documentadas ni definidas formalmente. Muchas veces las empresas funcionan muy bien, sin necesidad de tener documentados y delineados los procesos diarios. Tal vez cuando llega el momento de automatizarlos, surge la necesidad del entendimiento profundo y esto, muchas veces, lo seguimos haciendo mejor los humanos. 
 
-Es por eso que nuestro proyecto Metis se acopla entre el Lakehouse con sus definiciones de negocio ya resueltas, y la herramienta de BI, con sus queries y sus visualizaciones. El desarrollo del Lakehouse, lo siguien haciendo nuestros Data Analysts con las herramientas que hoy en día permiten agilizar este proceso. Ahí mismo persiste el modelo semántico de negocio. Al usar dbt, podemos documentar la definición de las tablas y columnas, y las definiciones tomadas con el negocio. Esto, además, es público y accesible para todos los usuarios, no solo para los que trabajan en el equipo de Data. Lo dejamos disponible en Metabase y tambien en Metis para que pueda ser consultado por cualquiera. 
+Es por eso que nuestro proyecto Metis se acopla entre los datos con sus definiciones de negocio ya resueltas, y la herramienta de BI, con sus queries y sus visualizaciones. El desarrollo del Lakehouse, lo siguien haciendo nuestros Data Analysts con las herramientas que hoy en día permiten agilizar este proceso. Ahí mismo persiste el modelo semántico de negocio. Al usar dbt, podemos documentar la definición de las tablas y columnas, y las definiciones tomadas con el negocio. Esto, además, es público y accesible para todos los usuarios, no solo para los que trabajan en el equipo de Data. Lo dejamos disponible en Metabase y tambien en Metis para que pueda ser consultado por cualquiera. 
 
 ## El modelo semántico de negocio
 
-El modelo semántico de negocio es el conjunto de definiciones, reglas y relaciones que describen la estructura y el significado de los datos en una organización. Es la base sobre la que se construyen las decisiones y las acciones de los usuarios. Por ejemplo, en el modelo semántico podemos definir qué es la contribución marginal de un producto, o el margen bruto de un negocio, o a qué consideramos un cliente fiel. Estas cuestiones no son triviales y tienen que ser públicas y accesibles para todos los usuarios.
+El modelo semántico de negocio es el conjunto de definiciones, reglas y relaciones que describen la estructura y el significado de los datos en una organización. Es la base sobre la que se construyen las decisiones y las acciones de los usuarios. Por ejemplo, en el modelo semántico podemos definir qué es la contribución marginal de un producto, o el margen bruto de un negocio, o a qué consideramos un cliente fiel. Estas cuestiones no son triviales y tienen que ser públicas y accesibles para todos los usuarios. La construcción del modelo semántico es evolutiva, y crece y mejora con el autonocimiento de la organización, entonces Metis también mejora, ya que la base que utiliza para definir como construir las respuesta a los usuarios, esta 100% basada en estas reglas y definiciones.
 
 ## Proyecto Metis
-Con el modelo semántico, los usuarios pasan a poder construir soluciones. El problema es que no todos los usuarios saben usar SQL o herramientas de BI. Y ahí aparece Metis, una plataforma que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar.
+Con el modelo semántico, los usuarios pasan a poder construir soluciones. El problema es que no todos los usuarios saben usar SQL o herramientas de BI. Y ahí aparece **Metis**, una plataforma que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rápidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar. Creemos que Metis va a ser fundamental para que los analistas de negocio de la organización, le puedan dedicar tiempo a las cuestiones realmente relevantes y que agregan valor, evitando dedicar horas y horas a construir Excels imposibles.
 
-No es magia: es sacar el trabajo de la cocina antes, ponerlo en manos de quien lo necesita, y dejar que la distancia entre el usuario y su información sea, por fin, la que siempre quisimos que fuera. 
+No es magia: Es tiempo de análisis en cómo funcionan los equipos de Analytics, Data, Negocio y entender donde estaban los verdaderos puntos de dolor en las organizaciones con las que trabajamos. Habiendo hecho la evaluación pertinente, desarrollamos Metis para hacer realidad el mito de una vez por todas: nuestros productos de Data son **100% self service**.
+
+## Definiciones 
+*Lakehouse*: *El conjunto de tablas y columnas que conforman la base de datos de la organización.*  
+*Metabase*: *Es la herramienta de BI que más utilizamos en Urbs Data, que permite visualizar los datos de la organización.* [Visita su website](https://metabase.com)   
+*Metis*: *Es la herramienta que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar.*    
 

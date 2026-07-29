@@ -1,11 +1,11 @@
 ---
 id: "shortening-distance-users-information"
 slug: "shortening-the-distance-self-service"
-title: "Shortening the Distance: Why the Intangible Needs to Leave the Kitchen Sooner"
-description: "How to make intangible data projects like a Lakehouse tangible, and why AI is finally enabling the promise of self-service we've been hearing about since 2017."
-date: "2026-07-27"
+title: "Your Data, in the Hands of Those Who Need It"
+description: "We found a way to guarantee fast, consistent access to organizational information without requiring technical skills from users."
+date: "2026-07-29"
 author: "Martina Di Carlo, Data Lead at Urbs Data"
-readTime: "3 min"
+readTime: "6 min"
 tags:
   - Data
   - Self-Service
@@ -13,9 +13,8 @@ tags:
   - Product
 ---
 
-We're constantly negotiating between three forces pulling in different directions: urgency, data consistency, and data availability. We can rarely maximize all three at once. And in that tension we learned something that seems obvious to us now, but that took a while to sink in. It's important that business questions arising in critical moments get answered quickly and consistently. And it's even more important that the answer be correct.
+We're constantly negotiating between three forces pulling in different directions: urgency, data consistency, and data availability. We can rarely maximize all three at once, and in that tension we learned something that seems obvious to us now, but that took a while to sink in. It's important that business questions arising in critical moments get answered quickly and consistently, and it's even more important that the answer be correct. At Urbs Data, we work to make that possible. But often, our products also stay hidden in the shadows. When we talk about a Data product, our deliverable is usually a Lakehouse or a Data Warehouse. We've struggled a lot to find the points that connect that Lakehouse with a financial analyst or a commercial manager. While we ourselves find great value in having a well-organized, mature Lakehouse, we're also responsible for finding the links to the business, so they perceive that same added value. We've translated this into our guiding phrase: **"shortening the distance between users and information."** And that's the search we're on.
 
-At Urbs Data, we work to make that possible. But often, our work stays hidden in the shadows. When we talk about a Data product, our deliverable is usually a Lakehouse or a Data Warehouse. And what good is that to business teams if they don't know SQL, don't know the tables, don't know what fields exist? We've translated this into our guiding phrase: **"shortening the distance between users and information."**
 
 ## How do you measure impact on your clients when your product is, often, intangible?
 
@@ -31,18 +30,24 @@ For four years now we've been thinking about how to shorten that distance. And t
 
 ## The Prelude
 
-From that combination — the need to make things tangible quickly, and the accelerators AI now enables — project Metis was born: a tool that sits between your Lakehouse and your BI tool, letting you query your Data Warehouse and visualize the results in your Metabase. All of it in natural language.
+From that combination — the need to make things tangible quickly, and the accelerators AI now enables — project Metis was born: a tool that sits between your Lakehouse or other data sources and your BI tool, letting you query your Data Warehouse and visualize the results in your Metabase. All of it in natural language.
 
 And here's where something important comes in, something I think stems from my experience working on business teams. Business consistency in data can't be skipped. The work of our Data Analysts can't be replaced by an LLM. Because it's not just about surveying how the business works to define KPIs and generate text mindlessly — it's about collaborating to discover and name situations that were never formally documented or defined. Companies often run very well without having their daily processes documented or outlined. But when the time comes to automate them, the need for deep understanding emerges — and, often, humans still do that better.
 
-That's why our project Metis sits between the Lakehouse, with its business definitions already resolved, and the BI tool, with its queries and visualizations. Lakehouse development continues to be done by our Data Analysts, using tools that today help speed up the process. That's also where the business semantic model lives. By using dbt, we can document the definition of tables and columns, along with the definitions agreed upon with the business. This, moreover, is public and accessible to all users — not just the Data team. We make it available in Metabase and also in Metis, so anyone can consult it.
+That's why our project Metis sits between the data with its business definitions already resolved, and the BI tool, with its queries and visualizations. Lakehouse development continues to be done by our Data Analysts, using tools that today help speed up the process. That's also where the business semantic model lives. By using dbt, we can document the definition of tables and columns, along with the definitions agreed upon with the business. This, moreover, is public and accessible to all users — not just the Data team. We make it available in Metabase and also in Metis, so anyone can consult it.
 
 ## The Business Semantic Model
 
 The business semantic model is the set of definitions, rules, and relationships that describe the structure and meaning of data within an organization. It's the foundation on which users' decisions and actions are built. For example, in the semantic model we can define what a product's contribution margin is, or a business's gross margin, or what we consider a loyal customer. These are non-trivial matters, and they need to be public and accessible to all users.
 
-## Project Metis
+# Metis Project
 
-With the semantic model in place, users can start building solutions. The problem is that not all users know SQL or BI tools. That's where Metis comes in: a platform that lets you build one-shot solutions, or dashboards meant to stay alive forever, answer quick business questions — all from a traditional chat. No need to jump between different platforms; everything from one place.
+With the semantic model in place, users can finally start building solutions. The challenge is that not everyone knows SQL or how to use BI tools. That's where **Metis** comes in.
+Metis is a platform that enables users to build ad hoc solutions, create dashboards that remain up to date over time, and get quick answers to business questions—all through a familiar chat interface. There's no need to switch between multiple platforms; everything happens in one place. We believe Metis will be a game changer for business analysts, allowing them to focus on high-value work instead of spending countless hours building complex spreadsheets.
 
-It's not magic: it's about getting the work out of the kitchen sooner, putting it in the hands of those who need it, and finally letting the distance between the user and their information be exactly what we always wanted it to be.
+This isn't magic. It's the result of years spent analyzing how Analytics, Data, and Business teams work together, identifying the real pain points across the organizations we've partnered with. Based on those insights, we built Metis to finally make the vision a reality: our data products are truly **100% self-service**.
+
+## Definitions
+*Lakehouse*: *The collection of tables and columns that make up the organization's database.*  
+*Metabase*: *The BI tool we use most frequently at Urbs Data to explore and visualize the organization's data.* [Visit their website](https://metabase.com)  
+*Metis*: *The platform that enables users to build ad hoc solutions, create dashboards that stay up to date over time, and get quick answers to business questions—all through a familiar chat interface. No need to switch between different platforms; everything happens in one place.*  

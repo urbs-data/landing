@@ -37,10 +37,15 @@ Es por eso que nuestro proyecto Metis se acopla entre el Lakehouse con sus defin
 
 ## El modelo semántico de negocio
 
-El modelo semántico de negocio es el conjunto de definiciones, reglas y relaciones que describen la estructura y el significado de los datos en una organización. Es la base sobre la que se construyen las decisiones y las acciones de los usuarios. Por ejemplo, en el modelo semántico podemos definir qué es la contribución marginal de un producto, o el margen bruto de un negocio, o a qué consideramos un cliente fiel. Estas cuestiones no son triviales y tienen que ser públicas y accesibles para todos los usuarios.
+El modelo semántico de negocio es el conjunto de definiciones, reglas y relaciones que describen la estructura y el significado de los datos en una organización. Es la base sobre la que se construyen las decisiones y las acciones de los usuarios. Por ejemplo, en el modelo semántico podemos definir qué es la contribución marginal de un producto, o el margen bruto de un negocio, o a qué consideramos un cliente fiel. Estas cuestiones no son triviales y tienen que ser públicas y accesibles para todos los usuarios. La construcción del modelo semántico es evolutiva, y crece y mejora con el autonocimiento de la organización, entonces Metis también mejora, ya que la base que utiliza para definir como construir las respuesta a los usuarios, esta 100% basada en estas reglas y definiciones.
 
 ## Proyecto Metis
 Con el modelo semántico, los usuarios pasan a poder construir soluciones. El problema es que no todos los usuarios saben usar SQL o herramientas de BI. Y ahí aparece Metis, una plataforma que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar.
 
 No es magia: es sacar el trabajo de la cocina antes, ponerlo en manos de quien lo necesita, y dejar que la distancia entre el usuario y su información sea, por fin, la que siempre quisimos que fuera. 
+
+## Definiciones 
+*Lakehouse*: Es el conjunto de tablas y columnas que conforman la base de datos de la organización.
+*Metabase*: Es la herramienta de BI que más utilizamos en Urbs Data, que permite visualizar los datos de la organización. [Visita su website](https://metabase.com) 
+*Metis*: Es la herramienta que permite construir soluciones one-shot, o tableros que necesiten quedar vivos para siempre, responder preguntas rapidas de negocio, todo desde un chat tradicional. Sin necesidad de entrar a diferentes plataformas, todo desde un solo lugar.
 

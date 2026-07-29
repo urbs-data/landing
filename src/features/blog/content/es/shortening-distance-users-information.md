@@ -1,6 +1,6 @@
 ---
 id: "shortening-distance-users-information"
-slug: "shortening-the-distance-self-service"
+slug: "acortando-la-distancia-del-self-service"
 title: "Tus datos, en manos de quien los necesita"
 description: "Encontramos la manera de garantizar el acceso rápido y consistente a la información de la organización sin necesidad de exigir conocimientos técnicos a los usuarios."
 date: "2026-07-29"

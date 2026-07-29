@@ -216,7 +216,7 @@ function readBlogFrontmatter(filePath: string, data: unknown) {
   return result.data;
 }
 
-function getBlogArticleLocalizedPaths(id: string) {
+export function getBlogArticleLocalizedPaths(id: string) {
   return Object.entries(markdownFiles).reduce<
     Partial<Record<AppLocale, string>>
   >((paths, [path, content]) => {

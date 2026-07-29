@@ -66,4 +66,22 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://urbsdata.com/blog/acortando-la-distancia-del-self-service</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/blog/acortando-la-distancia-del-self-service" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/blog/shortening-the-distance-self-service" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/blog/acortando-la-distancia-del-self-service" />
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://urbsdata.com/en/blog/shortening-the-distance-self-service</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/blog/acortando-la-distancia-del-self-service" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/blog/shortening-the-distance-self-service" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/blog/acortando-la-distancia-del-self-service" />
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { expect, it } from "vitest";
-import { resolveBlogAssetUrl } from "./blog";
+import { getBlogArticleLocalizedPaths, resolveBlogAssetUrl } from "./blog";
 
 const articlePath = "../content/es/company-evolution-is-designed.md";
 
@@ -30,4 +30,13 @@ it("preserves absolute and external image references", () => {
   expect(
     resolveBlogAssetUrl(articlePath, "https://example.com/image.webp"),
   ).toBe("https://example.com/image.webp");
+});
+
+it("pairs the self-service article across locales by its shared id", () => {
+  expect(
+    getBlogArticleLocalizedPaths("shortening-distance-users-information"),
+  ).toEqual({
+    es: "/blog/acortando-la-distancia-del-self-service",
+    en: "/en/blog/shortening-the-distance-self-service",
+  });
 });

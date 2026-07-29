@@ -1,11 +1,11 @@
 ---
 id: "shortening-distance-users-information"
 slug: "shortening-the-distance-self-service"
-title: "Shortening the Distance: Why the Intangible Needs to Leave the Kitchen Sooner"
-description: "How to make intangible data projects like a Lakehouse tangible, and why AI is finally enabling the promise of self-service we've been hearing about since 2017."
+title: "Your Data, in the Hands of Those Who Need It"
+description: "We found a way to guarantee fast, consistent access to organizational information without requiring technical skills from users"
 date: "2026-07-27"
 author: "Martina Di Carlo, Data Lead at Urbs Data"
-readTime: "3 min"
+readTime: "6 min"
 tags:
   - Data
   - Self-Service
@@ -13,9 +13,8 @@ tags:
   - Product
 ---
 
-We're constantly negotiating between three forces pulling in different directions: urgency, data consistency, and data availability. We can rarely maximize all three at once. And in that tension we learned something that seems obvious to us now, but that took a while to sink in. It's important that business questions arising in critical moments get answered quickly and consistently. And it's even more important that the answer be correct.
+We're constantly negotiating between three forces pulling in different directions: urgency, data consistency, and data availability. We can rarely maximize all three at once. And in that tension we learned something that seems obvious to us now, but that took a while to sink in. It's important that business questions arising in critical moments get answered quickly and consistently. And it's even more important that the answer be correct. At Urbs Data, we work to make that possible. But often, our products also stay hidden in the shadows. When we talk about a Data product, our deliverable is usually a Lakehouse or a Data Warehouse. We've struggled a lot to find the points that connect that Lakehouse with a financial analyst or a commercial manager. While we ourselves find great value in having a well-organized, mature Lakehouse, we're also responsible for finding the links to the business, so they perceive that same added value. We've translated this into our guiding phrase: **"shortening the distance between users and information."** And that's the search we're on.
 
-At Urbs Data, we work to make that possible. But often, our work stays hidden in the shadows. When we talk about a Data product, our deliverable is usually a Lakehouse or a Data Warehouse. And what good is that to business teams if they don't know SQL, don't know the tables, don't know what fields exist? We've translated this into our guiding phrase: **"shortening the distance between users and information."**
 
 ## How do you measure impact on your clients when your product is, often, intangible?
 

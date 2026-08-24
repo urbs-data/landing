@@ -4,8 +4,12 @@ import { getLocale } from "#/paraglide/runtime";
 import instrumentSansDataUri from "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?inline";
 import markSvg from "../../../../public/assets/brand/logo.svg?raw";
 import wordmarkSvg from "../../../../public/assets/brand/wordmark-light.svg?raw";
-import enMessages from "../../../../src/i18n/messages/en.json" with { type: "json" };
-import esMessages from "../../../../src/i18n/messages/es.json" with { type: "json" };
+import enMessages from "../../../../src/i18n/messages/en.json" with {
+  type: "json",
+};
+import esMessages from "../../../../src/i18n/messages/es.json" with {
+  type: "json",
+};
 
 const WIDTH = 1200;
 const HEIGHT = 630;

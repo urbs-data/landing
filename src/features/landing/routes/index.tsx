@@ -3,6 +3,7 @@ import { CTA } from "../components/cta";
 import { DataFlow } from "../components/data-flow";
 import { Hero } from "../components/hero";
 import { ProblemSection } from "../components/problem-section";
+import { ProcessSection } from "../components/process-section";
 import { Pymes } from "../components/pymes";
 import { Services } from "../components/services";
 import { TrustedCompanies } from "../components/trusted-companies";
@@ -17,6 +18,7 @@ function RouteComponent() {
     <main>
       <Hero />
       <ProblemSection />
+      <ProcessSection />
       <Services />
       <DataFlow />
       <Pymes />

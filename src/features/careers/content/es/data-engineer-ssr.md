@@ -24,10 +24,16 @@ En Urbs Data acompañamos a empresas en proyectos de datos, BI y automatización
 
 - Experiencia como Data Engineer (perfil semi senior).
 - Experiencia en data warehousing y desarrollo de ETLs.
+- Conocimientos de Data Lake y su arquitectura.
 - SQL avanzado.
 - Experiencia con dbt.
 - Experiencia con BigQuery y GCP.
 - Experiencia con Metabase.
+- Experiencia con Airbyte y Airflow.
+- Experiencia con Google Workflows y Cloud Run.
+- Conocimientos de CDC (Change Data Capture).
+- Experiencia integrando datos desde APIs y bases de datos.
+- Experiencia con CI/CD y automatización de despliegues.
 - Comodidad para conversar con clientes y comunicar temas técnicos a perfiles de negocio.
 
 ### Idioma

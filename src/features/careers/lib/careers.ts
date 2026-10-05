@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
-import { type ZodIssue, z } from "zod";
+import { z } from "zod";
 import { getSupportedLocale } from "#/features/landing/lib/seo";
 import { type AppLocale, baseLocale, isLocale } from "#/i18n";
 
@@ -67,11 +67,11 @@ function getMarkdownPosts(locale: SupportedLocale) {
   }, []);
 }
 
-function formatIssuePath(issue: ZodIssue) {
+function formatIssuePath(issue: z.core.$ZodIssue) {
   return issue.path.length > 0 ? issue.path.join(".") : "frontmatter";
 }
 
-function formatFrontmatterIssue(issue: ZodIssue) {
+function formatFrontmatterIssue(issue: z.core.$ZodIssue) {
   return `- ${formatIssuePath(issue)}: ${issue.message}`;
 }
 

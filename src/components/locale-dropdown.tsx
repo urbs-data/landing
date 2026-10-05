@@ -1,6 +1,5 @@
 import { useRouterState } from "@tanstack/react-router";
 import { ChevronDownIcon, GlobeIcon } from "lucide-react";
-import { useMemo } from "react";
 import { getLocaleChangeAction } from "#/components/locale-change";
 import { Button } from "#/components/ui/button";
 import {
@@ -8,14 +7,11 @@ import {
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import { type AppLocale, localeLabels, locales } from "@/i18n";
-import { m } from "@/paraglide/messages";
-import { getLocale, setLocale } from "@/paraglide/runtime";
+import { type LocalizedPaths, localeLabels, locales } from "#/i18n";
+import { m } from "#/paraglide/messages";
+import { getLocale, setLocale } from "#/paraglide/runtime";
 
 type LocaleDropdownProps = {
   variant?: "compact" | "default";
@@ -52,31 +48,16 @@ export function LocaleDropdown({ variant = "default" }: LocaleDropdownProps) {
   );
 }
 
-export function LocaleMenuSection() {
-  const currentLocale = getLocale();
-
-  return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>
-        <GlobeIcon className="size-4" />
-        {m.language_label()}
-      </DropdownMenuSubTrigger>
-      <DropdownMenuSubContent className="min-w-40">
-        <LocaleRadioGroup currentLocale={currentLocale} />
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
-  );
-}
-
 function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
-  const matches = useRouterState({ select: (state) => state.matches });
-  const localizedPaths = useMemo(() => {
-    const loaderData = matches.at(-1)?.loaderData;
+  const localizedPaths = useRouterState({
+    select: (state) => {
+      const loaderData = state.matches.at(-1)?.loaderData;
 
-    if (!hasLocalizedPaths(loaderData)) return undefined;
-
-    return loaderData.localizedPaths;
-  }, [matches]);
+      return hasLocalizedPaths(loaderData)
+        ? loaderData.localizedPaths
+        : undefined;
+    },
+  });
 
   return (
     <DropdownMenuRadioGroup
@@ -103,11 +84,9 @@ function LocaleRadioGroup({ currentLocale }: { currentLocale: string }) {
   );
 }
 
-type LocalizedPathLoaderData = {
-  localizedPaths?: Partial<Record<AppLocale, string>>;
-};
-
-function hasLocalizedPaths(value: unknown): value is LocalizedPathLoaderData {
+function hasLocalizedPaths(
+  value: unknown,
+): value is { localizedPaths: LocalizedPaths } {
   return Boolean(
     value &&
       typeof value === "object" &&

@@ -1,32 +1,31 @@
 import { Renderer } from "takumi-js/node";
 import { ImageResponse } from "takumi-js/response";
+import { type AppLocale, baseLocale, isLocale } from "#/i18n";
+import { BRAND_VIOLET } from "#/lib/brand";
+import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 import instrumentSansDataUri from "../../../../node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?inline";
 import markSvg from "../../../../public/assets/brand/logo.svg?raw";
 import wordmarkSvg from "../../../../public/assets/brand/wordmark-light.svg?raw";
-import enMessages from "../../../../src/i18n/messages/en.json" with {
-  type: "json",
-};
-import esMessages from "../../../../src/i18n/messages/es.json" with {
-  type: "json",
-};
 
 const WIDTH = 1200;
 const HEIGHT = 630;
+// The PNG is branded and CDN-cached, so cap what a query string can put on it.
+const MAX_TITLE_LENGTH = 120;
+const MAX_DESCRIPTION_LENGTH = 200;
 
 let rendererPromise: Promise<Renderer> | undefined;
-
-type OgLocale = "es" | "en";
 
 type OgImageContent = {
   title?: string;
   description?: string;
 };
 
-const messages = {
-  en: enMessages,
-  es: esMessages,
-} satisfies Record<OgLocale, typeof esMessages>;
+type OgHeroText = {
+  prefix: string;
+  highlight: string;
+  suffix: string;
+};
 
 function dataUriToBuffer(dataUri: string) {
   const base64 = dataUri.split(",").at(1);
@@ -59,16 +58,35 @@ async function getOgRenderer() {
   return rendererPromise;
 }
 
-function getOgLocale(request?: Request): OgLocale {
-  if (request) {
-    const { pathname } = new URL(request.url);
+function getOgLocale(request?: Request): AppLocale {
+  const segment = request
+    ? new URL(request.url).pathname.split("/").at(1)
+    : undefined;
+  if (segment && isLocale(segment)) return segment;
 
-    if (pathname === "/en/og-image" || pathname.startsWith("/en/")) {
-      return "en";
-    }
-  }
+  const locale = getLocale();
+  return isLocale(locale) ? locale : baseLocale;
+}
 
-  return getLocale() === "en" ? "en" : "es";
+// C0/C1 control characters plus bidi overrides/isolates, which could reorder
+// the rendered text.
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matching them is the point
+const UNSAFE_CHARS = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g;
+
+/** Strips control characters, collapses whitespace and clamps with an ellipsis. */
+export function sanitizeOgText(value: string | null, maxLength: number) {
+  if (value === null) return undefined;
+
+  const text = value.replace(UNSAFE_CHARS, " ").replace(/\s+/g, " ").trim();
+  if (!text) return undefined;
+
+  const chars = Array.from(text); // don't split surrogate pairs (emoji)
+  if (chars.length <= maxLength) return text;
+
+  return `${chars
+    .slice(0, maxLength - 1)
+    .join("")
+    .trimEnd()}…`;
 }
 
 function getOgImageContent(request?: Request): OgImageContent {
@@ -77,8 +95,19 @@ function getOgImageContent(request?: Request): OgImageContent {
   const { searchParams } = new URL(request.url);
 
   return {
-    title: searchParams.get("title") ?? undefined,
-    description: searchParams.get("description") ?? undefined,
+    title: sanitizeOgText(searchParams.get("title"), MAX_TITLE_LENGTH),
+    description: sanitizeOgText(
+      searchParams.get("description"),
+      MAX_DESCRIPTION_LENGTH,
+    ),
+  };
+}
+
+function getOgHeroText(locale: AppLocale): OgHeroText {
+  return {
+    prefix: m.hero_title_prefix({}, { locale }),
+    highlight: m.hero_title_highlight({}, { locale }),
+    suffix: m.hero_title_suffix({}, { locale }),
   };
 }
 
@@ -91,7 +120,7 @@ export async function createOgImageResponse(request?: Request) {
     <OgImage
       content={content}
       markDataUri={svgToDataUri(markSvg)}
-      text={messages[locale]}
+      text={getOgHeroText(locale)}
       wordmarkDataUri={svgToDataUri(wordmarkSvg)}
     />,
     {
@@ -117,7 +146,7 @@ function OgImage({
 }: {
   content: OgImageContent;
   markDataUri: string;
-  text: typeof esMessages;
+  text: OgHeroText;
   wordmarkDataUri: string;
 }) {
   const isCustom = Boolean(content.title);
@@ -237,11 +266,11 @@ function OgImage({
             <span>{content.description}</span>
           ) : (
             <>
-              <span>{text.hero_title_prefix}</span>
-              <span style={{ color: "#6E4DAB", fontWeight: 700 }}>
-                {text.hero_title_highlight}
+              <span>{text.prefix}</span>
+              <span style={{ color: BRAND_VIOLET, fontWeight: 700 }}>
+                {text.highlight}
               </span>
-              <span>{text.hero_title_suffix}</span>
+              <span>{text.suffix}</span>
             </>
           )}
         </div>

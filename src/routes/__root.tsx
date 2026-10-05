@@ -1,4 +1,10 @@
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  HeadContent,
+  type RegisteredRouter,
+  type RouteIds,
+  Scripts,
+} from "@tanstack/react-router";
 import { Footer } from "#/components/layout/footer";
 import { Header } from "#/components/layout/header";
 import { RouteActivityIndicator } from "#/components/route-activity-indicator";
@@ -13,6 +19,13 @@ import {
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 import appCss from "../styles.css?url";
+
+// Routes that build their own canonical/hreflang links from loader data.
+// Root `head` types every match's routeId as "__root__", so compare via a
+// set typed against the registered route ids to keep typo-safety.
+const ROUTES_OWNING_SEO_LINKS: ReadonlySet<string> = new Set<
+  RouteIds<RegisteredRouter["routeTree"]>
+>(["/blog/$slug", "/careers/$slug"]);
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'light';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`;
 
@@ -35,9 +48,9 @@ export const Route = createRootRoute({
     // Blog articles and career posts have a different slug per locale, so the
     // identity path mapping below would produce wrong alternates. Those routes
     // build their own canonical/hreflang from the loader's `localizedPaths`.
-    const ownsSeoLinks =
-      deepestMatch?.routeId === "/blog/$slug" ||
-      deepestMatch?.routeId === "/careers/$slug";
+    const ownsSeoLinks = ROUTES_OWNING_SEO_LINKS.has(
+      deepestMatch?.routeId ?? "",
+    );
 
     return {
       meta: [

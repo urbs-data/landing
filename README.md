@@ -418,7 +418,7 @@ Fields:
 - `team`: team or department.
 - `location`: location or work modality.
 - `type`: contract type or dedication.
-- `applyUrl`: optional external application URL. If empty, the apply button opens an email to `info@urbsdata.com`.
+- `applyUrl`: optional external application URL. If empty, the apply button opens an email to `careers@urbsdata.com`.
 
 Do not add extra fields. The schema is strict.
 

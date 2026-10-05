@@ -1,4 +1,4 @@
-import { type AppLocale, isLocale } from "#/i18n";
+import { type AppLocale, isLocale, type LocalizedPaths } from "#/i18n";
 
 export type LocaleChangeAction =
   | {
@@ -12,7 +12,7 @@ export type LocaleChangeAction =
 
 export function getLocaleChangeAction(
   value: string,
-  localizedPaths?: Partial<Record<AppLocale, string>>,
+  localizedPaths?: LocalizedPaths,
 ): LocaleChangeAction | undefined {
   if (!isLocale(value)) return undefined;
 

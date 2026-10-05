@@ -1,33 +1,29 @@
+import ibmPlexSansUrl from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?url";
+import instrumentSansUrl from "@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url";
 import {
   createRootRoute,
   HeadContent,
-  type RegisteredRouter,
-  type RouteIds,
+  Link,
   Scripts,
 } from "@tanstack/react-router";
+import { MotionConfig } from "motion/react";
 import { Footer } from "#/components/layout/footer";
 import { Header } from "#/components/layout/header";
 import { RouteActivityIndicator } from "#/components/route-activity-indicator";
 import {
   getHomeJsonLd,
   getHomeSeo,
-  getPageSeoLinks,
-  getSupportedLocale,
+  getOgImageUrl,
   isNoIndexPath,
-  stringifyJsonLd,
+  jsonLdScript,
+  pageHead,
+  SITE_NAME,
 } from "#/features/landing/lib/seo";
+import { type LocalizedPaths, normalizePath, toAppLocale } from "#/i18n";
+import { themeInitScript } from "#/lib/theme";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 import appCss from "../styles.css?url";
-
-// Routes that build their own canonical/hreflang links from loader data.
-// Root `head` types every match's routeId as "__root__", so compare via a
-// set typed against the registered route ids to keep typo-safety.
-const ROUTES_OWNING_SEO_LINKS: ReadonlySet<string> = new Set<
-  RouteIds<RegisteredRouter["routeTree"]>
->(["/blog/$slug", "/careers/$slug"]);
-
-const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'light';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`;
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
@@ -39,136 +35,46 @@ export const Route = createRootRoute({
   },
 
   head: ({ matches }) => {
-    const locale = getSupportedLocale(getLocale());
-    const seo = getHomeSeo(locale);
+    const locale = toAppLocale(getLocale());
+    const home = getHomeSeo();
     // De-localized pathname of the deepest match; the router rewrite strips the
     // locale prefix on the way in, so this is the shared path across locales.
     const deepestMatch = matches.at(-1);
-    const pathname = deepestMatch?.pathname ?? "/";
-    // Blog articles and career posts have a different slug per locale, so the
-    // identity path mapping below would produce wrong alternates. Those routes
-    // build their own canonical/hreflang from the loader's `localizedPaths`.
-    const ownsSeoLinks = ROUTES_OWNING_SEO_LINKS.has(
-      deepestMatch?.routeId ?? "",
+    const pathname = normalizePath(deepestMatch?.pathname ?? "/");
+    // A loader `notFound()` (unknown slug) or an unmatched URL: no canonical or
+    // hreflang for a page that does not exist.
+    const isNotFound = matches.some(
+      (match) => match.status === "notFound" || match._notFound,
     );
+    const isHome = pathname === "/" && !isNotFound;
+    // Slug routes (blog, careers) return `localizedPaths` from their loader;
+    // the same protocol the locale switcher reads. Everything else maps the
+    // shared path to every locale.
+    const page = pageHead({
+      locale,
+      path: pathname,
+      localizedPaths: getLocalizedPaths(deepestMatch?.loaderData),
+      title: isNotFound ? m.not_found_title() : home.title,
+      description: isNotFound ? m.not_found_description() : home.description,
+      image: getOgImageUrl(locale),
+      imageAlt: home.imageAlt,
+      noIndex: isNotFound || isNoIndexPath(pathname),
+    });
 
     return {
       meta: [
-        {
-          charSet: "utf-8",
-        },
-        {
-          name: "viewport",
-          content: "width=device-width, initial-scale=1",
-        },
-        {
-          title: seo.title,
-        },
-        {
-          name: "description",
-          content: seo.description,
-        },
-        {
-          name: "keywords",
-          content: seo.keywords,
-        },
-        {
-          name: "author",
-          content: seo.siteName,
-        },
-        {
-          name: "robots",
-          content: isNoIndexPath(pathname)
-            ? "noindex, nofollow"
-            : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-        },
-        {
-          name: "theme-color",
-          content: "#ffffff",
-        },
-        {
-          name: "application-name",
-          content: seo.siteName,
-        },
-        {
-          name: "apple-mobile-web-app-title",
-          content: seo.siteName,
-        },
-        {
-          name: "geo.region",
-          content: "AR",
-        },
-        {
-          property: "og:type",
-          content: "website",
-        },
-        {
-          property: "og:site_name",
-          content: seo.siteName,
-        },
-        {
-          property: "og:title",
-          content: seo.title,
-        },
-        {
-          property: "og:description",
-          content: seo.description,
-        },
-        {
-          property: "og:url",
-          content: seo.url,
-        },
-        {
-          property: "og:image",
-          content: seo.image,
-        },
-        {
-          property: "og:image:type",
-          content: "image/png",
-        },
-        {
-          property: "og:image:width",
-          content: "1200",
-        },
-        {
-          property: "og:image:height",
-          content: "630",
-        },
-        {
-          property: "og:image:alt",
-          content: seo.imageAlt,
-        },
-        {
-          property: "og:locale",
-          content: seo.locale,
-        },
-        {
-          property: "og:locale:alternate",
-          content: seo.alternateLocale,
-        },
-        {
-          name: "twitter:card",
-          content: "summary_large_image",
-        },
-        {
-          name: "twitter:title",
-          content: seo.title,
-        },
-        {
-          name: "twitter:description",
-          content: seo.description,
-        },
-        {
-          name: "twitter:image",
-          content: seo.image,
-        },
-        {
-          name: "twitter:image:alt",
-          content: seo.imageAlt,
-        },
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "keywords", content: home.keywords },
+        { name: "author", content: SITE_NAME },
+        { name: "theme-color", content: "#ffffff" },
+        { name: "application-name", content: SITE_NAME },
+        { name: "apple-mobile-web-app-title", content: SITE_NAME },
+        { name: "geo.region", content: "AR" },
+        ...page.meta,
       ],
       links: [
-        ...(ownsSeoLinks ? [] : getPageSeoLinks(locale, pathname)),
+        ...page.links,
         {
           rel: "icon",
           href: "/favicon.svg",
@@ -194,16 +100,40 @@ export const Route = createRootRoute({
           rel: "manifest",
           href: "/manifest.json",
         },
+        // The hero paints before hydration, so fetch its fonts alongside the
+        // CSS instead of after it; avoids a visible font swap on slow networks.
+        ...[instrumentSansUrl, ibmPlexSansUrl].map((href) => ({
+          rel: "preload",
+          href,
+          as: "font",
+          type: "font/woff2",
+          crossOrigin: "anonymous" as const,
+        })),
         {
           rel: "stylesheet",
           href: appCss,
         },
       ],
+      scripts: isHome ? [jsonLdScript(getHomeJsonLd(locale))] : [],
     };
   },
   notFoundComponent: NotFoundPage,
   shellComponent: RootDocument,
 });
+
+function getLocalizedPaths(loaderData: unknown): LocalizedPaths | undefined {
+  if (
+    loaderData &&
+    typeof loaderData === "object" &&
+    "localizedPaths" in loaderData &&
+    loaderData.localizedPaths &&
+    typeof loaderData.localizedPaths === "object"
+  ) {
+    return loaderData.localizedPaths;
+  }
+
+  return undefined;
+}
 
 function NotFoundPage() {
   return (
@@ -216,21 +146,18 @@ function NotFoundPage() {
         <p className="mt-4 text-muted-foreground">
           {m.not_found_description()}
         </p>
-        <a
+        <Link
           className="mt-8 inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          href="/"
+          to="/"
         >
           {m.not_found_home()}
-        </a>
+        </Link>
       </section>
     </main>
   );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const locale = getSupportedLocale(getLocale());
-  const jsonLd = stringifyJsonLd(getHomeJsonLd(locale));
-
   return (
     <html
       lang={getLocale()}
@@ -240,17 +167,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* The server and client bundles stringify the init function
+            differently; the script only matters on the server-rendered HTML. */}
         <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLd }}
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+          suppressHydrationWarning
         />
         <HeadContent />
       </head>
       <body className="font-sans antialiased">
-        <Header />
-        {children}
-        <Footer />
+        {/* "user": honour prefers-reduced-motion for every motion component
+            (transform/layout animations are skipped, opacity still fades). */}
+        <MotionConfig reducedMotion="user">
+          <Header />
+          {children}
+          <Footer />
+        </MotionConfig>
         <RouteActivityIndicator />
         <Scripts />
       </body>

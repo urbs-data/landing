@@ -1,78 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays, Clock3, UserRound } from "lucide-react";
 import { getAllBlogArticles } from "#/features/blog/lib/blog";
-import {
-  getHomeSeo,
-  getOgImageUrl,
-  getSeoTitle,
-  getSupportedLocale,
-} from "#/features/landing/lib/seo";
+import { pageHead } from "#/features/landing/lib/seo";
+import { toAppLocale } from "#/i18n";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 
 export const Route = createFileRoute("/blog/")({
   loader: () => getAllBlogArticles({ data: { locale: getLocale() } }),
-  head: ({ matches }) => {
-    if (matches.at(-1)?.routeId !== "/blog/") {
-      return {};
-    }
-
-    const locale = getSupportedLocale(getLocale());
-    const seo = getHomeSeo(locale);
-    const url = `${seo.url.replace(/\/$/, "")}/blog`;
-    const image = getOgImageUrl(locale, {
+  head: () => ({
+    meta: pageHead({
+      locale: toAppLocale(getLocale()),
+      path: "/blog",
       title: m.blog_title(),
       description: m.blog_description(),
-    });
-
-    return {
-      meta: [
-        {
-          title: getSeoTitle(m.blog_title()),
-        },
-        {
-          name: "description",
-          content: m.blog_description(),
-        },
-        {
-          property: "og:title",
-          content: m.blog_title(),
-        },
-        {
-          property: "og:description",
-          content: m.blog_description(),
-        },
-        {
-          property: "og:url",
-          content: url,
-        },
-        {
-          property: "og:image",
-          content: image,
-        },
-        {
-          property: "og:image:alt",
-          content: m.blog_title(),
-        },
-        {
-          name: "twitter:title",
-          content: m.blog_title(),
-        },
-        {
-          name: "twitter:description",
-          content: m.blog_description(),
-        },
-        {
-          name: "twitter:image",
-          content: image,
-        },
-        {
-          name: "twitter:image:alt",
-          content: m.blog_title(),
-        },
-      ],
-    };
-  },
+    }).meta,
+  }),
   component: BlogIndexRoute,
 });
 
@@ -110,7 +53,7 @@ function BlogIndexRoute() {
               key={article.slug}
               to="/blog/$slug"
               params={{ slug: article.slug }}
-              className="group grid gap-5 border border-border bg-card p-5 text-card-foreground transition-[background-color,border-color,transform] duration-180 ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-primary/45 hover:bg-accent/40 active:scale-[0.995] md:grid-cols-[7rem_minmax(0,1fr)_auto] md:items-start"
+              className="group grid gap-5 border border-border bg-card p-5 text-card-foreground transition-[background-color,border-color,transform] duration-180 ease-out-strong hover:border-primary/45 hover:bg-accent/40 active:scale-[0.995] md:grid-cols-[7rem_minmax(0,1fr)_auto] md:items-start"
             >
               <div className="flex items-center gap-3 md:block">
                 <span className="font-mono text-muted-foreground text-xs">
@@ -156,7 +99,7 @@ function BlogIndexRoute() {
 
               <span
                 aria-hidden="true"
-                className="flex size-9 items-center justify-center border border-border text-muted-foreground transition-[border-color,color,transform] duration-180 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:translate-x-1 group-hover:border-primary/45 group-hover:text-primary md:mt-1"
+                className="flex size-9 items-center justify-center border border-border text-muted-foreground transition-[border-color,color,transform] duration-180 ease-out-strong group-hover:translate-x-1 group-hover:border-primary/45 group-hover:text-primary md:mt-1"
               >
                 <ArrowRight className="size-4" />
               </span>

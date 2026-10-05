@@ -6,23 +6,29 @@ export type SocialAssetKey = (typeof socialAssetKeys)[number];
 
 export const socialAssetFiles = {
   linkedin: {
-    sourcePath: "/assets/social/linkedin.png",
     filename: "urbs-linkedin-cover.png",
     contentType: "image/png",
   },
   meet: {
-    sourcePath: "/assets/social/meet.png",
     filename: "urbs-meet-background.png",
     contentType: "image/png",
   },
 } satisfies Record<
   SocialAssetKey,
   {
-    sourcePath: string;
     filename: string;
     contentType: string;
   }
 >;
+
+/** Gated endpoint serving an asset; requires the employee access cookie. */
+export function getSocialAssetPath(
+  key: SocialAssetKey,
+  disposition: "inline" | "attachment" = "attachment",
+) {
+  const path = `/api/social/assets/${key}`;
+  return disposition === "inline" ? `${path}?disposition=inline` : path;
+}
 
 export function getSocialAssetCatalog() {
   return [
@@ -32,8 +38,8 @@ export function getSocialAssetCatalog() {
       description: m.social_asset_linkedin_cover_description(),
       dimensions: m.social_asset_linkedin_cover_dimensions(),
       format: "PNG",
-      previewPath: socialAssetFiles.linkedin.sourcePath,
-      downloadPath: "/api/social/assets/linkedin",
+      previewPath: getSocialAssetPath("linkedin", "inline"),
+      downloadPath: getSocialAssetPath("linkedin"),
     },
     {
       key: "meet",
@@ -41,8 +47,8 @@ export function getSocialAssetCatalog() {
       description: m.social_asset_meet_background_description(),
       dimensions: m.social_asset_meet_background_dimensions(),
       format: "PNG",
-      previewPath: socialAssetFiles.meet.sourcePath,
-      downloadPath: "/api/social/assets/meet",
+      previewPath: getSocialAssetPath("meet", "inline"),
+      downloadPath: getSocialAssetPath("meet"),
     },
   ] satisfies {
     key: SocialAssetKey;

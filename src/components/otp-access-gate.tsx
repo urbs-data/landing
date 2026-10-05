@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import {
@@ -21,7 +19,25 @@ import { m } from "#/paraglide/messages";
 
 const ACCESS_ENDPOINT = "/api/employee-access/verify";
 
-type AccessState = "idle" | "checking" | "granted" | "denied" | "unavailable";
+type AccessState =
+  | "idle"
+  | "checking"
+  | "granted"
+  | "denied"
+  | "rate-limited"
+  | "unavailable";
+
+function getFailureState(status: number): AccessState {
+  if (status === 429) return "rate-limited";
+  if (status === 503) return "unavailable";
+  return "denied";
+}
+
+const errorStates = new Set<AccessState>([
+  "denied",
+  "rate-limited",
+  "unavailable",
+]);
 
 export function OtpAccessGate({
   hasAccess,
@@ -61,7 +77,7 @@ export function OtpAccessGate({
           return;
         }
 
-        setState(response.status === 503 ? "unavailable" : "denied");
+        setState(getFailureState(response.status));
         setValue("");
       } catch {
         setState("unavailable");
@@ -80,9 +96,11 @@ export function OtpAccessGate({
   const message =
     state === "denied"
       ? m.otp_denied()
-      : state === "unavailable"
-        ? m.otp_unavailable()
-        : m.otp_idle();
+      : state === "rate-limited"
+        ? m.otp_rate_limited()
+        : state === "unavailable"
+          ? m.otp_unavailable()
+          : m.otp_idle();
 
   return (
     <main
@@ -120,7 +138,9 @@ export function OtpAccessGate({
               const code = nextValue.replace(/\D/g, "");
 
               setValue(code);
-              if (state === "denied") setState("idle");
+              if (state === "denied" || state === "rate-limited") {
+                setState("idle");
+              }
               if (code.length === 6) void verifyCode(code);
             }}
             containerClassName="w-full"
@@ -146,7 +166,7 @@ export function OtpAccessGate({
           <p
             className={cn(
               "min-h-5 text-sm",
-              state === "denied" || state === "unavailable"
+              errorStates.has(state)
                 ? "text-destructive"
                 : "text-muted-foreground",
             )}

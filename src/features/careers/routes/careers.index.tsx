@@ -111,6 +111,9 @@ function CareersIndexRoute() {
           {m.careers_apply_spontaneous()}
           <ArrowRight className="size-4" />
         </a>
+        <p className="mt-3 text-muted-foreground text-sm">
+          {m.careers_apply_note({ email: CAREERS_EMAIL })}
+        </p>
       </section>
     </main>
   );

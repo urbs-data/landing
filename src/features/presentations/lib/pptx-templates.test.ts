@@ -1,8 +1,24 @@
 // @vitest-environment node
 import JSZip from "jszip";
 import { expect, it } from "vitest";
+import { buildDecks } from "./pptx-decks";
 import { createPresentationTemplate } from "./pptx-templates";
-import { presentationTemplateKeys } from "./template-catalog";
+import {
+  presentationTemplateKeys,
+  presentationTemplateSlideCounts,
+} from "./template-catalog";
+
+async function readLayoutNames(bytes: Uint8Array) {
+  const zip = await JSZip.loadAsync(bytes);
+  const names: string[] = [];
+  for (const file of Object.keys(zip.files)) {
+    if (!/^ppt\/slideLayouts\/slideLayout\d+\.xml$/.test(file)) continue;
+    const xml = await zip.file(file)?.async("string");
+    const name = xml?.match(/<p:cSld name="([^"]+)"/)?.[1];
+    if (name?.startsWith("Urbs · ")) names.push(name);
+  }
+  return names.sort();
+}
 
 it("generates every deck with embedded brand fonts", async () => {
   for (const key of presentationTemplateKeys) {
@@ -69,5 +85,35 @@ it("keeps slide numbers active for new slides inserted from layouts", async () =
 
     expect(layout.xml).toContain('type="sldNum"');
     expect(layout.xml).toContain('type="slidenum"');
+  }
+});
+
+it("names slide layouts in the deck's locale", async () => {
+  const en = await readLayoutNames(
+    await createPresentationTemplate("executive", "light", "en"),
+  );
+
+  expect(en).toEqual(
+    [
+      "Urbs · Cover",
+      "Urbs · Content",
+      "Urbs · Closing",
+      "Urbs · Divider",
+      "Urbs · Section",
+      "Urbs · Subsection",
+      "Urbs · Two columns",
+      "Urbs · Three columns",
+    ].sort(),
+  );
+});
+
+it("keeps the catalog slide counts in sync with the decks", () => {
+  for (const locale of ["es", "en"] as const) {
+    const decks = buildDecks(locale);
+    for (const key of presentationTemplateKeys) {
+      expect(decks[key].slides).toHaveLength(
+        presentationTemplateSlideCounts[key],
+      );
+    }
   }
 });

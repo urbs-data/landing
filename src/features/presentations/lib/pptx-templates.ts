@@ -1,9 +1,19 @@
 import JSZip from "jszip";
 import PptxGenJS from "pptxgenjs";
 import type { AppLocale } from "#/i18n";
+import { BRAND_VIOLET_HEX } from "#/lib/brand";
 import { m } from "#/paraglide/messages";
 import { brandAssets } from "./brand-assets";
 import { type FontFace, fontAssets } from "./font-assets";
+import {
+  type BarChartData,
+  buildDecks,
+  type Deck,
+  type Metric,
+  msg,
+  type SlideSpec,
+  type Step,
+} from "./pptx-decks";
 import type {
   PresentationTemplateKey,
   PresentationTemplateMode,
@@ -25,20 +35,11 @@ const FONT = {
 };
 
 // Escala de datos derivada del morado de marca (dark → light).
-const DATA_SCALE = ["6E4DAB", "AA95DE", "C0B1E9", "D2C6F3", "DED5F9"];
+const DATA_SCALE = [BRAND_VIOLET_HEX, "AA95DE", "C0B1E9", "D2C6F3", "DED5F9"];
 
 const SEMANTIC = { ok: "2B9A66", warn: "E8A400", err: "E5484D" };
 
 type Palette = ReturnType<typeof palette>;
-type LocaleMessage = (
-  inputs: Record<string, never>,
-  options: { locale: AppLocale },
-) => string;
-
-function msg(locale: AppLocale, message: LocaleMessage) {
-  return message({}, { locale });
-}
-
 function palette(mode: PresentationTemplateMode) {
   if (mode === "dark") {
     return {
@@ -50,7 +51,7 @@ function palette(mode: PresentationTemplateMode) {
       muted: "B2B3BE",
       faint: "70727C",
       border: "34343A",
-      accent: "6E4DAB", // rellenos sólidos y botones
+      accent: BRAND_VIOLET_HEX, // rellenos sólidos y botones
       accentText: "C087FF", // logo y textos pequeños (intensificado)
       onAccent: "FFFFFF",
       data: DATA_SCALE,
@@ -65,8 +66,8 @@ function palette(mode: PresentationTemplateMode) {
     muted: "60646C",
     faint: "8B8D98",
     border: "D9D9E0",
-    accent: "6E4DAB",
-    accentText: "6E4DAB",
+    accent: BRAND_VIOLET_HEX,
+    accentText: BRAND_VIOLET_HEX,
     onAccent: "FFFFFF",
     data: DATA_SCALE,
   };
@@ -78,7 +79,7 @@ const CLOSING = {
   ink: "FFFFFF",
   muted: "C9BEE6",
   border: "4A3B6B",
-  accent: "6E4DAB",
+  accent: BRAND_VIOLET_HEX,
   accentText: "C9B3F5",
 };
 
@@ -90,16 +91,20 @@ const CLOSING = {
 // generated slides draw their content with absolute boxes, so leaving
 // placeholders here would show empty "Click to add…" prompts on top. The
 // remaining layouts are placeholder-driven and exist purely for "New Slide".
-const MASTER = {
-  cover: "Urbs · Portada",
-  content: "Urbs · Contenido",
-  closing: "Urbs · Cierre",
-  separator: "Urbs · Separador",
-  section: "Urbs · Sección",
-  subsection: "Urbs · Subsección",
-  twoCol: "Urbs · Dos columnas",
-  threeCol: "Urbs · Tres columnas",
-};
+function masterNames(locale: AppLocale) {
+  return {
+    cover: msg(locale, m.ppt_layout_cover),
+    content: msg(locale, m.ppt_layout_content),
+    closing: msg(locale, m.ppt_layout_closing),
+    separator: msg(locale, m.ppt_layout_separator),
+    section: msg(locale, m.ppt_layout_section),
+    subsection: msg(locale, m.ppt_layout_subsection),
+    twoCol: msg(locale, m.ppt_layout_two_columns),
+    threeCol: msg(locale, m.ppt_layout_three_columns),
+  };
+}
+
+type MasterNames = ReturnType<typeof masterNames>;
 
 /* -------------------------------------------------------------------------- */
 /*  Geometry                                                                  */
@@ -112,6 +117,11 @@ const FOOT_RULE_Y = 6.78;
 const FOOT_TXT_Y = 6.94;
 
 type Slide = PptxGenJS.Slide;
+
+/** Absolute frame in inches. */
+type Box = { x: number; y: number; w: number; h: number };
+/** Frame whose height is driven by its content (rows, table). */
+type Span = Omit<Box, "h">;
 
 /* -------------------------------------------------------------------------- */
 /*  Brand asset helpers                                                       */
@@ -152,6 +162,7 @@ function defineMasters(
   mode: PresentationTemplateMode,
   deck: Deck,
   locale: AppLocale,
+  MASTER: MasterNames,
 ) {
   const t = palette(mode);
   const label = deck.label.toUpperCase();
@@ -270,10 +281,7 @@ function defineMasters(
 
   const bodyPh = (
     name: string,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
+    { x, y, w, h }: Box,
     prompt: string,
     size = 14,
   ): MasterObject => ({
@@ -477,7 +485,11 @@ function defineMasters(
       ...footer(),
       ...kickerPh(1.28),
       titlePh(1.66, 1.2, 30, msg(locale, m.ppt_master_section_title)),
-      bodyPh("body", MX, 2.9, 10.6, 3.2, msg(locale, m.ppt_master_slide_body)),
+      bodyPh(
+        "body",
+        { x: MX, y: 2.9, w: 10.6, h: 3.2 },
+        msg(locale, m.ppt_master_slide_body),
+      ),
     ],
   });
 
@@ -490,7 +502,12 @@ function defineMasters(
       ...header(),
       ...footer(),
       titlePh(1.5, 0.9, 22, msg(locale, m.ppt_master_subtitle)),
-      bodyPh("body", MX, 2.5, 10.6, 3.6, msg(locale, m.ppt_master_content), 13),
+      bodyPh(
+        "body",
+        { x: MX, y: 2.5, w: 10.6, h: 3.6 },
+        msg(locale, m.ppt_master_content),
+        13,
+      ),
     ],
   });
 
@@ -506,19 +523,13 @@ function defineMasters(
       titlePh(1.66, 0.9, 26, msg(locale, m.ppt_master_title)),
       bodyPh(
         "left",
-        MX,
-        2.85,
-        5.55,
-        3.3,
+        { x: MX, y: 2.85, w: 5.55, h: 3.3 },
         msg(locale, m.ppt_master_left_column),
         13,
       ),
       bodyPh(
         "right",
-        7.03,
-        2.85,
-        5.55,
-        3.3,
+        { x: 7.03, y: 2.85, w: 5.55, h: 3.3 },
         msg(locale, m.ppt_master_right_column),
         13,
       ),
@@ -537,28 +548,19 @@ function defineMasters(
       titlePh(1.66, 0.9, 26, msg(locale, m.ppt_master_title)),
       bodyPh(
         "col1",
-        MX,
-        2.85,
-        3.6,
-        3.3,
+        { x: MX, y: 2.85, w: 3.6, h: 3.3 },
         msg(locale, m.ppt_master_column_1),
         12.5,
       ),
       bodyPh(
         "col2",
-        4.86,
-        2.85,
-        3.6,
-        3.3,
+        { x: 4.86, y: 2.85, w: 3.6, h: 3.3 },
         msg(locale, m.ppt_master_column_2),
         12.5,
       ),
       bodyPh(
         "col3",
-        8.98,
-        2.85,
-        3.6,
-        3.3,
+        { x: 8.98, y: 2.85, w: 3.6, h: 3.3 },
         msg(locale, m.ppt_master_column_3),
         12.5,
       ),
@@ -601,20 +603,10 @@ function addKicker(
 /*  Content modules                                                           */
 /* -------------------------------------------------------------------------- */
 
-type Metric = {
-  value: string;
-  label: string;
-  delta?: string;
-  dir?: "up" | "down";
-};
-
 function addMetricCard(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+  { x, y, w, h }: Box,
   m: Metric,
 ) {
   slide.addShape("rect", {
@@ -675,16 +667,13 @@ function addMetricCard(
 function addMetricRow(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
+  { x, y, w, h }: Box,
   metrics: Metric[],
-  h = 1.5,
 ) {
   const gap = 0.24;
   const cardW = (w - gap * (metrics.length - 1)) / metrics.length;
   metrics.forEach((m, i) => {
-    addMetricCard(slide, t, x + i * (cardW + gap), y, cardW, h, m);
+    addMetricCard(slide, t, { x: x + i * (cardW + gap), y, w: cardW, h }, m);
   });
 }
 
@@ -692,12 +681,8 @@ function addMetricRow(
 function addBarChart(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  cats: string[],
-  vals: number[],
+  { x, y, w, h }: Box,
+  { cats, vals }: BarChartData,
 ) {
   const labelBand = 0.3;
   const valueBand = 0.28;
@@ -761,9 +746,7 @@ function addBarChart(
 function addBullets(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
+  { x, y, w }: Span,
   items: string[],
   rowH = 0.62,
 ) {
@@ -792,15 +775,10 @@ function addBullets(
   });
 }
 
-type Step = { title: string; desc: string };
-
 function addSteps(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+  { x, y, w, h }: Box,
   steps: Step[],
 ) {
   const gap = 0.24;
@@ -864,11 +842,8 @@ function addSteps(
 function addDataTable(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
-  head: string[],
-  rows: string[][],
+  { x, y, w }: Span,
+  { head, rows }: { head: string[]; rows: string[][] },
 ) {
   const headRow: PptxGenJS.TableRow = head.map((c) => ({
     text: c.toUpperCase(),
@@ -920,12 +895,8 @@ function tableColW(w: number, cols: number) {
 function addNoteCard(
   slide: Slide,
   t: Palette,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  label: string,
-  body: string,
+  { x, y, w, h }: Box,
+  { label, body }: { label: string; body: string },
 ) {
   slide.addShape("rect", {
     x,
@@ -970,61 +941,6 @@ function addNoteCard(
     margin: 0,
   });
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Content model                                                             */
-/* -------------------------------------------------------------------------- */
-
-type SlideSpec =
-  | { layout: "cover"; kicker: string; title: string; body: string }
-  | {
-      layout: "content";
-      kicker: string;
-      title: string;
-      body: string;
-      bullets?: string[];
-      note?: { label: string; body: string };
-    }
-  | {
-      layout: "metrics";
-      kicker: string;
-      title: string;
-      body: string;
-      metrics: Metric[];
-      chart?: { cats: string[]; vals: number[] };
-    }
-  | {
-      layout: "chart";
-      kicker: string;
-      title: string;
-      body: string;
-      chart: { cats: string[]; vals: number[] };
-      caption?: string;
-    }
-  | {
-      layout: "table";
-      kicker: string;
-      title: string;
-      body: string;
-      table: { head: string[]; rows: string[][] };
-    }
-  | {
-      layout: "steps";
-      kicker: string;
-      title: string;
-      body: string;
-      steps: Step[];
-    }
-  | {
-      layout: "closing";
-      kicker: string;
-      title: string;
-      body: string;
-      cta: string;
-      contact: string;
-    };
-
-type Deck = { label: string; slides: SlideSpec[] };
 
 /* -------------------------------------------------------------------------- */
 /*  Slide renderers                                                           */
@@ -1181,395 +1097,6 @@ function renderClosing(
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Deck definitions                                                          */
-/* -------------------------------------------------------------------------- */
-
-function buildDecks(locale: AppLocale): Record<PresentationTemplateKey, Deck> {
-  return {
-    executive: {
-      label: msg(locale, m.presentation_template_executive_name),
-      slides: [
-        {
-          layout: "cover",
-          kicker: msg(locale, m.presentation_template_executive_name),
-          title: msg(locale, m.ppt_executive_cover_title),
-          body: msg(locale, m.ppt_executive_cover_body),
-        },
-        {
-          layout: "content",
-          kicker: msg(locale, m.ppt_executive_situation_kicker),
-          title: msg(locale, m.ppt_executive_situation_title),
-          body: msg(locale, m.ppt_executive_situation_body),
-          bullets: [
-            msg(locale, m.ppt_executive_situation_bullet_1),
-            msg(locale, m.ppt_executive_situation_bullet_2),
-            msg(locale, m.ppt_executive_situation_bullet_3),
-          ],
-          note: {
-            label: msg(locale, m.ppt_executive_note_label),
-            body: msg(locale, m.ppt_executive_note_body),
-          },
-        },
-        {
-          layout: "metrics",
-          kicker: msg(locale, m.ppt_executive_metrics_kicker),
-          title: msg(locale, m.ppt_executive_metrics_title),
-          body: msg(locale, m.ppt_executive_metrics_body),
-          metrics: [
-            {
-              value: "82%",
-              label: msg(locale, m.ppt_metric_adoption),
-              delta: "6 pts",
-              dir: "up",
-            },
-            {
-              value: "-34%",
-              label: msg(locale, m.ppt_metric_manual_time),
-              delta: "34%",
-              dir: "down",
-            },
-            {
-              value: "1.4M",
-              label: msg(locale, m.ppt_metric_records_day),
-              delta: "12%",
-              dir: "up",
-            },
-          ],
-          chart: {
-            cats: ["Q1", "Q2", "Q3", "Q4", "Q5"],
-            vals: [42, 58, 53, 68, 81],
-          },
-        },
-        {
-          layout: "table",
-          kicker: msg(locale, m.ppt_executive_risks_kicker),
-          title: msg(locale, m.ppt_executive_risks_title),
-          body: msg(locale, m.ppt_executive_risks_body),
-          table: {
-            head: [
-              msg(locale, m.ppt_risk_head_risk),
-              msg(locale, m.ppt_risk_head_impact),
-              msg(locale, m.ppt_risk_head_mitigation),
-            ],
-            rows: [
-              [
-                msg(locale, m.ppt_risk_ownerless_source),
-                msg(locale, m.ppt_impact_high),
-                msg(locale, m.ppt_mitigation_assign_owner),
-              ],
-              [
-                msg(locale, m.ppt_risk_etl_latency),
-                msg(locale, m.ppt_impact_medium),
-                msg(locale, m.ppt_mitigation_incremental_window),
-              ],
-              [
-                msg(locale, m.ppt_risk_data_quality),
-                msg(locale, m.ppt_impact_medium),
-                msg(locale, m.ppt_mitigation_validation_rules),
-              ],
-            ],
-          },
-        },
-        {
-          layout: "closing",
-          kicker: msg(locale, m.ppt_executive_close_kicker),
-          title: msg(locale, m.ppt_executive_close_title),
-          body: msg(locale, m.ppt_executive_close_body),
-          cta: msg(locale, m.ppt_executive_cta),
-          contact: "responsable@urbsdata.com",
-        },
-      ],
-    },
-
-    "data-review": {
-      label: msg(locale, m.presentation_template_data_review_name),
-      slides: [
-        {
-          layout: "cover",
-          kicker: msg(locale, m.ppt_data_review_cover_kicker),
-          title: msg(locale, m.ppt_data_review_cover_title),
-          body: msg(locale, m.ppt_data_review_cover_body),
-        },
-        {
-          layout: "metrics",
-          kicker: msg(locale, m.ppt_data_review_scorecard_kicker),
-          title: msg(locale, m.ppt_data_review_scorecard_title),
-          body: msg(locale, m.ppt_data_review_scorecard_body),
-          metrics: [
-            {
-              value: "98.6%",
-              label: msg(locale, m.ppt_metric_uptime_pipeline),
-              delta: "0.3",
-              dir: "up",
-            },
-            {
-              value: "12 min",
-              label: msg(locale, m.ppt_metric_freshness),
-              delta: "4 min",
-              dir: "down",
-            },
-            {
-              value: "94%",
-              label: msg(locale, m.ppt_metric_test_coverage),
-              delta: "5 pts",
-              dir: "up",
-            },
-            {
-              value: "0.2%",
-              label: msg(locale, m.ppt_metric_rejected_rows),
-              delta: "0.1",
-              dir: "down",
-            },
-          ],
-        },
-        {
-          layout: "chart",
-          kicker: msg(locale, m.ppt_data_review_trend_kicker),
-          title: msg(locale, m.ppt_data_review_trend_title),
-          body: msg(locale, m.ppt_data_review_trend_body),
-          chart: {
-            cats: [
-              msg(locale, m.ppt_month_may),
-              msg(locale, m.ppt_month_jun),
-              msg(locale, m.ppt_month_jul),
-              msg(locale, m.ppt_month_aug),
-              msg(locale, m.ppt_month_sep),
-              msg(locale, m.ppt_month_oct),
-            ],
-            vals: [48, 55, 51, 62, 70, 84],
-          },
-          caption: msg(locale, m.ppt_data_review_caption),
-        },
-        {
-          layout: "table",
-          kicker: msg(locale, m.ppt_data_review_segments_kicker),
-          title: msg(locale, m.ppt_data_review_segments_title),
-          body: msg(locale, m.ppt_data_review_segments_body),
-          table: {
-            head: [
-              msg(locale, m.ppt_segment_head_segment),
-              msg(locale, m.ppt_segment_head_volume),
-              msg(locale, m.ppt_segment_head_conversion),
-              msg(locale, m.ppt_segment_head_trend),
-            ],
-            rows: [
-              [
-                msg(locale, m.ppt_segment_direct),
-                "42%",
-                "3.8%",
-                msg(locale, m.ppt_trend_stable),
-              ],
-              [
-                msg(locale, m.ppt_segment_referrals),
-                "28%",
-                "5.1%",
-                msg(locale, m.ppt_trend_up),
-              ],
-              [
-                msg(locale, m.ppt_segment_campaigns),
-                "19%",
-                "2.4%",
-                msg(locale, m.ppt_trend_down),
-              ],
-              [
-                msg(locale, m.ppt_segment_organic),
-                "11%",
-                "4.0%",
-                msg(locale, m.ppt_trend_up),
-              ],
-            ],
-          },
-        },
-        {
-          layout: "closing",
-          kicker: msg(locale, m.ppt_data_review_close_kicker),
-          title: msg(locale, m.ppt_data_review_close_title),
-          body: msg(locale, m.ppt_data_review_close_body),
-          cta: msg(locale, m.ppt_data_review_cta),
-          contact: "data@urbsdata.com",
-        },
-      ],
-    },
-
-    pitch: {
-      label: msg(locale, m.presentation_template_pitch_name),
-      slides: [
-        {
-          layout: "cover",
-          kicker: msg(locale, m.ppt_pitch_cover_kicker),
-          title: msg(locale, m.ppt_pitch_cover_title),
-          body: msg(locale, m.ppt_pitch_cover_body),
-        },
-        {
-          layout: "content",
-          kicker: msg(locale, m.ppt_pitch_problem_kicker),
-          title: msg(locale, m.ppt_pitch_problem_title),
-          body: msg(locale, m.ppt_pitch_problem_body),
-          bullets: [
-            msg(locale, m.ppt_pitch_problem_bullet_1),
-            msg(locale, m.ppt_pitch_problem_bullet_2),
-            msg(locale, m.ppt_pitch_problem_bullet_3),
-          ],
-          note: {
-            label: msg(locale, m.ppt_pitch_note_label),
-            body: msg(locale, m.ppt_pitch_note_body),
-          },
-        },
-        {
-          layout: "steps",
-          kicker: msg(locale, m.ppt_pitch_steps_kicker),
-          title: msg(locale, m.ppt_pitch_steps_title),
-          body: msg(locale, m.ppt_pitch_steps_body),
-          steps: [
-            {
-              title: msg(locale, m.ppt_step_integrate_title),
-              desc: msg(locale, m.ppt_step_integrate_desc),
-            },
-            {
-              title: msg(locale, m.ppt_step_model_title),
-              desc: msg(locale, m.ppt_step_model_desc),
-            },
-            {
-              title: msg(locale, m.ppt_step_deliver_title),
-              desc: msg(locale, m.ppt_step_deliver_desc),
-            },
-          ],
-        },
-        {
-          layout: "metrics",
-          kicker: msg(locale, m.ppt_pitch_impact_kicker),
-          title: msg(locale, m.ppt_pitch_impact_title),
-          body: msg(locale, m.ppt_pitch_impact_body),
-          metrics: [
-            {
-              value: "-34%",
-              label: msg(locale, m.ppt_metric_manual_time),
-              delta: "34%",
-              dir: "down",
-            },
-            {
-              value: "3×",
-              label: msg(locale, m.ppt_metric_reporting_speed),
-              delta: "3×",
-              dir: "up",
-            },
-            {
-              value: "82%",
-              label: msg(locale, m.ppt_metric_internal_adoption),
-              delta: "6 pts",
-              dir: "up",
-            },
-          ],
-          chart: {
-            cats: ["S1", "S2", "S3", "S4", "S5"],
-            vals: [30, 44, 52, 66, 81],
-          },
-        },
-        {
-          layout: "closing",
-          kicker: msg(locale, m.ppt_pitch_close_kicker),
-          title: msg(locale, m.ppt_pitch_close_title),
-          body: msg(locale, m.ppt_pitch_close_body),
-          cta: msg(locale, m.ppt_pitch_cta),
-          contact: msg(locale, m.ppt_pitch_contact),
-        },
-      ],
-    },
-
-    "case-study": {
-      label: msg(locale, m.presentation_template_case_study_name),
-      slides: [
-        {
-          layout: "cover",
-          kicker: msg(locale, m.ppt_case_cover_kicker),
-          title: msg(locale, m.ppt_case_cover_title),
-          body: msg(locale, m.ppt_case_cover_body),
-        },
-        {
-          layout: "content",
-          kicker: msg(locale, m.ppt_case_challenge_kicker),
-          title: msg(locale, m.ppt_case_challenge_title),
-          body: msg(locale, m.ppt_case_challenge_body),
-          bullets: [
-            msg(locale, m.ppt_case_challenge_bullet_1),
-            msg(locale, m.ppt_case_challenge_bullet_2),
-            msg(locale, m.ppt_case_challenge_bullet_3),
-          ],
-          note: {
-            label: msg(locale, m.ppt_case_note_label),
-            body: msg(locale, m.ppt_case_note_body),
-          },
-        },
-        {
-          layout: "steps",
-          kicker: msg(locale, m.ppt_case_approach_kicker),
-          title: msg(locale, m.ppt_case_approach_title),
-          body: msg(locale, m.ppt_case_approach_body),
-          steps: [
-            {
-              title: msg(locale, m.ppt_case_source_title),
-              desc: msg(locale, m.ppt_case_source_desc),
-            },
-            {
-              title: msg(locale, m.ppt_case_warehouse_title),
-              desc: msg(locale, m.ppt_case_warehouse_desc),
-            },
-            {
-              title: msg(locale, m.ppt_case_consumption_title),
-              desc: msg(locale, m.ppt_case_consumption_desc),
-            },
-          ],
-        },
-        {
-          layout: "metrics",
-          kicker: msg(locale, m.ppt_case_results_kicker),
-          title: msg(locale, m.ppt_case_results_title),
-          body: msg(locale, m.ppt_case_results_body),
-          metrics: [
-            {
-              value: "-70%",
-              label: msg(locale, m.ppt_metric_reporting_time),
-              delta: "70%",
-              dir: "down",
-            },
-            {
-              value: "+41%",
-              label: msg(locale, m.ppt_metric_on_time_decisions),
-              delta: "41%",
-              dir: "up",
-            },
-            {
-              value: "1",
-              label: msg(locale, m.ppt_metric_source_of_truth),
-              delta: msg(locale, m.ppt_delta_unified),
-              dir: "up",
-            },
-          ],
-          chart: {
-            cats: [
-              msg(locale, m.ppt_case_before),
-              "M1",
-              "M2",
-              "M3",
-              msg(locale, m.ppt_case_now),
-            ],
-            vals: [22, 38, 51, 63, 79],
-          },
-        },
-        {
-          layout: "closing",
-          kicker: msg(locale, m.ppt_case_close_kicker),
-          title: msg(locale, m.ppt_case_close_title),
-          body: msg(locale, m.ppt_case_close_body),
-          cta: msg(locale, m.ppt_case_cta),
-          contact: "hola@urbsdata.com",
-        },
-      ],
-    },
-  };
-}
-
-/* -------------------------------------------------------------------------- */
 /*  Assembly                                                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -1588,17 +1115,15 @@ function renderContentSlide(
     case "content": {
       const colW = spec.note ? 5.35 : 5.6;
       addContentHeadings(slide, t, spec, section, colW);
-      if (spec.bullets) addBullets(slide, t, MX, 3.9, colW, spec.bullets);
+      if (spec.bullets) {
+        addBullets(slide, t, { x: MX, y: 3.9, w: colW }, spec.bullets);
+      }
       if (spec.note) {
         addNoteCard(
           slide,
           t,
-          rightX,
-          1.62,
-          rightW,
-          4.55,
-          spec.note.label,
-          spec.note.body,
+          { x: rightX, y: 1.62, w: rightW, h: 4.55 },
+          spec.note,
         );
       }
       break;
@@ -1606,19 +1131,10 @@ function renderContentSlide(
     case "metrics": {
       addContentHeadings(slide, t, spec, section, 8.5);
       if (spec.chart) {
-        addMetricRow(slide, t, MX, 3.55, CW, spec.metrics, 1.5);
-        addBarChart(
-          slide,
-          t,
-          MX,
-          5.35,
-          CW,
-          1.25,
-          spec.chart.cats,
-          spec.chart.vals,
-        );
+        addMetricRow(slide, t, { x: MX, y: 3.55, w: CW, h: 1.5 }, spec.metrics);
+        addBarChart(slide, t, { x: MX, y: 5.35, w: CW, h: 1.25 }, spec.chart);
       } else {
-        addMetricRow(slide, t, MX, 3.75, CW, spec.metrics, 2.1);
+        addMetricRow(slide, t, { x: MX, y: 3.75, w: CW, h: 2.1 }, spec.metrics);
       }
       break;
     }
@@ -1627,12 +1143,8 @@ function renderContentSlide(
       addBarChart(
         slide,
         t,
-        rightX,
-        1.75,
-        rightW,
-        3.55,
-        spec.chart.cats,
-        spec.chart.vals,
+        { x: rightX, y: 1.75, w: rightW, h: 3.55 },
+        spec.chart,
       );
       if (spec.caption) {
         slide.addText(spec.caption, {
@@ -1651,12 +1163,12 @@ function renderContentSlide(
     }
     case "table": {
       addContentHeadings(slide, t, spec, section, 9.6);
-      addDataTable(slide, t, MX, 3.55, CW, spec.table.head, spec.table.rows);
+      addDataTable(slide, t, { x: MX, y: 3.55, w: CW }, spec.table);
       break;
     }
     case "steps": {
       addContentHeadings(slide, t, spec, section, 10);
-      addSteps(slide, t, MX, 3.95, CW, 2.5, spec.steps);
+      addSteps(slide, t, { x: MX, y: 3.95, w: CW, h: 2.5 }, spec.steps);
       break;
     }
   }
@@ -1774,7 +1286,7 @@ export async function createPresentationTemplate(
   pptx.author = "Urbs Data";
   pptx.company = "Urbs Data";
   pptx.subject = msg(locale, m.ppt_subject);
-  pptx.title = `Urbs Data — ${deck.label} (${mode})`;
+  pptx.title = `Urbs Data — ${deck.label}`;
   pptx.defineLayout(LAYOUT);
   pptx.layout = LAYOUT.name;
   pptx.theme = {
@@ -1783,7 +1295,8 @@ export async function createPresentationTemplate(
   };
 
   const t = palette(mode);
-  defineMasters(pptx, mode, deck, locale);
+  const MASTER = masterNames(locale);
+  defineMasters(pptx, mode, deck, locale, MASTER);
   let section = 0;
 
   deck.slides.forEach((spec) => {

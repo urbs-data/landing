@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BarChart3,
   Boxes,
@@ -16,22 +14,27 @@ import {
   Target,
   Warehouse,
 } from "lucide-react";
+import { useReducedMotion } from "motion/react";
 import * as motion from "motion/react-client";
 import * as React from "react";
 import {
   AnimatedBeam,
   BeamContainer,
   BeamNode,
-} from "@/components/ui/animated-beam";
+} from "#/components/ui/animated-beam";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { cn } from "@/lib/utils";
-import { m } from "@/paraglide/messages";
+} from "#/components/ui/hover-card";
+import { cn } from "#/lib/utils";
+import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { revealTransform, revealTransition } from "./animation";
+import {
+  SectionDescription,
+  SectionHeading,
+  SectionTitle,
+} from "./section-heading";
 import { SectionKicker } from "./section-kicker";
 
 type FlowNode = {
@@ -42,15 +45,11 @@ type FlowNode = {
   x: number;
   y: number;
   /** Raw input source (smaller, dashed). */
-  io?: boolean;
+  io: boolean;
   info?: {
     title: string;
     desc: string;
   };
-};
-
-type FlowEndpoint = Omit<FlowNode, "id"> & {
-  id: FlowEndpointId;
 };
 
 type BeamAnchor = "top" | "right" | "bottom" | "left";
@@ -68,32 +67,26 @@ type FlowNodeId =
 type FlowEndpointId = FlowNodeId | "gateway";
 type FlowPosition = Pick<FlowNode, "x" | "y">;
 
+/** A route resolved for one layout: offsets are relative to node centers. */
 type FlowBeam = {
   from: FlowEndpointId;
   to: FlowEndpointId;
-  start: BeamAnchor;
-  end: BeamAnchor;
   dashed?: boolean;
   delay: number;
   curvature: number;
-  lineType?: "curved" | "straight";
-  gradientStartColor: string;
-  gradientStopColor: string;
-  /** Nudge the attach point to land on a specific gateway pin. */
-  startXOffset?: number;
-  startYOffset?: number;
-  endXOffset?: number;
-  endYOffset?: number;
+  startXOffset: number;
+  startYOffset: number;
+  endXOffset: number;
+  endYOffset: number;
 };
 
-type FlowNodeSpec = Omit<FlowNode, "x" | "y"> & {
+type FlowNodeSpec = Omit<FlowNode, "x" | "y" | "io"> & {
   position: Record<FlowLayout, FlowPosition>;
 };
 
 type FlowRoute = {
   from: FlowEndpointId;
   to: FlowEndpointId;
-  anchors?: Record<FlowLayout, { start: BeamAnchor; end: BeamAnchor }>;
   curvature: Record<FlowLayout, number>;
   dashed?: boolean;
   delay: number;
@@ -112,7 +105,6 @@ type FlowRoute = {
       }
     >
   >;
-  lineType?: "curved" | "straight";
 };
 
 /** Gateway chip size (Tailwind size-24) and its evenly spaced I/O pins. */
@@ -142,6 +134,14 @@ function getGatewaySteps() {
 
 const BEAM_START_COLOR = "var(--color-primary)";
 const BEAM_STOP_COLOR = "var(--color-chart-2)";
+
+/** Raw input sources render smaller and dashed. */
+const IO_NODE_IDS: ReadonlySet<FlowEndpointId> = new Set<FlowNodeId>([
+  "excels",
+  "erp",
+  "ecommerce",
+  "other",
+]);
 
 const FLOW_NODE_IDS: FlowNodeId[] = [
   "excels",
@@ -199,7 +199,7 @@ const GATEWAY_POSITIONS: Record<FlowLayout, FlowPosition> = {
   mobile: { x: 50, y: 38 },
 };
 
-const DEFAULT_ROUTE_ANCHORS: Record<
+const ROUTE_ANCHORS: Record<
   FlowLayout,
   { start: BeamAnchor; end: BeamAnchor }
 > = {
@@ -214,28 +214,24 @@ function getNodeSpecs(): FlowNodeSpec[] {
       icon: FileSpreadsheet,
       label: m.flow_input_excels(),
       position: NODE_POSITIONS.excels,
-      io: true,
     },
     {
       id: "erp",
       icon: Building2,
       label: m.flow_input_erp(),
       position: NODE_POSITIONS.erp,
-      io: true,
     },
     {
       id: "ecommerce",
       icon: ShoppingCart,
       label: m.flow_input_ecommerce(),
       position: NODE_POSITIONS.ecommerce,
-      io: true,
     },
     {
       id: "other",
       icon: Ellipsis,
       label: m.flow_input_other(),
       position: NODE_POSITIONS.other,
-      io: true,
       info: {
         title: m.flow_input_other_info_title(),
         desc: m.flow_input_other_info_desc(),
@@ -373,45 +369,63 @@ function getNodes(layout: FlowLayout): FlowNode[] {
   return getNodeSpecs().map(({ position, ...node }) => ({
     ...node,
     ...position[layout],
+    io: IO_NODE_IDS.has(node.id),
   }));
 }
 
-function getBeams(layout: FlowLayout) {
-  return FLOW_ROUTES.map((route) => buildBeam(route, layout));
+/** Where a connector attaches to an endpoint, plus an optional gateway pin. */
+function getAttachOffset(
+  id: FlowEndpointId,
+  anchor: BeamAnchor,
+  pinIndex?: number,
+) {
+  const radius =
+    id === "gateway" ? CHIP_SIZE / 2 + PIN_LEAD : IO_NODE_IDS.has(id) ? 22 : 24;
+  const pin = pinIndex === undefined ? 0 : pinOffset(PIN_PERCENTS[pinIndex]);
+
+  switch (anchor) {
+    case "top":
+      return { x: pin, y: -radius };
+    case "right":
+      return { x: radius, y: pin };
+    case "bottom":
+      return { x: pin, y: radius };
+    case "left":
+      return { x: -radius, y: pin };
+  }
 }
 
 function buildBeam(route: FlowRoute, layout: FlowLayout): FlowBeam {
-  const anchors = (route.anchors ?? DEFAULT_ROUTE_ANCHORS)[layout];
-  const startPinOffset = getPinOffset(anchors.start, route.startPin);
-  const endPinOffset = getPinOffset(anchors.end, route.endPin);
+  const anchors = ROUTE_ANCHORS[layout];
+  const start = getAttachOffset(route.from, anchors.start, route.startPin);
+  const end = getAttachOffset(route.to, anchors.end, route.endPin);
   const routeOffset = route.offsets?.[layout];
 
   return {
     from: route.from,
     to: route.to,
-    start: anchors.start,
-    end: anchors.end,
     dashed: route.dashed,
     delay: route.delay,
     curvature: route.curvature[layout],
-    lineType: route.lineType,
-    gradientStartColor: BEAM_START_COLOR,
-    gradientStopColor: BEAM_STOP_COLOR,
-    startXOffset: (startPinOffset.x ?? 0) + (routeOffset?.startX ?? 0),
-    startYOffset: (startPinOffset.y ?? 0) + (routeOffset?.startY ?? 0),
-    endXOffset: (endPinOffset.x ?? 0) + (routeOffset?.endX ?? 0),
-    endYOffset: (endPinOffset.y ?? 0) + (routeOffset?.endY ?? 0),
+    startXOffset: start.x + (routeOffset?.startX ?? 0),
+    startYOffset: start.y + (routeOffset?.startY ?? 0),
+    endXOffset: end.x + (routeOffset?.endX ?? 0),
+    endYOffset: end.y + (routeOffset?.endY ?? 0),
   };
 }
 
-function getPinOffset(anchor: BeamAnchor, pinIndex?: number) {
-  if (pinIndex === undefined) return {};
+/** Beam geometry is static per layout, so resolve it once at module load. */
+const FLOW_BEAMS: Record<FlowLayout, FlowBeam[]> = {
+  desktop: FLOW_ROUTES.map((route) => buildBeam(route, "desktop")),
+  mobile: FLOW_ROUTES.map((route) => buildBeam(route, "mobile")),
+};
 
-  const offset = pinOffset(PIN_PERCENTS[pinIndex]);
-  return anchor === "top" || anchor === "bottom"
-    ? { x: offset }
-    : { y: offset };
-}
+const PIN_SIDES = [
+  { key: "l", axis: "top", edge: "-left-1.5", center: "-translate-y-1/2" },
+  { key: "r", axis: "top", edge: "-right-1.5", center: "-translate-y-1/2" },
+  { key: "t", axis: "left", edge: "-top-1.5", center: "-translate-x-1/2" },
+  { key: "b", axis: "left", edge: "-bottom-1.5", center: "-translate-x-1/2" },
+] as const;
 
 function NodeTile({
   node,
@@ -426,7 +440,7 @@ function NodeTile({
       <BeamNode
         ref={nodeRef}
         className={cn(
-          "z-20 bg-card p-0 text-primary shadow-sm transition-[border-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "z-20 bg-card p-0 text-primary shadow-sm transition-[border-color,box-shadow,transform] duration-150 ease-out-strong",
           node.info &&
             "group-hover/node:border-primary group-hover/node:shadow-md group-active/node:scale-[0.97]",
           node.io
@@ -438,7 +452,7 @@ function NodeTile({
       </BeamNode>
       <span
         className={cn(
-          "absolute left-1/2 top-full mt-2 w-28 -translate-x-1/2 text-center text-xs font-semibold transition-colors duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "absolute left-1/2 top-full mt-2 w-28 -translate-x-1/2 text-center text-xs font-semibold transition-colors duration-150 ease-out-strong",
           node.io ? "text-muted-foreground" : "text-foreground",
           node.info && "group-hover/node:text-primary",
         )}
@@ -494,6 +508,7 @@ function UrbsGateway({
   y: number;
 }) {
   const steps = getGatewaySteps();
+  const reducedMotion = useReducedMotion();
 
   return (
     <div
@@ -505,48 +520,32 @@ function UrbsGateway({
           delay={180}
           closeDelay={80}
           aria-label={`${m.flow_gateway_title()}: ${m.flow_gateway_subtitle()}`}
-          className="group block rounded-xl transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="group block rounded-xl transition-transform duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           render={<button type="button" />}
         >
           <div className="relative size-24">
-            {PIN_PERCENTS.map((p) => (
-              <span
-                key={`l${p}`}
-                style={{ top: `${p}%` }}
-                className="absolute -left-1.5 size-1.5 -translate-y-1/2 bg-primary/60"
-              />
-            ))}
-            {PIN_PERCENTS.map((p) => (
-              <span
-                key={`r${p}`}
-                style={{ top: `${p}%` }}
-                className="absolute -right-1.5 size-1.5 -translate-y-1/2 bg-primary/60"
-              />
-            ))}
-            {PIN_PERCENTS.map((p) => (
-              <span
-                key={`t${p}`}
-                style={{ left: `${p}%` }}
-                className="absolute -top-1.5 size-1.5 -translate-x-1/2 bg-primary/60"
-              />
-            ))}
-            {PIN_PERCENTS.map((p) => (
-              <span
-                key={`b${p}`}
-                style={{ left: `${p}%` }}
-                className="absolute -bottom-1.5 size-1.5 -translate-x-1/2 bg-primary/60"
-              />
-            ))}
+            {PIN_SIDES.map(({ key, axis, edge, center }) =>
+              PIN_PERCENTS.map((p) => (
+                <span
+                  key={`${key}${p}`}
+                  style={{ [axis]: `${p}%` }}
+                  className={`absolute ${edge} size-1.5 ${center} bg-primary/60`}
+                />
+              )),
+            )}
 
             <BeamNode
               ref={gatewayRef}
-              className="relative z-30 flex size-24 flex-col items-center justify-center gap-1 rounded-xl border border-primary/50 bg-card p-0 shadow-md transition-[border-color,box-shadow] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:border-primary group-hover:shadow-lg"
+              className="relative z-30 flex size-24 flex-col items-center justify-center gap-1 rounded-xl border border-primary/50 bg-card p-0 shadow-md transition-[border-color,box-shadow] duration-200 ease-out-strong group-hover:border-primary group-hover:shadow-lg"
             >
               <div className="pointer-events-none absolute inset-2 rounded-lg border border-primary/20" />
               <motion.div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-2 rounded-lg bg-primary/10"
-                animate={{ opacity: [0.2, 0.55, 0.2] }}
+                initial={{ opacity: 0.2 }}
+                animate={
+                  reducedMotion ? undefined : { opacity: [0.2, 0.55, 0.2] }
+                }
                 transition={{
                   duration: 2.6,
                   repeat: Number.POSITIVE_INFINITY,
@@ -606,28 +605,6 @@ function createNodeRefs(): Record<
   ) as Record<FlowEndpointId, React.RefObject<HTMLDivElement | null>>;
 }
 
-function getAnchorOffset({
-  anchor,
-  node,
-}: {
-  anchor: BeamAnchor;
-  node?: FlowEndpoint;
-}) {
-  const radius =
-    node?.id === "gateway" ? CHIP_SIZE / 2 + PIN_LEAD : node?.io ? 22 : 24;
-
-  switch (anchor) {
-    case "top":
-      return { x: 0, y: -radius };
-    case "right":
-      return { x: radius, y: 0 };
-    case "bottom":
-      return { x: 0, y: radius };
-    case "left":
-      return { x: -radius, y: 0 };
-  }
-}
-
 function FlowDiagram({
   className,
   layout,
@@ -636,62 +613,37 @@ function FlowDiagram({
   layout: FlowLayout;
 }) {
   const nodes = getNodes(layout);
-  const beams = getBeams(layout);
   const gatewayPosition = GATEWAY_POSITIONS[layout];
   const containerRef = React.useRef<HTMLDivElement>(null);
   const nodeRefs = React.useMemo(createNodeRefs, []);
-  const nodeMap = React.useMemo(
-    () =>
-      new Map<FlowEndpointId, FlowEndpoint>([
-        ...nodes.map((node): [FlowEndpointId, FlowEndpoint] => [node.id, node]),
-        [
-          "gateway",
-          {
-            id: "gateway",
-            icon: Cpu,
-            label: m.flow_gateway_title(),
-            x: gatewayPosition.x,
-            y: gatewayPosition.y,
-          },
-        ],
-      ]),
-    [gatewayPosition.x, gatewayPosition.y, nodes],
-  );
 
   return (
     <BeamContainer
       ref={containerRef}
-      className={cn("relative isolate overflow-visible text-border", className)}
+      className={cn(
+        "relative isolate overflow-visible text-border",
+        // AnimatedBeam drives its dash/mask with inline CSS keyframes; drop them
+        // (important beats inline) so only the static connector remains.
+        "motion-reduce:[&_.animated-beam-path]:animate-none! motion-reduce:[&_.beam-mask-rect]:animate-none!",
+        className,
+      )}
     >
-      {beams.map((b) => (
+      {FLOW_BEAMS[layout].map((b) => (
         <AnimatedBeam
           key={`${b.from}-${b.to}`}
           containerRef={containerRef}
           fromRef={nodeRefs[b.from]}
           toRef={nodeRefs[b.to]}
           curvature={b.curvature}
-          lineType={b.lineType}
           delay={b.delay}
           duration={FLOW_BEAM_DURATION}
           pathWidth={b.dashed ? 1.5 : 2}
-          gradientStartColor={b.gradientStartColor}
-          gradientStopColor={b.gradientStopColor}
-          startXOffset={
-            getAnchorOffset({ anchor: b.start, node: nodeMap.get(b.from) }).x +
-            (b.startXOffset ?? 0)
-          }
-          startYOffset={
-            getAnchorOffset({ anchor: b.start, node: nodeMap.get(b.from) }).y +
-            (b.startYOffset ?? 0)
-          }
-          endXOffset={
-            getAnchorOffset({ anchor: b.end, node: nodeMap.get(b.to) }).x +
-            (b.endXOffset ?? 0)
-          }
-          endYOffset={
-            getAnchorOffset({ anchor: b.end, node: nodeMap.get(b.to) }).y +
-            (b.endYOffset ?? 0)
-          }
+          gradientStartColor={BEAM_START_COLOR}
+          gradientStopColor={BEAM_STOP_COLOR}
+          startXOffset={b.startXOffset}
+          startYOffset={b.startYOffset}
+          endXOffset={b.endXOffset}
+          endYOffset={b.endYOffset}
         />
       ))}
 
@@ -709,7 +661,6 @@ function FlowDiagram({
 }
 
 export function DataFlow() {
-  const headingReveal = revealTransform(18);
   const { ids } = getLandingAnchors();
 
   return (
@@ -718,25 +669,14 @@ export function DataFlow() {
       className="relative border-b border-border py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <motion.div
-          initial={headingReveal.initial}
-          whileInView={headingReveal.visible}
-          style={headingReveal.initial}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={revealTransition({
-            duration: 0.38,
-          })}
-          className="max-w-2xl"
-        >
+        <SectionHeading className="max-w-2xl">
           <SectionKicker>{m.flow_kicker()}</SectionKicker>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
-            {m.flow_title()}
-          </h2>
-          <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-            {m.flow_description()}
-          </p>
-        </motion.div>
+          <SectionTitle>{m.flow_title()}</SectionTitle>
+          <SectionDescription>{m.flow_description()}</SectionDescription>
+        </SectionHeading>
 
+        {/* Both layouts stay mounted and CSS-hidden: SSR-safe with no layout
+            shift, and keyframes inside `display: none` never run. */}
         <div className="-mt-10 -mb-32 md:hidden">
           <FlowDiagram className="h-240 w-full" layout="mobile" />
         </div>

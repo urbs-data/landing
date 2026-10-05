@@ -1,5 +1,3 @@
-"use client";
-
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -15,8 +13,7 @@ import {
   Workflow,
   X,
 } from "lucide-react";
-import * as motion from "motion/react-client";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrandWordmark } from "#/components/brand-wordmark";
 import { LocaleDropdown } from "#/components/locale-dropdown";
 import { ThemeToggle } from "#/components/theme-toggle";
@@ -42,17 +39,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "#/components/ui/sheet";
-import { revealTransition } from "#/features/landing/components/animation";
-import { getLandingAnchors } from "#/features/landing/lib/anchors";
+import {
+  getLandingAnchors,
+  type LandingLinkTarget,
+} from "#/features/landing/lib/anchors";
 import { useThemeMode } from "#/hooks/use-theme-mode";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
-import { deLocalizeHref, getLocale } from "#/paraglide/runtime";
-
-type InternalNavigationPath = "/" | "/blog" | "/careers";
+import { getLocale } from "#/paraglide/runtime";
 
 type NavigationItem = {
-  href: string;
+  link: LandingLinkTarget;
   label: string;
   description: string;
   icon: LucideIcon;
@@ -72,48 +69,32 @@ type NavigationLink = NavigationItem & {
 
 type NavigationEntry = NavigationGroup | NavigationLink;
 
-function getRouterLinkParts(href: string) {
-  const url = new URL(deLocalizeHref(href), "http://localhost");
-  const pathname = url.pathname as InternalNavigationPath;
-
-  return {
-    to: (["/", "/blog", "/careers"].includes(pathname)
-      ? pathname
-      : "/") satisfies InternalNavigationPath,
-    hash: url.hash ? url.hash.slice(1) : undefined,
-  };
-}
-
-type InternalNavigationLinkProps = {
-  href: string;
-  className?: string;
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
-  children?: React.ReactNode;
+type InternalNavigationLinkProps = Omit<React.ComponentProps<"a">, "href"> & {
+  link: LandingLinkTarget;
 };
 
-const InternalNavigationLink = forwardRef<
-  HTMLAnchorElement,
-  InternalNavigationLinkProps
->(function InternalNavigationLink({ href, className, onClick, children }, ref) {
-  const { to, hash } = getRouterLinkParts(href);
-
+/**
+ * Router link for header targets. Forwards the remaining anchor props so it
+ * can be used as a Base UI `render` element (which injects ref, handlers and
+ * aria attributes).
+ */
+function InternalNavigationLink({
+  link,
+  ...props
+}: InternalNavigationLinkProps) {
   return (
     <Link
-      ref={ref}
-      to={to}
-      hash={hash}
-      onClick={onClick}
-      className={className}
-      activeOptions={{ exact: true, includeHash: Boolean(hash) }}
+      {...props}
+      to={link.to}
+      hash={link.hash}
+      activeOptions={{ exact: true, includeHash: Boolean(link.hash) }}
       hashScrollIntoView={{ block: "start" }}
-    >
-      {children}
-    </Link>
+    />
   );
-});
+}
 
 function getNavigationEntries(): NavigationEntry[] {
-  const { hrefs } = getLandingAnchors();
+  const { links } = getLandingAnchors();
 
   return [
     {
@@ -122,25 +103,25 @@ function getNavigationEntries(): NavigationEntry[] {
       label: m.nav_group_services(),
       items: [
         {
-          href: hrefs.services,
+          link: links.services,
           label: m.service_data_title(),
           description: m.nav_service_data_desc(),
           icon: Database,
         },
         {
-          href: hrefs.services,
+          link: links.services,
           label: m.service_ai_title(),
           description: m.nav_service_ai_desc(),
           icon: Bot,
         },
         {
-          href: hrefs.services,
+          link: links.services,
           label: m.service_automation_title(),
           description: m.nav_service_automation_desc(),
           icon: Workflow,
         },
         {
-          href: hrefs.services,
+          link: links.services,
           label: m.service_bi_title(),
           description: m.nav_service_apps_desc(),
           icon: LayoutDashboard,
@@ -153,13 +134,13 @@ function getNavigationEntries(): NavigationEntry[] {
       label: m.nav_group_solutions(),
       items: [
         {
-          href: hrefs.flow,
+          link: links.flow,
           label: m.nav_flow(),
           description: m.nav_solution_flow_desc(),
           icon: Workflow,
         },
         {
-          href: hrefs.pymes,
+          link: links.pymes,
           label: m.nav_pymes(),
           description: m.nav_solution_pymes_desc(),
           icon: Building2,
@@ -172,13 +153,13 @@ function getNavigationEntries(): NavigationEntry[] {
       label: m.nav_group_company(),
       items: [
         {
-          href: hrefs.careers,
+          link: links.careers,
           label: m.nav_careers(),
           description: m.nav_company_careers_desc(),
           icon: BriefcaseBusiness,
         },
         {
-          href: hrefs.clients,
+          link: links.clients,
           label: m.nav_clients(),
           description: m.nav_company_clients_desc(),
           icon: Building2,
@@ -188,7 +169,7 @@ function getNavigationEntries(): NavigationEntry[] {
     {
       kind: "link",
       id: "blog",
-      href: hrefs.blog,
+      link: links.blog,
       label: m.nav_blog(),
       description: m.nav_company_blog_desc(),
       icon: FileText,
@@ -196,20 +177,13 @@ function getNavigationEntries(): NavigationEntry[] {
   ];
 }
 
-function NavigationContentLink({
-  item,
-  onNavigate,
-}: {
-  item: NavigationItem;
-  onNavigate?: () => void;
-}) {
+function NavigationContentLink({ item }: { item: NavigationItem }) {
   const Icon = item.icon;
 
   return (
     <NavigationMenuLink
-      render={<InternalNavigationLink href={item.href} />}
+      render={<InternalNavigationLink link={item.link} />}
       closeOnClick
-      onClick={onNavigate}
       className="group min-h-19 w-full items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/70 focus:bg-muted/70"
     >
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:text-primary">
@@ -227,59 +201,7 @@ function NavigationContentLink({
   );
 }
 
-function HeaderNavigationLinks({
-  entries,
-  onNavigate,
-  variant = "desktop",
-}: {
-  entries: NavigationEntry[];
-  onNavigate?: () => void;
-  variant?: "desktop" | "mobile";
-}) {
-  if (variant === "mobile") {
-    return (
-      <div className="space-y-5">
-        {entries.map((entry) => {
-          const items = entry.kind === "group" ? entry.items : [entry];
-
-          return (
-            <section key={entry.id} aria-labelledby={`mobile-nav-${entry.id}`}>
-              <h3
-                id={`mobile-nav-${entry.id}`}
-                className="px-2.5 pb-1 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground"
-              >
-                {entry.label}
-              </h3>
-              <ul className="space-y-1">
-                {items.map((item) => (
-                  <li key={`${entry.id}-${item.label}`}>
-                    <InternalNavigationLink
-                      href={item.href}
-                      onClick={onNavigate}
-                      className="group flex min-h-14 items-center justify-between gap-4 px-2.5 py-2.5 text-sm text-foreground transition-[background-color,color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-muted hover:text-primary active:scale-[0.99]"
-                    >
-                      <span className="min-w-0">
-                        <span className="block font-medium leading-5">
-                          {item.label}
-                        </span>
-                        <span className="mt-0.5 line-clamp-2 block text-xs leading-4 text-muted-foreground">
-                          {item.description}
-                        </span>
-                      </span>
-                      <span className="flex size-7 shrink-0 items-center justify-center border border-transparent text-muted-foreground transition-[border-color,color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:translate-x-0.5 group-hover:border-border group-hover:text-primary">
-                        <ArrowRight className="size-3.5" />
-                      </span>
-                    </InternalNavigationLink>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
-      </div>
-    );
-  }
-
+function DesktopNavigationLinks({ entries }: { entries: NavigationEntry[] }) {
   return (
     <NavigationMenuList className="items-center gap-0.5">
       {entries.map((entry) => {
@@ -287,9 +209,8 @@ function HeaderNavigationLinks({
           return (
             <NavigationMenuItem key={entry.id}>
               <NavigationMenuLink
-                render={<InternalNavigationLink href={entry.href} />}
+                render={<InternalNavigationLink link={entry.link} />}
                 closeOnClick
-                onClick={onNavigate}
                 className="h-8 rounded-4xl px-2.5 py-0 text-sm font-medium text-muted-foreground hover:bg-transparent hover:text-foreground focus:bg-transparent"
               >
                 {entry.label}
@@ -309,7 +230,6 @@ function HeaderNavigationLinks({
                   <NavigationContentLink
                     key={`${entry.id}-${item.label}`}
                     item={item}
-                    onNavigate={onNavigate}
                   />
                 ))}
               </div>
@@ -321,28 +241,74 @@ function HeaderNavigationLinks({
   );
 }
 
-function MobileNavigation({
+function MobileNavigationLinks({
   entries,
-  contactHref,
   onNavigate,
 }: {
   entries: NavigationEntry[];
-  contactHref: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      {entries.map((entry) => {
+        const items = entry.kind === "group" ? entry.items : [entry];
+
+        return (
+          <section key={entry.id} aria-labelledby={`mobile-nav-${entry.id}`}>
+            <h3
+              id={`mobile-nav-${entry.id}`}
+              className="px-2.5 pb-1 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground"
+            >
+              {entry.label}
+            </h3>
+            <ul className="space-y-1">
+              {items.map((item) => (
+                <li key={`${entry.id}-${item.label}`}>
+                  <InternalNavigationLink
+                    link={item.link}
+                    onClick={onNavigate}
+                    className="group flex min-h-14 items-center justify-between gap-4 px-2.5 py-2.5 text-sm text-foreground transition-[background-color,color,transform] duration-150 ease-out-strong hover:bg-muted hover:text-primary active:scale-[0.99]"
+                  >
+                    <span className="min-w-0">
+                      <span className="block font-medium leading-5">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 line-clamp-2 block text-xs leading-4 text-muted-foreground">
+                        {item.description}
+                      </span>
+                    </span>
+                    <span className="flex size-7 shrink-0 items-center justify-center border border-transparent text-muted-foreground transition-[border-color,color,transform] duration-150 ease-out-strong group-hover:translate-x-0.5 group-hover:border-border group-hover:text-primary">
+                      <ArrowRight className="size-3.5" />
+                    </span>
+                  </InternalNavigationLink>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function MobileNavigation({
+  entries,
+  contactLink,
+  onNavigate,
+}: {
+  entries: NavigationEntry[];
+  contactLink: LandingLinkTarget;
   onNavigate: () => void;
 }) {
   return (
     <div className="px-4 py-4 sm:px-6">
       <nav aria-label={m.nav_mobile_label()}>
-        <HeaderNavigationLinks
-          entries={entries}
-          onNavigate={onNavigate}
-          variant="mobile"
-        />
+        <MobileNavigationLinks entries={entries} onNavigate={onNavigate} />
       </nav>
 
       <Button
         render={
-          <InternalNavigationLink href={contactHref} onClick={onNavigate} />
+          <InternalNavigationLink link={contactLink} onClick={onNavigate} />
         }
         nativeButton={false}
         size="lg"
@@ -415,7 +381,7 @@ export function Header() {
 
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const { hrefs } = getLandingAnchors();
+  const { links } = getLandingAnchors();
   const entries = getNavigationEntries();
   const isElevated = scrolled || open;
 
@@ -451,18 +417,12 @@ export function Header() {
       />
 
       <Sheet modal={false} open={open} onOpenChange={setOpen}>
-        <motion.header
-          initial={{
-            opacity: 0,
-            transform: "translate3d(0, -12px, 0)",
-          }}
-          animate={{ opacity: 1, transform: "translate3d(0, 0, 0)" }}
-          transition={revealTransition({
-            duration: 0.38,
-            delay: 0.08,
-          })}
+        {/* CSS entrance (not Motion) so it starts on first paint together
+            with the hero instead of waiting for hydration. */}
+        <header
           className={cn(
-            "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+            "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-200 ease-out-strong",
+            "animate-in fade-in fill-mode-backwards animation-duration-380 delay-80 motion-safe:slide-in-from-top-[12px]",
             isElevated
               ? "border-b border-border bg-background/80 backdrop-blur-md"
               : "border-b border-transparent",
@@ -474,14 +434,14 @@ export function Header() {
               className="hidden flex-none md:flex"
               aria-label={m.nav_primary_label()}
             >
-              <HeaderNavigationLinks entries={entries} />
+              <DesktopNavigationLinks entries={entries} />
             </NavigationMenu>
 
             <div className="hidden items-center gap-3 md:flex">
               <ThemeToggle />
               <LocaleDropdown />
               <Button
-                render={<InternalNavigationLink href={hrefs.contact} />}
+                render={<InternalNavigationLink link={links.contact} />}
                 nativeButton={false}
                 size="sm"
               >
@@ -494,7 +454,7 @@ export function Header() {
               <LocaleDropdown variant="compact" />
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center text-foreground transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95"
+                className="inline-flex size-9 items-center justify-center text-foreground transition-transform duration-150 ease-out-strong active:scale-95"
                 aria-label={open ? m.menu_close_label() : m.menu_open_label()}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
@@ -503,13 +463,13 @@ export function Header() {
               </button>
             </div>
           </div>
-        </motion.header>
+        </header>
 
         <SheetContent
           side="top"
           showCloseButton={false}
           overlayClassName="top-16 z-40 bg-background/55 backdrop-blur-[2px] md:hidden dark:bg-background/50"
-          className="top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-auto border-border bg-background/95 p-0 shadow-lg backdrop-blur-md duration-180 ease-[cubic-bezier(0.23,1,0.32,1)] md:hidden data-[side=top]:top-16 data-[side=top]:border-b data-[side=top]:data-ending-style:-translate-y-2 data-[side=top]:data-starting-style:-translate-y-2"
+          className="top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-auto border-border bg-background/95 p-0 shadow-lg backdrop-blur-md duration-180 ease-out-strong md:hidden data-[side=top]:top-16 data-[side=top]:border-b data-[side=top]:data-ending-style:-translate-y-2 data-[side=top]:data-starting-style:-translate-y-2"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>{m.nav_mobile_label()}</SheetTitle>
@@ -518,7 +478,7 @@ export function Header() {
 
           <MobileNavigation
             entries={entries}
-            contactHref={hrefs.contact}
+            contactLink={links.contact}
             onNavigate={() => setOpen(false)}
           />
         </SheetContent>

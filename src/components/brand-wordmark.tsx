@@ -2,22 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "#/lib/utils";
 import { m } from "#/paraglide/messages";
 
-type BrandWordmarkProps = {
-  asLink?: boolean;
-  className?: string;
-};
-
 /**
- * Urbs wordmark rendered from the brand SVG assets (`public/assets/brand/wordmark-*.svg`).
- * The light/dark variants are toggled with the `.dark` class so it stays correct
- * without a theme hook (SSR-safe, no hydration flash).
+ * Urbs wordmark linking home, rendered from the brand SVG assets
+ * (`public/assets/brand/wordmark-*.svg`). The light/dark variants are toggled
+ * with the `.dark` class so it stays correct without a theme hook (SSR-safe,
+ * no hydration flash).
  */
-export function BrandWordmark({
-  asLink = true,
-  className,
-}: BrandWordmarkProps) {
-  const images = (
-    <>
+export function BrandWordmark({ className }: { className?: string }) {
+  return (
+    <Link
+      to="/"
+      className={cn("inline-flex items-center", className)}
+      aria-label={m.brand_home_label()}
+    >
       <img
         src="/assets/brand/wordmark-light.svg"
         alt=""
@@ -30,28 +27,6 @@ export function BrandWordmark({
         aria-hidden="true"
         className="hidden h-8 w-auto dark:block brightness-150"
       />
-    </>
-  );
-
-  if (!asLink) {
-    return (
-      <div
-        className={cn("inline-flex items-center", className)}
-        role="img"
-        aria-label={m.brand_home_label()}
-      >
-        {images}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      to="/"
-      className={cn("inline-flex items-center", className)}
-      aria-label={m.brand_home_label()}
-    >
-      {images}
     </Link>
   );
 }

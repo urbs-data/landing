@@ -3,7 +3,17 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    SERVER_URL: z.string().url().optional(),
+    SERVER_URL: z.url().optional(),
+    /** Shared 6-digit code that unlocks the internal employee pages. */
+    SIGNATURES_PRESENTATIONS_ACCESS_CODE: z
+      .string()
+      .regex(/^\d{6}$/)
+      .optional(),
+    /** HMAC key for the employee access cookie. Never derived from the code. */
+    SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET: z
+      .string()
+      .min(32)
+      .optional(),
   },
 
   /**
@@ -17,10 +27,14 @@ export const env = createEnv({
   },
 
   /**
-   * What object holds the environment variables at runtime. This is usually
-   * `process.env` or `import.meta.env`.
+   * What object holds the environment variables at runtime. Vite only exposes
+   * `VITE_`-prefixed vars on `import.meta.env`, so server vars come from
+   * `process.env` (absent in the browser, where server vars are never read).
    */
-  runtimeEnv: import.meta.env,
+  runtimeEnv: {
+    ...(typeof process === "undefined" ? {} : process.env),
+    ...import.meta.env,
+  },
 
   /**
    * By default, this library will feed the environment variables directly to

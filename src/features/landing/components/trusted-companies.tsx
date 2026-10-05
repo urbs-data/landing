@@ -1,11 +1,6 @@
-"use client";
-
 import Accessibility from "embla-carousel-accessibility";
-import AutoHeight from "embla-carousel-auto-height";
 import AutoScroll from "embla-carousel-auto-scroll";
-import Autoplay from "embla-carousel-autoplay";
 import ClassNames from "embla-carousel-class-names";
-import Fade from "embla-carousel-fade";
 import Ssr from "embla-carousel-ssr";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 import { ExternalLinkIcon } from "lucide-react";
@@ -15,109 +10,112 @@ import {
   type CarouselApi,
   CarouselContent,
   CarouselItem,
-} from "#/components/ui/carousel.tsx";
+} from "#/components/ui/carousel";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "#/components/ui/hover-card.tsx";
-import { m } from "@/paraglide/messages";
+} from "#/components/ui/hover-card";
+import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { SectionKicker } from "./section-kicker";
 
-const companies = [
-  {
-    name: "Cahpsa",
-    src: "/assets/companies/cahpsa.svg",
-    sector: () => m.company_cahpsa_sector(),
-    location: () => m.company_cahpsa_location(),
-    detail: () => m.company_cahpsa_detail(),
-    website: "https://cahpsa.com.py/",
-  },
-  {
-    name: "CIGRA",
-    src: "/assets/companies/cigra.svg",
-    sector: () => m.company_cigra_sector(),
-    location: () => m.company_cigra_location(),
-    detail: () => m.company_cigra_detail(),
-    website: "https://cigra.com.ar",
-  },
-  {
-    name: "Byontek",
-    src: "/assets/companies/byontek.svg",
-    sector: () => m.company_byontek_sector(),
-    location: () => m.company_byontek_location(),
-    detail: () => m.company_byontek_detail(),
-    website: "https://byontek.com",
-  },
-  {
-    name: "Credito Argentino",
-    src: "/assets/companies/credito-argentino.svg",
-    sector: () => m.company_credito_argentino_sector(),
-    location: () => m.company_credito_argentino_location(),
-    detail: () => m.company_credito_argentino_detail(),
-    website: "https://www.creditoargentino.com.ar",
-  },
-  {
-    name: "4Plus",
-    src: "/assets/companies/4plus.svg",
-    sector: () => m.company_fourplus_sector(),
-    location: () => m.company_fourplus_location(),
-    detail: () => m.company_fourplus_detail(),
-    website: "https://grupocuatroplus.com/",
-  },
-  {
-    name: "MacroAgro",
-    src: "/assets/companies/macroagro.svg",
-    sector: () => m.company_macroagro_sector(),
-    location: () => m.company_macroagro_location(),
-    detail: () => m.company_macroagro_detail(),
-    website: "https://www.macroagro.com.ar",
-  },
-  {
-    name: "LBO",
-    src: "/assets/companies/lbo.svg",
-    sector: () => m.company_lbo_sector(),
-    location: () => m.company_lbo_location(),
-    detail: () => m.company_lbo_detail(),
-    website: "https://lbo.com.ar/",
-  },
-  {
-    name: "Nexo",
-    src: "/assets/companies/nexo.svg",
-    sector: () => m.company_nexo_sector(),
-    location: () => m.company_nexo_location(),
-    detail: () => m.company_nexo_detail(),
-    website: "https://nexo.solutions/",
-  },
-  {
-    name: "Corteva",
-    src: "/assets/companies/corteva.svg",
-    sector: () => m.company_corteva_sector(),
-    location: () => m.company_corteva_location(),
-    detail: () => m.company_corteva_detail(),
-    website: "https://www.corteva.com.ar",
-  },
-  {
-    name: "Hemisphere",
-    src: "/assets/companies/hemisphere.svg",
-    sector: () => m.company_hemisphere_sector(),
-    location: () => m.company_hemisphere_location(),
-    detail: () => m.company_hemisphere_detail(),
-    website: "https://hemibrands.com/",
-  },
-  {
-    name: "Rosental",
-    src: "/assets/companies/rosental.svg",
-    sector: () => m.company_rosental_sector(),
-    location: () => m.company_rosental_location(),
-    detail: () => m.company_rosental_detail(),
-    website: "https://www.rosental.com/",
-  },
-];
+function getCompanies() {
+  return [
+    {
+      name: "Cahpsa",
+      src: "/assets/companies/cahpsa.svg",
+      sector: m.company_cahpsa_sector(),
+      location: m.company_cahpsa_location(),
+      detail: m.company_cahpsa_detail(),
+      website: "https://cahpsa.com.py/",
+    },
+    {
+      name: "CIGRA",
+      src: "/assets/companies/cigra.svg",
+      sector: m.company_cigra_sector(),
+      location: m.company_cigra_location(),
+      detail: m.company_cigra_detail(),
+      website: "https://cigra.com.ar",
+    },
+    {
+      name: "Byontek",
+      src: "/assets/companies/byontek.svg",
+      sector: m.company_byontek_sector(),
+      location: m.company_byontek_location(),
+      detail: m.company_byontek_detail(),
+      website: "https://byontek.com",
+    },
+    {
+      name: "Credito Argentino",
+      src: "/assets/companies/credito-argentino.svg",
+      sector: m.company_credito_argentino_sector(),
+      location: m.company_credito_argentino_location(),
+      detail: m.company_credito_argentino_detail(),
+      website: "https://www.creditoargentino.com.ar",
+    },
+    {
+      name: "4Plus",
+      src: "/assets/companies/4plus.svg",
+      sector: m.company_fourplus_sector(),
+      location: m.company_fourplus_location(),
+      detail: m.company_fourplus_detail(),
+      website: "https://grupocuatroplus.com/",
+    },
+    {
+      name: "MacroAgro",
+      src: "/assets/companies/macroagro.svg",
+      sector: m.company_macroagro_sector(),
+      location: m.company_macroagro_location(),
+      detail: m.company_macroagro_detail(),
+      website: "https://www.macroagro.com.ar",
+    },
+    {
+      name: "LBO",
+      src: "/assets/companies/lbo.svg",
+      sector: m.company_lbo_sector(),
+      location: m.company_lbo_location(),
+      detail: m.company_lbo_detail(),
+      website: "https://lbo.com.ar/",
+    },
+    {
+      name: "Nexo",
+      src: "/assets/companies/nexo.svg",
+      sector: m.company_nexo_sector(),
+      location: m.company_nexo_location(),
+      detail: m.company_nexo_detail(),
+      website: "https://nexo.solutions/",
+    },
+    {
+      name: "Corteva",
+      src: "/assets/companies/corteva.svg",
+      sector: m.company_corteva_sector(),
+      location: m.company_corteva_location(),
+      detail: m.company_corteva_detail(),
+      website: "https://www.corteva.com.ar",
+    },
+    {
+      name: "Hemisphere",
+      src: "/assets/companies/hemisphere.svg",
+      sector: m.company_hemisphere_sector(),
+      location: m.company_hemisphere_location(),
+      detail: m.company_hemisphere_detail(),
+      website: "https://hemibrands.com/",
+    },
+    {
+      name: "Rosental",
+      src: "/assets/companies/rosental.svg",
+      sector: m.company_rosental_sector(),
+      location: m.company_rosental_location(),
+      detail: m.company_rosental_detail(),
+      website: "https://www.rosental.com/",
+    },
+  ];
+}
 
 export function TrustedCompanies() {
   const { ids } = getLandingAnchors();
+  const companies = getCompanies();
   const [api, setApi] = React.useState<CarouselApi>();
   const [activeCompanyCard, setActiveCompanyCard] = React.useState<
     string | null
@@ -133,8 +131,10 @@ export function TrustedCompanies() {
     x: number;
     y: number;
   } | null>(null);
-  const plugins = React.useMemo(
-    () => [
+  const plugins = React.useMemo(() => {
+    const companyNames = getCompanies().map((company) => company.name);
+
+    return [
       Accessibility({
         carouselAriaLabel: m.clients_kicker(),
         slideAriaLabel: (
@@ -143,32 +143,24 @@ export function TrustedCompanies() {
           _lastSlideIndex,
           totalSlides,
         ) =>
-          `${companies[firstSlideIndex]?.name ?? "Client"} ${firstSlideIndex + 1} / ${totalSlides}`,
+          `${companyNames[firstSlideIndex] ?? m.clients_slide_fallback()} ${firstSlideIndex + 1} / ${totalSlides}`,
       }),
       AutoScroll({
         speed: 0.7,
         startDelay: 0,
         defaultInteraction: false,
+        // Embla evaluates breakpoints with matchMedia, so this stays SSR-safe
+        // and reacts if the preference changes while the page is open.
+        breakpoints: {
+          "(prefers-reduced-motion: reduce)": { active: false },
+        },
       }),
-      Autoplay({
-        active: false,
-        delay: 8000,
-        defaultInteraction: false,
-      }),
-      AutoHeight({ heightEvent: "slidesinview" }),
-      ClassNames({
-        snapped: "is-snapped",
-        inView: "is-in-view",
-        draggable: "is-draggable",
-        pointerDown: "is-pointer-down",
-        loop: "is-loop",
-      }),
-      Fade({ active: false }),
+      // Default classes; the slides read `is-in-view` for their opacity.
+      ClassNames(),
       WheelGesturesPlugin({ forceWheelAxis: "x" }),
       Ssr(),
-    ],
-    [],
-  );
+    ];
+  }, []);
 
   const updateCompanyCardOpen = React.useCallback(
     (companyName: string, open: boolean) => {
@@ -240,23 +232,16 @@ export function TrustedCompanies() {
       const { interaction, isMouseOver, isPointerDown } = event.detail;
       interactionStateRef.current = { isMouseOver, isPointerDown };
 
-      if (interaction === "mouseenter" || interaction === "pointerdown") {
-        autoScroll.stop();
-        return;
-      }
-
-      if (interaction === "slidefocus") {
-        autoScroll.stop();
-        return;
-      }
-
       if (
-        !isMouseOver &&
-        !isPointerDown &&
-        activeCompanyCardRef.current === null
+        interaction === "mouseenter" ||
+        interaction === "pointerdown" ||
+        interaction === "slidefocus"
       ) {
-        playAutoScrollIfIdle();
+        autoScroll.stop();
+        return;
       }
+
+      playAutoScrollIfIdle();
     };
 
     api.on("autoscroll:interaction", onAutoScrollInteraction);
@@ -379,27 +364,25 @@ export function TrustedCompanies() {
                           {company.name}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {company.sector()}
+                          {company.sector}
                         </p>
                       </div>
                       <span className="shrink-0 rounded-sm border border-border bg-card px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                        {company.location()}
+                        {company.location}
                       </span>
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                      {company.detail()}
+                      {company.detail}
                     </p>
-                    {company.website ? (
-                      <a
-                        href={company.website}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                      >
-                        {m.company_card_website()}
-                        <ExternalLinkIcon className="size-3.5" />
-                      </a>
-                    ) : null}
+                    <a
+                      href={company.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                    >
+                      {m.company_card_website()}
+                      <ExternalLinkIcon className="size-3.5" />
+                    </a>
                   </HoverCardContent>
                 </HoverCard>
               </CarouselItem>

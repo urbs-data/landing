@@ -95,20 +95,29 @@ function PresentationsRoute() {
             <Type className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
               {m.presentations_fonts_note_intro()}{" "}
-              {PRESENTATION_FONT_LINKS.map((font, index) => (
-                <span key={font.href}>
-                  {index > 0 ? ", " : ""}
-                  <a
-                    href={font.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
-                  >
-                    {font.name}
-                  </a>
-                </span>
-              ))}
-              . {m.presentations_fonts_note_outro()}
+              {new Intl.ListFormat(getLocale(), { type: "conjunction" })
+                .formatToParts(PRESENTATION_FONT_LINKS.map((font) => font.name))
+                .map((part, index) => {
+                  const font = PRESENTATION_FONT_LINKS.find(
+                    (link) => link.name === part.value,
+                  );
+
+                  return part.type === "element" && font ? (
+                    <a
+                      key={font.href}
+                      href={font.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+                    >
+                      {font.name}
+                    </a>
+                  ) : (
+                    <span key={index}>{part.value}</span>
+                  );
+                })}
+              {m.presentations_fonts_note_list_end()}{" "}
+              {m.presentations_fonts_note_outro()}
             </p>
           </div>
 

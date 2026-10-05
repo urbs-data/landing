@@ -49,6 +49,42 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://urbsdata.com/careers/data-engineer-ssr</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/careers/data-engineer-ssr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/careers/data-engineer-ssr" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/careers/data-engineer-ssr" />
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://urbsdata.com/en/careers/data-engineer-ssr</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/careers/data-engineer-ssr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/careers/data-engineer-ssr" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/careers/data-engineer-ssr" />
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://urbsdata.com/careers/data-lead</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/careers/data-lead" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/careers/data-lead" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/careers/data-lead" />
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://urbsdata.com/en/careers/data-lead</loc>
+    <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/careers/data-lead" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/careers/data-lead" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://urbsdata.com/careers/data-lead" />
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://urbsdata.com/blog/la-evolucion-de-una-empresa-tambien-se-disena</loc>
     <xhtml:link rel="alternate" hreflang="es-AR" href="https://urbsdata.com/blog/la-evolucion-de-una-empresa-tambien-se-disena" />
     <xhtml:link rel="alternate" hreflang="en" href="https://urbsdata.com/en/blog/the-evolution-of-a-company-is-designed-too" />

@@ -1,8 +1,6 @@
-"use client";
-
 import { RefreshCw } from "lucide-react";
 import { type MotionValue, motion, useTransform } from "motion/react";
-import { m } from "@/paraglide/messages";
+import { m } from "#/paraglide/messages";
 import { landingEaseOut } from "./animation";
 import type { ProcessStep } from "./process-steps";
 import { useProcessClock } from "./use-process-clock";
@@ -139,7 +137,7 @@ function LoopCard({
       type="button"
       onClick={onSelect}
       aria-pressed={isActive}
-      className={`relative flex h-full flex-col border bg-card p-6 text-left transition-[border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] sm:p-7 ${
+      className={`relative flex h-full flex-col border bg-card p-6 text-left transition-[border-color,background-color,box-shadow,transform] duration-300 ease-out-strong active:scale-[0.995] sm:p-7 ${
         isActive
           ? "border-primary bg-accent/40 shadow-[0_16px_40px_-16px] shadow-primary/25"
           : "border-border hover:border-primary/40 hover:bg-accent/20"
@@ -199,28 +197,16 @@ function LoopCard({
   );
 }
 
-type LoopChipProps = {
-  reducedMotion: boolean;
-};
-
-function LoopChip({ reducedMotion }: LoopChipProps) {
+/**
+ * The spin is a CSS animation: it is gated by `motion-safe` and does no work
+ * in whichever layout copy is `display: none`.
+ */
+function LoopChip() {
   return (
     <span className="flex items-center gap-2 whitespace-nowrap border border-border bg-background px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-primary dark:brightness-175">
-      {reducedMotion ? (
+      <span className="flex motion-safe:animate-[spin_6s_linear_infinite]">
         <RefreshCw className="size-3" />
-      ) : (
-        <motion.span
-          animate={{ rotate: 360 }}
-          transition={{
-            duration: 6,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "linear",
-          }}
-          className="flex"
-        >
-          <RefreshCw className="size-3" />
-        </motion.span>
-      )}
+      </span>
       {m.process_loop_kicker()}
     </span>
   );
@@ -271,7 +257,7 @@ export function ProcessLoopCircuit({ steps }: ProcessLoopCircuitProps) {
           </div>
         ))}
         <div className="col-start-2 row-start-2 flex items-center justify-center">
-          <LoopChip reducedMotion={reducedMotion} />
+          <LoopChip />
         </div>
       </div>
 
@@ -312,7 +298,7 @@ export function ProcessLoopCircuit({ steps }: ProcessLoopCircuitProps) {
               carry={carryForward}
             />
           </div>
-          <LoopChip reducedMotion={reducedMotion} />
+          <LoopChip />
         </div>
       </div>
     </div>

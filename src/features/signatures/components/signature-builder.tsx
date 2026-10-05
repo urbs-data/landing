@@ -1,20 +1,40 @@
-"use client";
-
-import { Check, Clipboard, Download, Moon, Sun } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  Check,
+  CircleAlert,
+  Clipboard,
+  Download,
+  type LucideIcon,
+  Moon,
+  Sun,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { SITE_URL } from "#/i18n";
+import { BRAND_VIOLET } from "#/lib/brand";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 
 type SignatureMode = "light" | "dark";
+type CopyStatus = "idle" | "copied" | "error";
+
+const COPY_FEEDBACK_MS = 1600;
+
+const copyFeedback: Record<
+  CopyStatus,
+  { icon: LucideIcon; label: () => string }
+> = {
+  idle: { icon: Clipboard, label: m.signature_copy_html },
+  copied: { icon: Check, label: m.signature_copied },
+  error: { icon: CircleAlert, label: m.signature_copy_failed },
+};
 
 function getDefaultSignature() {
   return {
     name: m.signature_default_name(),
     role: m.signature_default_role(),
-    email: "nombre@urbsdata.com",
+    email: m.signature_default_email(),
     mode: "light" as SignatureMode,
   };
 }
@@ -26,7 +46,7 @@ const themeTokens = {
     background: "#ffffff",
     title: "#292a2f",
     description: "#80808a",
-    email: "#7d4ac7",
+    email: BRAND_VIOLET,
     divider: "#d8d5df",
   },
   dark: {
@@ -42,12 +62,10 @@ function getWordmarkPath(mode: SignatureMode) {
   return `/assets/brand/wordmark-${mode}.png`;
 }
 
+// Pasted into mail clients, so it must point at production regardless of
+// which host (localhost, preview) the builder is running on.
 function getAbsoluteWordmarkSrc(mode: SignatureMode) {
-  const path = getWordmarkPath(mode);
-
-  if (typeof window === "undefined") return path;
-
-  return new URL(path, window.location.origin).toString();
+  return new URL(getWordmarkPath(mode), SITE_URL).toString();
 }
 
 function escapeHtml(value: string) {
@@ -185,12 +203,27 @@ function downloadTextFile(filename: string, contents: string) {
   anchor.download = filename;
   anchor.click();
 
-  URL.revokeObjectURL(url);
+  // Revoking synchronously can cancel the download in Safari/Firefox.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+async function writeSignatureToClipboard(html: string) {
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "text/html": new Blob([html], { type: "text/html" }),
+        "text/plain": new Blob([html], { type: "text/plain" }),
+      }),
+    ]);
+  } catch {
+    await navigator.clipboard.writeText(html);
+  }
 }
 
 export function SignatureBuilder() {
   const [signature, setSignature] = useState(getDefaultSignature);
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
+  const copyResetTimeout = useRef<number | undefined>(undefined);
   const signatureHtml = useMemo(
     () => buildSignatureHtml(signature),
     [signature],
@@ -207,20 +240,25 @@ export function SignatureBuilder() {
     setSignature((current) => ({ ...current, [field]: value }));
   }
 
+  useEffect(() => () => window.clearTimeout(copyResetTimeout.current), []);
+
   async function copySignature() {
+    let status: CopyStatus = "copied";
     try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          "text/html": new Blob([signatureHtml], { type: "text/html" }),
-          "text/plain": new Blob([signatureHtml], { type: "text/plain" }),
-        }),
-      ]);
+      await writeSignatureToClipboard(signatureHtml);
     } catch {
-      await navigator.clipboard.writeText(signatureHtml);
+      status = "error";
     }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+
+    window.clearTimeout(copyResetTimeout.current);
+    setCopyStatus(status);
+    copyResetTimeout.current = window.setTimeout(
+      () => setCopyStatus("idle"),
+      COPY_FEEDBACK_MS,
+    );
   }
+
+  const { icon: CopyIcon, label: copyLabel } = copyFeedback[copyStatus];
 
   return (
     <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(320px,0.72fr)_minmax(520px,1fr)]">
@@ -297,19 +335,15 @@ export function SignatureBuilder() {
                 className="min-w-0"
                 onClick={copySignature}
               >
-                {copied ? (
-                  <Check className="size-4" />
-                ) : (
-                  <Clipboard className="size-4" />
-                )}
-                {copied ? m.signature_copied() : m.signature_copy_html()}
+                <CopyIcon className="size-4" />
+                <span aria-live="polite">{copyLabel()}</span>
               </Button>
               <Button
                 type="button"
                 className="min-w-0"
                 onClick={() =>
                   downloadTextFile(
-                    `firma-urbs-${signature.mode}.html`,
+                    `urbs-signature-${signature.mode}.html`,
                     signatureDocumentHtml,
                   )
                 }

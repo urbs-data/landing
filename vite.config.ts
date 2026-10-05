@@ -6,7 +6,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-import { urlPatterns } from "./src/i18n/url-patterns";
+import { urlPatterns } from "./src/i18n/url-patterns.ts";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
@@ -19,7 +19,9 @@ const config = defineConfig({
       strategy: ["url", "baseLocale"],
       urlPatterns,
     }),
-    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+    // Nitro boots the SSR server env; it isn't needed (and breaks) under Vitest.
+    !process.env.VITEST &&
+      nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
     tanstackStart({
       router: {

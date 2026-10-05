@@ -8,19 +8,24 @@
  *
  * Usage: node scripts/generate-sitemap.ts
  */
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { defineBlogCollection } from "../src/features/blog/lib/blog-collection.ts";
+import { defineCareersCollection } from "../src/features/careers/lib/careers-collection.ts";
 import {
   type AppLocale,
   baseLocale,
   hreflangByLocale,
+  type LocalizedPaths,
   locales,
+  localizedUrl,
   SITE_URL,
 } from "../src/i18n/index.ts";
+import type { Collection } from "../src/lib/content/collection.ts";
+import { readContentFiles } from "../src/lib/content/node-files.ts";
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
-const blogContentDir = join(rootDir, "src/features/blog/content");
 const outputFile = join(rootDir, "public/sitemap.xml");
 
 type SitemapEntry = {
@@ -30,68 +35,43 @@ type SitemapEntry = {
   changefreq: string;
 };
 
-/** Static routes, as de-localized paths, with their crawl priority. */
-const staticRoutes = [
-  { path: "/", priority: "1.0", changefreq: "monthly" },
-  { path: "/blog", priority: "0.8", changefreq: "weekly" },
-  { path: "/careers", priority: "0.6", changefreq: "weekly" },
-];
+// Same collections (schema validation, folder-format posts, slug pairing by
+// `id`) the app serves, built from the file system instead of import.meta.glob.
+const blog = defineBlogCollection(
+  await readContentFiles(join(rootDir, "src/features/blog/content")),
+);
+const careers = defineCareersCollection(
+  await readContentFiles(join(rootDir, "src/features/careers/content")),
+);
 
-function localizeUrl(locale: AppLocale, path: string) {
-  const prefix = locale === baseLocale ? "" : `/${locale}`;
-  return path === "/"
-    ? `${SITE_URL}${prefix}/`
-    : `${SITE_URL}${prefix}${path}`;
+function staticEntry(
+  path: string,
+  priority: string,
+  changefreq: string,
+): SitemapEntry {
+  return {
+    urls: Object.fromEntries(
+      locales.map((locale) => [locale, localizedUrl(locale, path)]),
+    ),
+    priority,
+    changefreq,
+  };
 }
 
-/** Minimal frontmatter reader — only the scalar fields the sitemap needs. */
-function readFrontmatter(source: string): Record<string, string> {
-  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!match) return {};
-
+function toAbsoluteUrls(paths: LocalizedPaths) {
   return Object.fromEntries(
-    match[1]
-      .split(/\r?\n/)
-      .map((line) => line.match(/^([a-zA-Z0-9_]+):\s*"?([^"]*?)"?\s*$/))
-      .filter((entry): entry is RegExpMatchArray => entry !== null)
-      .map(([, key, value]) => [key, value]),
+    Object.entries(paths).map(([locale, path]) => [locale, `${SITE_URL}${path}`]),
   );
 }
 
-/**
- * Blog articles use a different slug per locale, linked by their `id`.
- * Groups them so each entry carries every localized URL as an alternate.
- */
-async function readBlogEntries(): Promise<SitemapEntry[]> {
-  const byId = new Map<string, { urls: Partial<Record<AppLocale, string>>; lastmod?: string }>();
-
-  for (const locale of locales) {
-    const dir = join(blogContentDir, locale);
-    let files: string[];
-
-    try {
-      files = await readdir(dir);
-    } catch {
-      continue;
-    }
-
-    for (const file of files.filter((name) => name.endsWith(".md"))) {
-      const source = await readFile(join(dir, file), "utf8");
-      const { id, slug, date } = readFrontmatter(source);
-
-      if (!id || !slug) continue;
-
-      const entry = byId.get(id) ?? { urls: {}, lastmod: date };
-      entry.urls[locale] = localizeUrl(locale, `/blog/${slug}`);
-      if (date && (!entry.lastmod || date > entry.lastmod)) entry.lastmod = date;
-      byId.set(id, entry);
-    }
-  }
-
-  return [...byId.values()].map((entry) => ({
-    urls: entry.urls,
-    lastmod: entry.lastmod,
-    priority: "0.7",
+function collectionEntries<T>(
+  collection: Collection<T>,
+  priority: string,
+): SitemapEntry[] {
+  return collection.entries().map(({ localizedPaths, lastmod }) => ({
+    urls: toAbsoluteUrls(localizedPaths),
+    lastmod,
+    priority,
     changefreq: "monthly",
   }));
 }
@@ -131,15 +111,16 @@ function renderUrl({ urls, lastmod, priority, changefreq }: SitemapEntry) {
     .join("\n");
 }
 
+const careerEntries = collectionEntries(careers, "0.5");
+
 const entries: SitemapEntry[] = [
-  ...staticRoutes.map(({ path, priority, changefreq }) => ({
-    urls: Object.fromEntries(
-      locales.map((locale) => [locale, localizeUrl(locale, path)]),
-    ) as Partial<Record<AppLocale, string>>,
-    priority,
-    changefreq,
-  })),
-  ...(await readBlogEntries()),
+  staticEntry("/", "1.0", "monthly"),
+  staticEntry("/blog", "0.8", "weekly"),
+  // The careers index is only worth crawling while there are open roles.
+  ...(careerEntries.length > 0
+    ? [staticEntry("/careers", "0.6", "weekly"), ...careerEntries]
+    : []),
+  ...collectionEntries(blog, "0.7"),
 ];
 
 const xml = [

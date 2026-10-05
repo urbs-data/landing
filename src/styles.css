@@ -172,6 +172,8 @@
     --font-mono: "Pitagon Sans Mono", monospace;
     --font-heading: "Instrument Sans Variable", sans-serif;
     --font-logo: "Syne Variable", sans-serif;
+    /* Strong ease-out for UI enter/hover; mirrored by `landingEaseOut` in TS. */
+    --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);
     --color-success-muted: var(--success-muted);
@@ -287,5 +289,40 @@
     }
     .animated-beam-path {
         will-change: stroke-dashoffset;
+    }
+}
+
+@layer components {
+    /* Top progress bar for client-side navigations. Shown only after 150ms so
+       fast transitions never flash it; hides quickly once the route settles. */
+    .route-activity-indicator {
+        position: fixed;
+        inset-inline: 0;
+        top: 0;
+        z-index: 100;
+        height: 2px;
+        pointer-events: none;
+        background: var(--primary);
+        transform-origin: left;
+        transform: scaleX(0);
+        opacity: 0;
+        transition:
+            opacity 200ms var(--ease-out-strong),
+            transform 0ms linear 200ms;
+    }
+
+    .route-activity-indicator[data-visible="true"] {
+        opacity: 1;
+        transform: scaleX(0.85);
+        transition:
+            opacity 150ms var(--ease-out-strong) 150ms,
+            transform 2.5s var(--ease-out-strong) 150ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .route-activity-indicator[data-visible="true"] {
+            transform: scaleX(1);
+            transition: opacity 150ms ease 150ms;
+        }
     }
 }

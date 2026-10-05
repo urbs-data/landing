@@ -24,9 +24,6 @@ const emblaApi = {
       play: autoScrollPlay,
       stop: autoScrollStop,
     },
-    autoplay: {
-      play: vi.fn(),
-    },
   })),
 };
 
@@ -37,20 +34,11 @@ vi.mock("embla-carousel-react", () => ({
 vi.mock("embla-carousel-accessibility", () => ({
   default: vi.fn(() => ({ name: "accessibility" })),
 }));
-vi.mock("embla-carousel-auto-height", () => ({
-  default: vi.fn(() => ({ name: "autoHeight" })),
-}));
 vi.mock("embla-carousel-auto-scroll", () => ({
   default: vi.fn(() => ({ name: "autoScroll" })),
 }));
-vi.mock("embla-carousel-autoplay", () => ({
-  default: vi.fn(() => ({ name: "autoplay" })),
-}));
 vi.mock("embla-carousel-class-names", () => ({
   default: vi.fn(() => ({ name: "classNames" })),
-}));
-vi.mock("embla-carousel-fade", () => ({
-  default: vi.fn(() => ({ name: "fade" })),
 }));
 vi.mock("embla-carousel-ssr", () => ({
   default: vi.fn(() => ({ name: "ssr" })),
@@ -59,7 +47,7 @@ vi.mock("embla-carousel-wheel-gestures", () => ({
   WheelGesturesPlugin: vi.fn(() => ({ name: "wheelGestures" })),
 }));
 
-vi.mock("#/components/ui/hover-card.tsx", () => {
+vi.mock("#/components/ui/hover-card", () => {
   const HoverCardContext = React.createContext(false);
 
   function HoverCard({

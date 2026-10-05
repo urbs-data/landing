@@ -1,42 +1,24 @@
-import { baseLocale, hreflangByLocale, locales, SITE_URL } from "#/i18n";
+import type { ComponentProps } from "react";
+import {
+  type AppLocale,
+  baseLocale,
+  hreflangByLocale,
+  type LocalizedPaths,
+  locales,
+  localizedUrl,
+  normalizePath,
+  SITE_URL,
+} from "#/i18n";
 import { m } from "#/paraglide/messages";
+import { CONTACT_EMAIL } from "./contact-email";
 
-type SupportedLocale = "es" | "en";
-
-const BRAND_NAME = "Urbs Data";
-const CONTACT_EMAIL = "hola@urbsdata.com";
+export const SITE_NAME = "Urbs Data";
 const LOGO_URL = `${SITE_URL}/web-app-manifest-512x512.png`;
-const ES_URL = `${SITE_URL}/`;
-const EN_URL = `${SITE_URL}/en/`;
-const ES_OG_IMAGE_URL = `${SITE_URL}/og-image`;
-const EN_OG_IMAGE_URL = `${SITE_URL}/en/og-image`;
 
-const localeMetadata: Record<
-  SupportedLocale,
-  {
-    locale: string;
-    alternateLocale: string;
-    url: string;
-    image: string;
-  }
-> = {
-  es: {
-    locale: "es_AR",
-    alternateLocale: "en_US",
-    url: ES_URL,
-    image: ES_OG_IMAGE_URL,
-  },
-  en: {
-    locale: "en_US",
-    alternateLocale: "es_AR",
-    url: EN_URL,
-    image: EN_OG_IMAGE_URL,
-  },
+const ogLocaleByLocale: Record<AppLocale, string> = {
+  es: "es_AR",
+  en: "en_US",
 };
-
-export function getSupportedLocale(locale: string): SupportedLocale {
-  return locale === "en" ? "en" : "es";
-}
 
 /**
  * Internal-only pages. They render an access gate (or no content at all) to a
@@ -45,117 +27,20 @@ export function getSupportedLocale(locale: string): SupportedLocale {
  */
 const noIndexPaths = new Set(["/presentations", "/signatures", "/social"]);
 
-/**
- * Normalizes a de-localized router pathname into the form used to build
- * absolute URLs: no trailing slash, "/" for the home page.
- */
-export function normalizePath(pathname: string) {
-  const path = pathname.replace(/\/+$/, "");
-  return path.startsWith("/") ? path || "/" : `/${path}`;
-}
-
 export function isNoIndexPath(pathname: string) {
   return noIndexPaths.has(normalizePath(pathname));
 }
 
-/**
- * Absolute URL for a de-localized path in a given locale. The base locale (es)
- * lives at the root; other locales are prefixed. The home page keeps its
- * trailing slash, every other path drops it.
- */
-export function getLocalizedUrl(locale: SupportedLocale, pathname: string) {
-  const path = normalizePath(pathname);
-  const prefix = locale === "es" ? "" : `/${locale}`;
-
-  return path === "/" ? `${SITE_URL}${prefix}/` : `${SITE_URL}${prefix}${path}`;
-}
-
-/**
- * Canonical + hreflang links for the page currently being rendered. Declared
- * once at the root so every route emits alternates that point at itself
- * instead of at the home page.
- *
- * `localizedPaths` covers routes whose slug differs per locale (blog articles,
- * career posts). It holds already-prefixed paths, e.g.
- * `{ es: "/blog/la-evolucion...", en: "/en/blog/the-evolution..." }`. When it
- * only carries one locale — a post published in a single language — we emit an
- * alternate for that locale alone. Emitting the other one would advertise a
- * URL that does not exist, which Google reports as a soft 404 / duplicate.
- */
-export function getPageSeoLinks(
-  locale: SupportedLocale,
-  pathname: string,
-  localizedPaths?: Partial<Record<SupportedLocale, string>>,
-) {
-  if (isNoIndexPath(pathname)) return [];
-
-  // Absolute URL per locale that actually has a page. Static routes exist in
-  // every locale, so we synthesize both from the shared path; slug routes only
-  // list the locales present in `localizedPaths`.
-  const urlByLocale = new Map<SupportedLocale, string>(
-    localizedPaths
-      ? locales
-          .filter((value) => Boolean(localizedPaths[value]))
-          .map((value) => [value, `${SITE_URL}${localizedPaths[value]}`])
-      : locales.map((value) => [value, getLocalizedUrl(value, pathname)]),
-  );
-
-  const canonicalHref = urlByLocale.get(locale);
-
-  // Should never happen (the page renders in `locale`, so its own URL exists),
-  // but guard rather than emit a broken canonical.
-  if (!canonicalHref) return [];
-
-  const links: Array<{ rel: string; href: string; hrefLang?: string }> = [
-    { rel: "canonical", href: canonicalHref },
-  ];
-
-  for (const [value, href] of urlByLocale) {
-    links.push({ rel: "alternate", hrefLang: hreflangByLocale[value], href });
-  }
-
-  // x-default points at the base locale when it exists, else the canonical.
-  links.push({
-    rel: "alternate",
-    hrefLang: "x-default",
-    href: urlByLocale.get(baseLocale) ?? canonicalHref,
-  });
-
-  return links;
-}
-
-export function getHomeSeo(locale: SupportedLocale) {
-  const metadata = localeMetadata[locale];
-
-  return {
-    ...metadata,
-    title: m.seo_home_title(),
-    description: m.seo_home_description(),
-    keywords: m.seo_home_keywords(),
-    imageAlt: m.seo_og_image_alt(),
-    siteName: BRAND_NAME,
-    alternates: {
-      es: ES_URL,
-      en: EN_URL,
-      default: ES_URL,
-    },
-  };
-}
-
 export function getSeoTitle(title: string) {
-  return title.startsWith(`${BRAND_NAME} |`)
-    ? title
-    : `${BRAND_NAME} | ${title}`;
+  return title.startsWith(`${SITE_NAME} |`) ? title : `${SITE_NAME} | ${title}`;
 }
 
+/** Generated 1200×630 PNG share card, optionally captioned. */
 export function getOgImageUrl(
-  locale: SupportedLocale,
-  params?: {
-    title?: string;
-    description?: string;
-  },
+  locale: AppLocale,
+  params?: { title?: string; description?: string },
 ) {
-  const url = new URL(localeMetadata[locale].image);
+  const url = new URL(localizedUrl(locale, "/og-image"));
 
   if (params?.title) url.searchParams.set("title", params.title);
   if (params?.description) {
@@ -165,8 +50,195 @@ export function getOgImageUrl(
   return url.toString();
 }
 
-export function getHomeJsonLd(locale: SupportedLocale) {
-  const seo = getHomeSeo(locale);
+/**
+ * Absolute URL per locale that actually has this page. Static routes exist in
+ * every locale, so they map the shared path; slug routes (blog, careers) pass
+ * `localizedPaths` — already-prefixed paths — and only list the locales the
+ * content is published in. Advertising the missing one would point Google at a
+ * URL that does not exist (soft 404 / duplicate).
+ */
+function getUrlByLocale(path: string, localizedPaths?: LocalizedPaths) {
+  return new Map<AppLocale, string>(
+    localizedPaths
+      ? locales.flatMap((locale) => {
+          const localized = localizedPaths[locale];
+          return localized
+            ? [[locale, `${SITE_URL}${localized}`] as const]
+            : [];
+        })
+      : locales.map((locale) => [locale, localizedUrl(locale, path)]),
+  );
+}
+
+export type PageHeadInput = {
+  locale: AppLocale;
+  /** De-localized router pathname, e.g. `/blog/my-post`. */
+  path: string;
+  /** Per-locale paths for pages whose slug differs per locale. */
+  localizedPaths?: LocalizedPaths;
+  title: string;
+  description: string;
+  type?: "website" | "article";
+  article?: {
+    publishedTime: string;
+    author: string;
+    tags: readonly string[];
+  };
+  /** Absolute 1200×630 PNG URL; defaults to the generated share card. */
+  image?: string;
+  imageAlt?: string;
+  /** Drops canonical/hreflang links and tells crawlers not to index. */
+  noIndex?: boolean;
+};
+
+export type PageHeadMeta = ComponentProps<"meta">;
+export type PageHeadLink = { rel: string; href: string; hrefLang?: string };
+export type PageHeadScript = { type: string; children: string };
+
+/** JSON-LD `<script>` for a route's `head().scripts`. */
+export function jsonLdScript(value: unknown): PageHeadScript {
+  return {
+    type: "application/ld+json",
+    children: JSON.stringify(value).replace(/</g, "\\u003c"),
+  };
+}
+
+/**
+ * Page-level `<head>` entries: title, description, robots, Open Graph,
+ * Twitter card and canonical/hreflang links.
+ *
+ * TanStack Router de-duplicates `meta` by `name`/`property` with the deepest
+ * route winning, but concatenates `links`. So child routes return only
+ * `meta`, and the root route emits `links` once for the deepest match (it reads
+ * `localizedPaths` from that match's loader data).
+ */
+export function pageHead({
+  locale,
+  path,
+  localizedPaths,
+  title,
+  description,
+  type = "website",
+  article,
+  image = getOgImageUrl(locale, { title, description }),
+  imageAlt = title,
+  noIndex = false,
+}: PageHeadInput): {
+  meta: PageHeadMeta[];
+  links: PageHeadLink[];
+  scripts: PageHeadScript[];
+} {
+  const urlByLocale = getUrlByLocale(path, localizedPaths);
+  const url = urlByLocale.get(locale) ?? localizedUrl(locale, path);
+  const alternateLocales = [...urlByLocale.keys()].filter(
+    (value) => value !== locale,
+  );
+
+  const meta: PageHeadMeta[] = [
+    { title: getSeoTitle(title) },
+    { name: "description", content: description },
+    {
+      name: "robots",
+      content: noIndex
+        ? "noindex, nofollow"
+        : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    },
+    { property: "og:type", content: type },
+    { property: "og:site_name", content: SITE_NAME },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:url", content: url },
+    { property: "og:image", content: image },
+    { property: "og:image:type", content: "image/png" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: imageAlt },
+    { property: "og:locale", content: ogLocaleByLocale[locale] },
+    // Meta tags are de-duplicated by property, so only one alternate fits.
+    ...alternateLocales.slice(0, 1).map((value) => ({
+      property: "og:locale:alternate",
+      content: ogLocaleByLocale[value],
+    })),
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: image },
+    { name: "twitter:image:alt", content: imageAlt },
+  ];
+
+  const scripts: PageHeadScript[] = [];
+
+  if (article) {
+    meta.push(
+      { property: "article:published_time", content: article.publishedTime },
+      { property: "article:author", content: article.author },
+    );
+    // `article:tag` cannot repeat (meta is de-duplicated by property), so the
+    // full tag list goes to structured data instead.
+    scripts.push(
+      jsonLdScript({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: title,
+        description,
+        url,
+        image,
+        datePublished: article.publishedTime,
+        author: { "@type": "Person", name: article.author },
+        keywords: article.tags,
+        inLanguage: ogLocaleByLocale[locale],
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      }),
+    );
+  }
+
+  return {
+    meta,
+    links: noIndex ? [] : getSeoLinks(locale, urlByLocale),
+    scripts,
+  };
+}
+
+function getSeoLinks(
+  locale: AppLocale,
+  urlByLocale: Map<AppLocale, string>,
+): PageHeadLink[] {
+  const canonicalHref = urlByLocale.get(locale);
+
+  // Should never happen (the page renders in `locale`, so its own URL exists),
+  // but guard rather than emit a broken canonical.
+  if (!canonicalHref) return [];
+
+  return [
+    { rel: "canonical", href: canonicalHref },
+    ...[...urlByLocale].map(([value, href]) => ({
+      rel: "alternate",
+      hrefLang: hreflangByLocale[value],
+      href,
+    })),
+    // x-default points at the base locale when it exists, else the canonical.
+    {
+      rel: "alternate",
+      hrefLang: "x-default",
+      href: urlByLocale.get(baseLocale) ?? canonicalHref,
+    },
+  ];
+}
+
+/** Home page copy, shared by the root head defaults and the home JSON-LD. */
+export function getHomeSeo() {
+  return {
+    title: m.seo_home_title(),
+    description: m.seo_home_description(),
+    keywords: m.seo_home_keywords(),
+    imageAlt: m.seo_og_image_alt(),
+  };
+}
+
+/** Organization/WebSite/WebPage/Service graph. Emitted on the home page only. */
+export function getHomeJsonLd(locale: AppLocale) {
+  const seo = getHomeSeo();
+  const url = localizedUrl(locale, "/");
 
   return {
     "@context": "https://schema.org",
@@ -174,7 +246,7 @@ export function getHomeJsonLd(locale: SupportedLocale) {
       {
         "@type": "Organization",
         "@id": `${SITE_URL}/#organization`,
-        name: BRAND_NAME,
+        name: SITE_NAME,
         url: SITE_URL,
         logo: LOGO_URL,
         email: CONTACT_EMAIL,
@@ -214,16 +286,16 @@ export function getHomeJsonLd(locale: SupportedLocale) {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         url: SITE_URL,
-        name: BRAND_NAME,
-        inLanguage: [seo.locale, seo.alternateLocale],
+        name: SITE_NAME,
+        inLanguage: locales.map((value) => ogLocaleByLocale[value]),
         publisher: {
           "@id": `${SITE_URL}/#organization`,
         },
       },
       {
         "@type": "WebPage",
-        "@id": `${seo.url}#webpage`,
-        url: seo.url,
+        "@id": `${url}#webpage`,
+        url,
         name: seo.title,
         description: seo.description,
         isPartOf: {
@@ -234,9 +306,9 @@ export function getHomeJsonLd(locale: SupportedLocale) {
         },
         primaryImageOfPage: {
           "@type": "ImageObject",
-          url: seo.image,
+          url: getOgImageUrl(locale),
         },
-        inLanguage: seo.locale,
+        inLanguage: ogLocaleByLocale[locale],
       },
       {
         "@type": "Service",
@@ -259,8 +331,4 @@ export function getHomeJsonLd(locale: SupportedLocale) {
       },
     ],
   };
-}
-
-export function stringifyJsonLd(value: unknown) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
 }

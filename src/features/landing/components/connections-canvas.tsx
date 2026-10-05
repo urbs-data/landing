@@ -1,7 +1,6 @@
-"use client";
-
 import * as motion from "motion/react-client";
 import { useEffect, useRef, useState } from "react";
+import { BRAND_VIOLET } from "#/lib/brand";
 import { landingEaseOut } from "./animation";
 
 type Node = {
@@ -18,8 +17,6 @@ type ConnectionsCanvasProps = {
   density?: number;
 };
 
-// Brand violet (matches --primary oklch(50.2% 0.1452 297.1))
-const PRIMARY: [number, number, number] = [112, 58, 205];
 const MAX_DPR = 2;
 const BASE_AREA_PER_NODE = 16_000;
 const MIN_NODES = 28;
@@ -47,6 +44,18 @@ const clampNodePosition = (value: number, size: number) => {
   const min = Math.min(EDGE_PADDING, size / 2);
   const max = Math.max(min, size - EDGE_PADDING);
   return clamp(value, min, max);
+};
+
+/** Reads the `--primary` token so the canvas matches the rest of the UI. */
+const getBrandColor = (element: HTMLElement) => {
+  const token = getComputedStyle(element).getPropertyValue("--primary").trim();
+  const canParse =
+    token !== "" &&
+    typeof CSS !== "undefined" &&
+    typeof CSS.supports === "function" &&
+    CSS.supports("color", token);
+
+  return canParse ? token : BRAND_VIOLET;
 };
 
 const getElementSize = (element: HTMLElement) => {
@@ -85,9 +94,21 @@ export function ConnectionsCanvas({
     let raf = 0;
     let hasPainted = false;
     let isMounted = true;
+    let isIntersecting = true;
     const mouse = { x: OFFSCREEN_POINTER, y: OFFSCREEN_POINTER };
-    const [pr, pg, pb] = PRIMARY;
+    const color = getBrandColor(currentCanvas);
     const normalizedDensity = clamp(density, 0, 3);
+    const reducedMotionQuery =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : undefined;
+
+    /** Only spend frames while the canvas is on screen and motion is welcome. */
+    const shouldAnimate = () =>
+      isMounted &&
+      isIntersecting &&
+      !document.hidden &&
+      !reducedMotionQuery?.matches;
 
     function resize() {
       const previousWidth = width;
@@ -136,6 +157,9 @@ export function ConnectionsCanvas({
       }
 
       context.clearRect(0, 0, width, height);
+      context.strokeStyle = color;
+      context.fillStyle = color;
+      context.lineWidth = 1;
 
       if (animateNodes) {
         for (const n of nodes) {
@@ -169,9 +193,7 @@ export function ConnectionsCanvas({
           const distSq = dx * dx + dy * dy;
           if (distSq >= MAX_DIST_SQ) continue;
 
-          const alpha = (1 - Math.sqrt(distSq) / MAX_DIST) * 0.4;
-          context.strokeStyle = `rgba(${pr}, ${pg}, ${pb}, ${alpha})`;
-          context.lineWidth = 1;
+          context.globalAlpha = (1 - Math.sqrt(distSq) / MAX_DIST) * 0.4;
           context.beginPath();
           context.moveTo(a.x, a.y);
           context.lineTo(b.x, b.y);
@@ -181,16 +203,17 @@ export function ConnectionsCanvas({
 
       for (const n of nodes) {
         const glow = (Math.sin(n.pulse) + 1) / 2;
-        context.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${0.5 + glow * 0.5})`;
+        context.globalAlpha = 0.5 + glow * 0.5;
         context.beginPath();
         context.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         context.fill();
 
-        context.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${glow * 0.12})`;
+        context.globalAlpha = glow * 0.12;
         context.beginPath();
         context.arc(n.x, n.y, n.r + 6 * glow, 0, Math.PI * 2);
         context.fill();
       }
+      context.globalAlpha = 1;
 
       if (!hasPainted) {
         hasPainted = true;
@@ -201,7 +224,7 @@ export function ConnectionsCanvas({
     }
 
     function requestFrame() {
-      if (raf || !isMounted) return;
+      if (raf || !shouldAnimate()) return;
       raf = requestAnimationFrame(runFrame);
     }
 
@@ -214,8 +237,6 @@ export function ConnectionsCanvas({
     function runFrame() {
       raf = 0;
       const didPaint = drawFrame(true);
-
-      if (!isMounted) return;
       if (!didPaint || nodes.length > 0) requestFrame();
     }
 
@@ -236,6 +257,27 @@ export function ConnectionsCanvas({
       mouse.x = OFFSCREEN_POINTER;
       mouse.y = OFFSCREEN_POINTER;
     }
+
+    /** Resume or pause the loop; a static frame stays painted while paused. */
+    function syncPlayback() {
+      if (shouldAnimate()) {
+        requestFrame();
+      } else {
+        cancelFrame();
+      }
+    }
+
+    const intersectionObserver =
+      typeof IntersectionObserver === "function"
+        ? new IntersectionObserver(([entry]) => {
+            isIntersecting = entry?.isIntersecting ?? true;
+            syncPlayback();
+          })
+        : undefined;
+    intersectionObserver?.observe(currentCanvas);
+
+    document.addEventListener("visibilitychange", syncPlayback);
+    reducedMotionQuery?.addEventListener("change", paintNow);
 
     let resizeObserver: ResizeObserver | undefined;
     const onResize = () => {
@@ -259,6 +301,9 @@ export function ConnectionsCanvas({
       isMounted = false;
       cancelFrame();
       resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
+      document.removeEventListener("visibilitychange", syncPlayback);
+      reducedMotionQuery?.removeEventListener("change", paintNow);
       window.removeEventListener("resize", onResize);
       container.removeEventListener("pointermove", onMove);
       container.removeEventListener("pointerleave", onLeave);

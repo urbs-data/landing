@@ -9,36 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SocialRouteImport } from './features/social/routes/social'
-import { Route as SignaturesRouteImport } from './features/signatures/routes/signatures'
-import { Route as PresentationsRouteImport } from './features/presentations/routes/presentations'
-import { Route as CareersRouteImport } from './features/careers/routes/careers'
-import { Route as BlogRouteImport } from './features/blog/routes/blog'
 import { Route as IndexRouteImport } from './features/landing/routes/index'
-import { Route as CareersDotindexRouteImport } from './features/careers/routes/careers.index'
+import { Route as BlogRouteImport } from './features/blog/routes/blog'
+import { Route as CareersRouteImport } from './features/careers/routes/careers'
+import { Route as PresentationsRouteImport } from './features/presentations/routes/presentations'
+import { Route as SignaturesRouteImport } from './features/signatures/routes/signatures'
+import { Route as SocialRouteImport } from './features/social/routes/social'
 import { Route as BlogDotindexRouteImport } from './features/blog/routes/blog.index'
-import { Route as Char123LangChar125DotogImageRouteImport } from './features/landing/routes/{-$lang}.og-image'
-import { Route as CareersDotslugRouteImport } from './features/careers/routes/careers.$slug'
 import { Route as BlogDotslugRouteImport } from './features/blog/routes/blog.$slug'
+import { Route as CareersDotindexRouteImport } from './features/careers/routes/careers.index'
+import { Route as CareersDotslugRouteImport } from './features/careers/routes/careers.$slug'
+import { Route as Char123LangChar125DotogImageRouteImport } from './features/landing/routes/{-$lang}.og-image'
 
-const SocialRoute = SocialRouteImport.update({
-  id: '/social',
-  path: '/social',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignaturesRoute = SignaturesRouteImport.update({
-  id: '/signatures',
-  path: '/signatures',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PresentationsRoute = PresentationsRouteImport.update({
-  id: '/presentations',
-  path: '/presentations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareersRoute = CareersRouteImport.update({
-  id: '/careers',
-  path: '/careers',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -46,20 +31,45 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresentationsRoute = PresentationsRouteImport.update({
+  id: '/presentations',
+  path: '/presentations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignaturesRoute = SignaturesRouteImport.update({
+  id: '/signatures',
+  path: '/signatures',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SocialRoute = SocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogDotindexRoute = BlogDotindexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogDotslugRoute = BlogDotslugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const CareersDotindexRoute = CareersDotindexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CareersRoute,
 } as any)
-const BlogDotindexRoute = BlogDotindexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BlogRoute,
+const CareersDotslugRoute = CareersDotslugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CareersRoute,
 } as any)
 const Char123LangChar125DotogImageRoute =
   Char123LangChar125DotogImageRouteImport.update({
@@ -67,16 +77,6 @@ const Char123LangChar125DotogImageRoute =
     path: '/{-$lang}/og-image',
     getParentRoute: () => rootRouteImport,
   } as any)
-const CareersDotslugRoute = CareersDotslugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => CareersRoute,
-} as any)
-const BlogDotslugRoute = BlogDotslugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -168,32 +168,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/social': {
-      id: '/social'
-      path: '/social'
-      fullPath: '/social'
-      preLoaderRoute: typeof SocialRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signatures': {
-      id: '/signatures'
-      path: '/signatures'
-      fullPath: '/signatures'
-      preLoaderRoute: typeof SignaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/presentations': {
-      id: '/presentations'
-      path: '/presentations'
-      fullPath: '/presentations'
-      preLoaderRoute: typeof PresentationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/careers': {
-      id: '/careers'
-      path: '/careers'
-      fullPath: '/careers'
-      preLoaderRoute: typeof CareersRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -203,19 +182,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/careers/': {
-      id: '/careers/'
-      path: '/'
-      fullPath: '/careers/'
-      preLoaderRoute: typeof CareersDotindexRouteImport
-      parentRoute: typeof CareersRoute
+    '/presentations': {
+      id: '/presentations'
+      path: '/presentations'
+      fullPath: '/presentations'
+      preLoaderRoute: typeof PresentationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signatures': {
+      id: '/signatures'
+      path: '/signatures'
+      fullPath: '/signatures'
+      preLoaderRoute: typeof SignaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/social': {
+      id: '/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof SocialRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/': {
       id: '/blog/'
@@ -224,12 +217,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogDotindexRouteImport
       parentRoute: typeof BlogRoute
     }
-    '/{-$lang}/og-image': {
-      id: '/{-$lang}/og-image'
-      path: '/{-$lang}/og-image'
-      fullPath: '/{-$lang}/og-image'
-      preLoaderRoute: typeof Char123LangChar125DotogImageRouteImport
-      parentRoute: typeof rootRouteImport
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogDotslugRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/careers/': {
+      id: '/careers/'
+      path: '/'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersDotindexRouteImport
+      parentRoute: typeof CareersRoute
     }
     '/careers/$slug': {
       id: '/careers/$slug'
@@ -238,12 +238,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersDotslugRouteImport
       parentRoute: typeof CareersRoute
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogDotslugRouteImport
-      parentRoute: typeof BlogRoute
+    '/{-$lang}/og-image': {
+      id: '/{-$lang}/og-image'
+      path: '/{-$lang}/og-image'
+      fullPath: '/{-$lang}/og-image'
+      preLoaderRoute: typeof Char123LangChar125DotogImageRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }

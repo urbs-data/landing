@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,120 +11,53 @@ import {
   buildContactEmailHref,
   CAREERS_EMAIL,
 } from "#/features/landing/lib/contact-email";
-import {
-  getHomeSeo,
-  getOgImageUrl,
-  getPageSeoLinks,
-  getSeoTitle,
-  getSupportedLocale,
-} from "#/features/landing/lib/seo";
+import { getSeoTitle, pageHead } from "#/features/landing/lib/seo";
+import { toAppLocale } from "#/i18n";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 
 export const Route = createFileRoute("/careers/$slug")({
-  loader: ({ params }) =>
-    getCareerPost({ data: { locale: getLocale(), slug: params.slug } }),
-  head: ({ loaderData, params }) => {
-    const locale = getSupportedLocale(getLocale());
-    const seo = getHomeSeo(locale);
-    const title = loaderData?.title ?? m.careers_title();
-    const description = loaderData?.description ?? m.careers_description();
-    const url = `${seo.url.replace(/\/$/, "")}/careers/${params.slug}`;
-    const image = getOgImageUrl(locale, {
-      title,
-      description,
+  loader: async ({ params }) => {
+    const post = await getCareerPost({
+      data: { locale: getLocale(), slug: params.slug },
     });
 
-    return {
-      meta: [
-        {
-          title: getSeoTitle(title),
-        },
-        {
-          name: "description",
-          content: description,
-        },
-        {
-          property: "og:title",
-          content: title,
-        },
-        {
-          property: "og:description",
-          content: description,
-        },
-        {
-          property: "og:url",
-          content: url,
-        },
-        {
-          property: "og:image",
-          content: image,
-        },
-        {
-          property: "og:image:alt",
-          content: title,
-        },
-        {
-          name: "twitter:title",
-          content: title,
-        },
-        {
-          name: "twitter:description",
-          content: description,
-        },
-        {
-          name: "twitter:image",
-          content: image,
-        },
-        {
-          name: "twitter:image:alt",
-          content: title,
-        },
-      ],
-      // Emitted here rather than in __root.tsx: the post slug differs per
-      // locale, so the alternates have to come from the loader's mapping.
-      links: getPageSeoLinks(
-        locale,
-        `/careers/${params.slug}`,
-        loaderData?.localizedPaths,
-      ),
-    };
+    if (!post) throw notFound();
+
+    return post;
+  },
+  head: ({ loaderData, match }) => {
+    if (!loaderData) {
+      return {
+        meta: [{ title: getSeoTitle(m.careers_role_not_found_title()) }],
+      };
+    }
+
+    // Canonical/hreflang links come from the root route, which reads
+    // `loaderData.localizedPaths`.
+    const { meta, scripts } = pageHead({
+      locale: toAppLocale(getLocale()),
+      path: match.pathname,
+      localizedPaths: loaderData.localizedPaths,
+      title: loaderData.title,
+      description: loaderData.description,
+    });
+
+    return { meta, scripts };
   },
   component: CareerPostRoute,
+  notFoundComponent: CareerPostNotFound,
 });
 
 function CareerPostRoute() {
   const post = Route.useLoaderData();
 
-  if (!post) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-24 text-foreground">
-        <section className="max-w-md text-center">
-          <p className="font-medium text-muted-foreground text-sm">404</p>
-          <h1 className="mt-3 font-heading font-semibold text-3xl">
-            {m.careers_role_not_found_title()}
-          </h1>
-          <p className="mt-4 text-muted-foreground leading-7">
-            {m.careers_role_not_found_description()}
-          </p>
-          <Link
-            to="/careers"
-            className="mt-8 inline-flex h-10 items-center justify-center gap-2 border border-border px-4 font-medium text-sm transition-[background-color,border-color,color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-primary/45 hover:bg-accent hover:text-primary active:scale-[0.98]"
-          >
-            <ArrowLeft className="size-4" />
-            {m.careers_back_to_index()}
-          </Link>
-        </section>
-      </main>
-    );
-  }
-
   const applyHref =
     post.applyUrl ||
     buildContactEmailHref({
       to: CAREERS_EMAIL,
-      subject: `Postulacion - ${post.title}`,
-      body: `Hola Urbs Data,\n\nQuiero postularme para: ${post.title}.\n\n(Recordá adjuntar tu CV a este mail)\n\nNombre:\nLinkedIn / portfolio:\nMensaje:\n\nGracias.`,
+      subject: m.careers_apply_email_subject({ title: post.title }),
+      body: m.careers_apply_email_body({ title: post.title }),
     });
 
   return (
@@ -168,7 +101,7 @@ function CareerPostRoute() {
 
           <a
             href={applyHref}
-            className="mt-8 inline-flex h-11 items-center justify-center gap-2 border border-border bg-primary px-5 font-medium text-primary-foreground text-sm transition-[background-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-primary/90 active:scale-[0.98]"
+            className="mt-8 inline-flex h-11 items-center justify-center gap-2 border border-border bg-primary px-5 font-medium text-primary-foreground text-sm transition-[background-color,transform] duration-150 ease-out-strong hover:bg-primary/90 active:scale-[0.98]"
           >
             {m.careers_apply()}
             <ArrowRight className="size-4" />
@@ -183,6 +116,29 @@ function CareerPostRoute() {
           dangerouslySetInnerHTML={{ __html: post.html }}
         />
       </article>
+    </main>
+  );
+}
+
+function CareerPostNotFound() {
+  return (
+    <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-24 text-foreground">
+      <section className="max-w-md text-center">
+        <p className="font-medium text-muted-foreground text-sm">404</p>
+        <h1 className="mt-3 font-heading font-semibold text-3xl">
+          {m.careers_role_not_found_title()}
+        </h1>
+        <p className="mt-4 text-muted-foreground leading-7">
+          {m.careers_role_not_found_description()}
+        </p>
+        <Link
+          to="/careers"
+          className="mt-8 inline-flex h-10 items-center justify-center gap-2 border border-border px-4 font-medium text-sm transition-[background-color,border-color,color,transform] duration-150 ease-out-strong hover:border-primary/45 hover:bg-accent hover:text-primary active:scale-[0.98]"
+        >
+          <ArrowLeft className="size-4" />
+          {m.careers_back_to_index()}
+        </Link>
+      </section>
     </main>
   );
 }

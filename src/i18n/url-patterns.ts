@@ -1,5 +1,5 @@
 import type { FileRoutesByTo } from "#/routeTree.gen";
-import { type AppLocale, baseLocale, locales } from "./index.ts";
+import { type AppLocale, locales, localizedPath } from "./index.ts";
 
 type RoutePath = keyof FileRoutesByTo;
 
@@ -25,14 +25,6 @@ function toUrlPattern(path: string) {
   return pattern || "/";
 }
 
-function withLocalePrefix(locale: AppLocale, path: string) {
-  if (locale === baseLocale) {
-    return toUrlPattern(path);
-  }
-
-  return `/${locale}${toUrlPattern(path)}`;
-}
-
 function createTranslatedPathnames(
   input: Record<PublicRoutePath, Record<AppLocale, string>>,
 ): TranslatedPathname[] {
@@ -40,12 +32,13 @@ function createTranslatedPathnames(
     pattern: toUrlPattern(pattern),
     localized: locales.map((locale) => [
       locale,
-      withLocalePrefix(locale, localizedPaths[locale]),
+      localizedPath(locale, toUrlPattern(localizedPaths[locale])),
     ]),
   }));
 }
 
-export const translatedPathnames = createTranslatedPathnames({
+// Identity today; give a locale its own segment here (e.g. es "/carreras").
+const translatedPathnames = createTranslatedPathnames({
   "/": {
     en: "/",
     es: "/",
@@ -84,7 +77,7 @@ const defaultLocalizedPathPattern: TranslatedPathname = {
   pattern: "/:path(.*)?",
   localized: locales.map((locale) => [
     locale,
-    locale === baseLocale ? "/:path(.*)?" : `/${locale}/:path(.*)?`,
+    localizedPath(locale, "/:path(.*)?"),
   ]),
 };
 
@@ -92,5 +85,3 @@ export const urlPatterns = [
   ...translatedPathnames,
   defaultLocalizedPathPattern,
 ] satisfies TranslatedPathname[];
-
-export const staticRoutePaths = ["/"] satisfies PublicRoutePath[];

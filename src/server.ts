@@ -7,75 +7,39 @@ import {
   isPresentationTemplateKey,
   isPresentationTemplateMode,
 } from "./features/presentations/lib/template-catalog";
+import { getSocialAssetBytes } from "./features/social/lib/social-asset-files.server";
 import {
   isSocialAssetKey,
   socialAssetFiles,
 } from "./features/social/lib/social-assets";
-import { defaultLocale, isLocale } from "./i18n";
-import {
-  createEmployeeAccessCookie,
-  isEmployeeAccessGrantedFromCookieHeader,
-  verifyEmployeeAccessCode,
-} from "./lib/employee-access";
+import { isLocale, toAppLocale } from "./i18n";
+import { employeeAccess } from "./lib/employee-access";
 import { paraglideMiddleware } from "./paraglide/server.js";
 
-async function handleEmployeeAccess(req: Request) {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
+type RouteHandler = (
+  req: Request,
+  url: URL,
+  params: string[],
+) => Response | Promise<Response>;
 
-  try {
-    const body = (await req.json()) as { code?: unknown };
-    const result = verifyEmployeeAccessCode(body.code);
+/** Employee-only GET endpoints, each wrapped in the access guard. */
+const protectedRoutes: { pattern: RegExp; handler: RouteHandler }[] = [
+  {
+    pattern: /^\/api\/presentations\/templates\/([^/]+)\/([^/]+)$/,
+    handler: employeeAccess.guard(handlePresentationTemplate),
+  },
+  {
+    pattern: /^\/api\/social\/assets\/([^/]+)$/,
+    handler: employeeAccess.guard(handleSocialAsset),
+  },
+];
 
-    if (result === "unavailable") {
-      return Response.json({ ok: false }, { status: 503 });
-    }
-
-    if (result === "invalid") {
-      return Response.json({ ok: false }, { status: 401 });
-    }
-
-    return Response.json(
-      { ok: true },
-      {
-        headers: {
-          "Set-Cookie": await createEmployeeAccessCookie({
-            secure: new URL(req.url).protocol === "https:",
-          }),
-        },
-      },
-    );
-  } catch {
-    return Response.json({ ok: false }, { status: 400 });
-  }
-}
-
-async function handlePresentationTemplate(req: Request, url: URL) {
-  if (req.method !== "GET") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  const hasAccess = await isEmployeeAccessGrantedFromCookieHeader(
-    req.headers.get("Cookie"),
-  );
-
-  if (!hasAccess) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const match = url.pathname.match(
-    /^\/api\/presentations\/templates\/([^/]+)\/([^/]+)$/,
-  );
-
-  if (!match) {
-    return new Response("Not found", { status: 404 });
-  }
-
-  const [, key, mode] = match;
-  const localeParam = url.searchParams.get("locale");
-  const locale =
-    localeParam && isLocale(localeParam) ? localeParam : defaultLocale;
+async function handlePresentationTemplate(
+  _req: Request,
+  url: URL,
+  [key, mode]: string[],
+) {
+  const locale = toAppLocale(url.searchParams.get("locale"));
 
   if (!isPresentationTemplateKey(key) || !isPresentationTemplateMode(mode)) {
     return new Response("Template not found", { status: 404 });
@@ -98,42 +62,19 @@ async function handlePresentationTemplate(req: Request, url: URL) {
   });
 }
 
-async function handleSocialAsset(req: Request, url: URL) {
-  if (req.method !== "GET") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  const hasAccess = await isEmployeeAccessGrantedFromCookieHeader(
-    req.headers.get("Cookie"),
-  );
-
-  if (!hasAccess) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const match = url.pathname.match(/^\/api\/social\/assets\/([^/]+)$/);
-
-  if (!match) {
-    return new Response("Not found", { status: 404 });
-  }
-
-  const [, key] = match;
-
+function handleSocialAsset(_req: Request, url: URL, [key]: string[]) {
   if (!isSocialAssetKey(key)) {
     return new Response("Asset not found", { status: 404 });
   }
 
   const asset = socialAssetFiles[key];
-  const response = await fetch(new URL(asset.sourcePath, url.origin));
+  const disposition =
+    url.searchParams.get("disposition") === "inline" ? "inline" : "attachment";
 
-  if (!response.ok) {
-    return new Response("Asset not found", { status: 404 });
-  }
-
-  return new Response(await response.arrayBuffer(), {
+  return new Response(getSocialAssetBytes(key), {
     headers: {
       "Content-Type": asset.contentType,
-      "Content-Disposition": `attachment; filename="${asset.filename}"`,
+      "Content-Disposition": `${disposition}; filename="${asset.filename}"`,
       "Cache-Control": "private, max-age=300",
     },
   });
@@ -183,15 +124,20 @@ export default {
     }
 
     if (url.pathname === "/api/employee-access/verify") {
-      return handleEmployeeAccess(req);
+      return employeeAccess.handleVerify(req);
     }
 
-    if (url.pathname.startsWith("/api/presentations/templates/")) {
-      return handlePresentationTemplate(req, url);
-    }
+    for (const { pattern, handler } of protectedRoutes) {
+      const match = url.pathname.match(pattern);
+      if (!match) continue;
 
-    if (url.pathname.startsWith("/api/social/assets/")) {
-      return handleSocialAsset(req, url);
+      if (req.method !== "GET") {
+        return Promise.resolve(
+          new Response("Method not allowed", { status: 405 }),
+        );
+      }
+
+      return Promise.resolve(handler(req, url, match.slice(1)));
     }
 
     return paraglideMiddleware(req, () => handler.fetch(req));

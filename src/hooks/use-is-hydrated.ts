@@ -1,14 +1,15 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-const useIsomorphicLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
+const subscribe = () => () => {};
 
+/**
+ * `false` during SSR and the hydration render, `true` afterwards (and on any
+ * client-only mount) — without an extra effect-driven re-render.
+ */
 export function useIsHydrated() {
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useIsomorphicLayoutEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  return isHydrated;
+  return useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 }

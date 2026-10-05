@@ -1,173 +1,159 @@
-import { useCallback, useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+import {
+  applyStoredTheme,
+  DEFAULT_THEME_STATE,
+  PREFERS_DARK_QUERY,
+  type ResolvedTheme,
+  THEME_STORAGE_KEY,
+  type ThemeMode,
+  type ThemeState,
+} from "#/lib/theme";
 
-export type ThemeMode = "light" | "dark" | "auto";
-export type ResolvedTheme = "light" | "dark";
+export type { ResolvedTheme, ThemeMode } from "#/lib/theme";
 
-type ThemeState = {
-  mode: ThemeMode;
-  resolvedTheme: ResolvedTheme;
-};
+/* -------------------------------------------------------------------------- */
+/*  Module-level store: one set of DOM/media/storage listeners for the whole  */
+/*  app, installed on the first subscriber and torn down after the last.      */
+/* -------------------------------------------------------------------------- */
 
-const THEME_STORAGE_KEY = "theme";
-const DEFAULT_THEME_STATE: ThemeState = {
-  mode: "light",
-  resolvedTheme: "light",
-};
+const listeners = new Set<() => void>();
+let snapshot: ThemeState = DEFAULT_THEME_STATE;
+let teardown: (() => void) | null = null;
 
-function isThemeMode(value: string | null): value is ThemeMode {
-  return value === "light" || value === "dark" || value === "auto";
-}
-
-function getStoredThemeMode(): ThemeMode {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
-    return "light";
-  }
-
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return isThemeMode(stored) ? stored : "light";
-}
-
-function getDocumentTheme(): ResolvedTheme | null {
-  if (typeof document === "undefined") {
+function getStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
     return null;
   }
-
-  if (document.documentElement.classList.contains("dark")) {
-    return "dark";
-  }
-
-  if (document.documentElement.classList.contains("light")) {
-    return "light";
-  }
-
-  return null;
 }
 
-function resolveThemeMode(mode: ThemeMode): ResolvedTheme {
-  if (mode !== "auto") {
-    return mode;
-  }
-
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+function getMediaQuery() {
+  return typeof window.matchMedia === "function"
+    ? window.matchMedia(PREFERS_DARK_QUERY)
+    : null;
 }
 
-function getThemeState(): ThemeState {
-  const mode = getStoredThemeMode();
-
-  return {
-    mode,
-    resolvedTheme: getDocumentTheme() ?? resolveThemeMode(mode),
-  };
+function readDocumentTheme(): ResolvedTheme {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
-function applyThemeMode(mode: ThemeMode) {
-  if (typeof document === "undefined") {
+function publish(next: ThemeState) {
+  if (
+    next.mode === snapshot.mode &&
+    next.resolvedTheme === snapshot.resolvedTheme
+  ) {
     return;
   }
 
-  const resolved = resolveThemeMode(mode);
-  const root = document.documentElement;
+  snapshot = next;
+  for (const listener of listeners) listener();
+}
 
-  root.classList.remove("light", "dark");
-  root.classList.add(resolved);
+/** Applies the theme to `<html>` and publishes the new preference. */
+function applyAndPublish(storage: Pick<Storage, "getItem"> | null) {
+  const { mode } = applyStoredTheme(
+    document.documentElement,
+    storage,
+    THEME_STORAGE_KEY,
+    getMediaQuery()?.matches ?? false,
+  );
+  // Read back from the DOM in case something else also touched <html>.
+  publish({ mode, resolvedTheme: readDocumentTheme() });
+}
 
-  if (mode === "auto") {
-    root.removeAttribute("data-theme");
-  } else {
-    root.setAttribute("data-theme", mode);
-  }
+/** External `<html>` mutations change the palette, never the preference. */
+function syncFromDocument() {
+  publish({ mode: snapshot.mode, resolvedTheme: readDocumentTheme() });
+}
 
-  root.style.colorScheme = resolved;
+function reapplyStoredTheme() {
+  applyAndPublish(getStorage());
+}
+
+function install() {
+  // Covers anything that touched <html> before hydration.
+  reapplyStoredTheme();
+
+  const observer =
+    typeof MutationObserver === "undefined"
+      ? null
+      : new MutationObserver(syncFromDocument);
+  observer?.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class", "data-theme"],
+  });
+
+  const media = getMediaQuery();
+  const onSystemThemeChange = () => {
+    if (snapshot.mode === "auto") reapplyStoredTheme();
+  };
+  media?.addEventListener("change", onSystemThemeChange);
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === THEME_STORAGE_KEY) {
+      reapplyStoredTheme();
+    }
+  };
+  window.addEventListener("storage", onStorage);
+
+  return () => {
+    observer?.disconnect();
+    media?.removeEventListener("change", onSystemThemeChange);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  teardown ??= install();
+
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0) {
+      teardown?.();
+      teardown = null;
+    }
+  };
+}
+
+function getSnapshot() {
+  return snapshot;
+}
+
+function getServerSnapshot() {
+  return DEFAULT_THEME_STATE;
 }
 
 /**
- * Subscribes to the document color theme: reads/writes the `"theme"` key in `localStorage`,
- * applies `light`/`dark` classes plus `data-theme` and `colorScheme` on `<html>`, and stays
- * in sync via `MutationObserver`, system `prefers-color-scheme`, and cross-tab `storage` events.
+ * Persists the theme preference (`"theme"` in `localStorage`) and applies it
+ * to `<html>`. Applies even when storage is unavailable (private mode).
+ */
+export function setThemeMode(mode: ThemeMode) {
+  try {
+    getStorage()?.setItem(THEME_STORAGE_KEY, mode);
+  } catch {
+    // Storage blocked or full: still apply for this page view.
+  }
+
+  applyAndPublish({ getItem: () => mode });
+}
+
+/**
+ * Subscribes to the document color theme. All consumers share one store (and
+ * one set of `MutationObserver` / `prefers-color-scheme` / `storage`
+ * listeners). The server snapshot matches the SSR markup (`light`), so
+ * hydration never mismatches; the real value is picked up right after.
  */
 export function useThemeMode() {
-  const [theme, setTheme] = useState<ThemeState>(DEFAULT_THEME_STATE);
-
-  const syncTheme = useCallback(() => {
-    setTheme(getThemeState());
-  }, []);
-
-  const setThemeMode = useCallback((nextMode: ThemeMode) => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(THEME_STORAGE_KEY, nextMode);
-    }
-
-    applyThemeMode(nextMode);
-    setTheme(getThemeState());
-  }, []);
-
-  useEffect(() => {
-    const syncAppliedTheme = () => {
-      applyThemeMode(getStoredThemeMode());
-      syncTheme();
-    };
-
-    syncAppliedTheme();
-
-    const observer =
-      typeof MutationObserver === "undefined"
-        ? null
-        : new MutationObserver(syncTheme);
-
-    observer?.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
-    });
-
-    const media =
-      typeof window.matchMedia === "function"
-        ? window.matchMedia("(prefers-color-scheme: dark)")
-        : null;
-
-    const onSystemThemeChange = () => {
-      if (getStoredThemeMode() === "auto") {
-        applyThemeMode("auto");
-      }
-
-      syncTheme();
-    };
-
-    media?.addEventListener("change", onSystemThemeChange);
-
-    const onStorage = (event: StorageEvent) => {
-      if (event.key !== null && event.key !== THEME_STORAGE_KEY) {
-        return;
-      }
-
-      syncAppliedTheme();
-    };
-
-    window.addEventListener("storage", onStorage);
-
-    return () => {
-      observer?.disconnect();
-      media?.removeEventListener("change", onSystemThemeChange);
-      window.removeEventListener("storage", onStorage);
-    };
-  }, [syncTheme]);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return {
     /** User preference (`light`, `dark`, or `auto` to follow the OS/browser). */
     mode: theme.mode,
-    /** Effective palette (`light` or `dark`), including resolution of `auto`
-     * from `prefers-color-scheme` when the document does not already encode a theme class. */
+    /** Effective palette (`light` or `dark`) currently applied to `<html>`. */
     resolvedTheme: theme.resolvedTheme,
-    /** Persists the choice, updates `<html>` (classes / `data-theme` / `colorScheme`),
-     * and refreshes hook state so consumers re-render with the new `mode` and `resolvedTheme`. */
+    /** Persists the choice and updates `<html>`; every consumer re-renders. */
     setThemeMode,
     /** `true` when `resolvedTheme` is `"dark"`. */
     isDark: theme.resolvedTheme === "dark",
@@ -175,6 +161,3 @@ export function useThemeMode() {
     isLight: theme.resolvedTheme === "light",
   };
 }
-
-/** Same return shape as {@link useThemeMode}; exported under an alternate name. */
-export const useCurrentTheme = useThemeMode;

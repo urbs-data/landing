@@ -1,5 +1,5 @@
 export const CONTACT_EMAIL = "hola@urbsdata.com";
-export const CAREERS_EMAIL = "careers@urbsdata.com";
+export const CAREERS_EMAIL = "info@urbsdata.com";
 
 type ContactEmailOptions = {
   to?: string;

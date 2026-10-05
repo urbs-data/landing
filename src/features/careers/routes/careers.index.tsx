@@ -90,7 +90,7 @@ function CareersIndexRoute() {
   const openApplicationHref = buildContactEmailHref({
     to: CAREERS_EMAIL,
     subject: "Postulacion espontanea - Urbs Data",
-    body: `Hola Urbs Data,\n\nQuiero enviar mi perfil para futuras oportunidades.\n\nNombre:\nLinkedIn / portfolio:\nRol o area de interes:\nMensaje:\n\nGracias.\n\n${CAREERS_EMAIL}`,
+    body: `Hola Urbs Data,\n\nQuiero enviar mi perfil para futuras oportunidades.\n\n(Recordá adjuntar tu CV a este mail)\n\nNombre:\nLinkedIn / portfolio:\nRol o area de interes:\nMensaje:\n\nGracias.\n\n${CAREERS_EMAIL}`,
   });
 
   return (
@@ -168,6 +168,9 @@ function CareersIndexRoute() {
           {m.careers_apply_spontaneous()}
           <ArrowRight className="size-4" />
         </a>
+        <p className="mt-3 text-muted-foreground text-sm">
+          {m.careers_apply_note({ email: CAREERS_EMAIL })}
+        </p>
       </section>
     </main>
   );

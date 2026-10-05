@@ -124,7 +124,7 @@ function CareerPostRoute() {
     buildContactEmailHref({
       to: CAREERS_EMAIL,
       subject: `Postulacion - ${post.title}`,
-      body: `Hola Urbs Data,\n\nQuiero postularme para: ${post.title}.\n\nNombre:\nLinkedIn / portfolio:\nMensaje:\n\nGracias.`,
+      body: `Hola Urbs Data,\n\nQuiero postularme para: ${post.title}.\n\n(Recordá adjuntar tu CV a este mail)\n\nNombre:\nLinkedIn / portfolio:\nMensaje:\n\nGracias.`,
     });
 
   return (
@@ -173,6 +173,9 @@ function CareerPostRoute() {
             {m.careers_apply()}
             <ArrowRight className="size-4" />
           </a>
+          <p className="mt-3 text-muted-foreground text-sm">
+            {m.careers_apply_note({ email: CAREERS_EMAIL })}
+          </p>
         </header>
 
         <div

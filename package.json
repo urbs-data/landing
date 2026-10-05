@@ -2,6 +2,9 @@
   "name": "landing",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
   "imports": {
     "#/*": "./src/*"
   },
@@ -36,11 +39,8 @@
     "cn": "^0.4.0",
     "date-fns": "^4.4.0",
     "embla-carousel-accessibility": "9.0.0-rc02",
-    "embla-carousel-auto-height": "9.0.0-rc02",
     "embla-carousel-auto-scroll": "9.0.0-rc02",
-    "embla-carousel-autoplay": "9.0.0-rc02",
     "embla-carousel-class-names": "9.0.0-rc02",
-    "embla-carousel-fade": "9.0.0-rc02",
     "embla-carousel-react": "9.0.0-rc02",
     "embla-carousel-ssr": "9.0.0-rc02",
     "embla-carousel-wheel-gestures": "9.0.0-rc01",

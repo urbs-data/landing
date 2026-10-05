@@ -18,7 +18,7 @@ The site explains how Urbs Data helps companies organize scattered data, build r
 
 ## Requirements
 
-- Node.js compatible with the project lockfile
+- Node.js `^22.22.2`, `^24.15.0` or `>=26` (required by jsdom 30; also runs `scripts/generate-sitemap.ts` with native TypeScript stripping)
 - pnpm
 
 Install dependencies:
@@ -43,7 +43,8 @@ http://localhost:3100
 
 ```bash
 pnpm dev              # Start Vite on port 3100
-pnpm build            # Build for production
+pnpm build            # Regenerate public/sitemap.xml and build for production
+pnpm generate-sitemap # Regenerate public/sitemap.xml from blog and careers content
 pnpm preview          # Preview the production build
 pnpm test             # Run Vitest
 pnpm format           # Format with Biome
@@ -60,8 +61,14 @@ src/features/blog           Blog routes, Markdown content, and parser
 src/features/careers        Careers routes, Markdown content, and parser
 src/features/signatures     Employee email signature generator
 src/features/presentations  Employee PowerPoint template downloads
+src/features/social         Employee social profile assets
+src/lib/content             Shared localized Markdown collection (blog, careers, sitemap)
+src/lib/employee-access.ts  Employee access gate (code check, signed cookie, rate limit)
+src/server.ts               Server entry: redirects and protected API routes
+src/env.ts                  Validated environment variables
 src/components              Shared UI and layout components
-src/i18n/messages           Paraglide translation messages
+src/i18n                    Locale policy, URL patterns, and Paraglide messages
+scripts                     Sitemap and asset generation scripts
 public/assets               Publicly served site assets
 ```
 
@@ -74,12 +81,14 @@ A --> C[Blog routes]
 A --> D[Careers routes]
 A --> E[Signatures routes]
 A --> F[Presentations routes]
+A --> M[Social routes]
 C --> G[Blog index]
 C --> H[Blog article detail]
 D --> I[Careers index]
 D --> J[Career post detail]
 E --> K[Signature builder]
 F --> L[Presentation templates]
+M --> N[Social assets]
 ```
 
 ## Languages and URLs
@@ -88,7 +97,7 @@ Spanish is the base locale and does not use a URL prefix. English uses the `/en`
 
 | View | Spanish | English |
 | --- | --- | --- |
-| Home | `/` | `/en` |
+| Home | `/` | `/en/` |
 | Blog | `/blog` | `/en/blog` |
 | Blog article | `/blog/:slug` | `/en/blog/:slug` |
 | Careers | `/careers` | `/en/careers` |
@@ -112,11 +121,17 @@ SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET=
 
 `SIGNATURES_PRESENTATIONS_ACCESS_CODE` enables access to the employee-only signatures, presentations, and social assets tools. Do not document, commit, or publicly share the actual value. Employees who need access should request the code from their leaders.
 
-`SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET` is optional, but recommended in shared or production environments. If it is not set, the access code is used as the cookie signing secret.
+`SIGNATURES_PRESENTATIONS_ACCESS_COOKIE_SECRET` is required for the employee gate and must be at least 32 characters. It signs the access cookie and is never derived from the access code. If it (or the access code) is missing, the gate fails closed and code verification returns `503`.
+
+Generate one with:
+
+```bash
+openssl rand -base64 48
+```
 
 ## Employee-Only Routes
 
-The signatures, presentations, and social assets routes share the same access gate. Access is granted with a 6-digit code and stored in an HTTP-only cookie for 8 hours.
+The signatures, presentations, and social assets routes share the same access gate. Access is granted with a 6-digit code through `POST /api/employee-access/verify` and stored in a signed HTTP-only cookie for 8 hours. After 5 failed attempts from the same IP within 15 minutes the endpoint returns `429` with `Retry-After` (the limit is kept in memory per server instance). Employee pages are also marked `noindex`.
 
 ```mermaid
 graph TD
@@ -236,11 +251,11 @@ Example endpoint:
 
 The endpoint returns `401 Unauthorized` when there is no valid access cookie. The visible catalog lives in `src/features/social/lib/social-assets.ts`.
 
-Asset source files live in:
+Asset source files live outside `public/` so they are only reachable through the gated endpoint:
 
 ```text
-public/assets/social/linkedin.png
-public/assets/social/meet.png
+src/features/social/assets/linkedin.png
+src/features/social/assets/meet.png
 ```
 
 ## Content Workflow
@@ -267,7 +282,7 @@ src/features/blog/content/es
 src/features/blog/content/en
 ```
 
-Each article is a `.md` file with YAML frontmatter at the top. The parser is `src/features/blog/lib/blog.ts`.
+Each article is a `.md` file with YAML frontmatter at the top. The schema lives in `src/features/blog/lib/blog-collection.ts`; loading, validation, rendering, and localized paths are handled by the shared collection in `src/lib/content/collection.ts`.
 
 ### Blog Frontmatter
 
@@ -375,7 +390,7 @@ src/features/careers/content/es
 src/features/careers/content/en
 ```
 
-The parser is `src/features/careers/lib/careers.ts` and validates frontmatter with Zod. The content folders already exist even when there are no active career posts.
+The schema lives in `src/features/careers/lib/careers-collection.ts` and uses the same shared collection as the blog. The content folders exist (with a `.gitkeep`) even when there are no active career posts; while they are empty, `/careers` is left out of the sitemap.
 
 ### Career Frontmatter
 

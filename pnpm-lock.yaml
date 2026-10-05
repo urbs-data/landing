@@ -65,19 +65,10 @@ importers:
       embla-carousel-accessibility:
         specifier: 9.0.0-rc02
         version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
-      embla-carousel-auto-height:
-        specifier: 9.0.0-rc02
-        version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
       embla-carousel-auto-scroll:
         specifier: 9.0.0-rc02
         version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
-      embla-carousel-autoplay:
-        specifier: 9.0.0-rc02
-        version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
       embla-carousel-class-names:
-        specifier: 9.0.0-rc02
-        version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
-      embla-carousel-fade:
         specifier: 9.0.0-rc02
         version: 9.0.0-rc02(embla-carousel@9.0.0-rc02)
       embla-carousel-react:
@@ -2159,28 +2150,13 @@ packages:
     peerDependencies:
       embla-carousel: 9.0.0-rc02
 
-  embla-carousel-auto-height@9.0.0-rc02:
-    resolution: {integrity: sha512-BfYtpxPMJN+KjYdyWwlkPzo5IQvM4SZvw3Yvb+K1EZ1OOddiqAW8DmP8301XlQ1/2e+kyUS8kw9AnqImU5RsUw==}
-    peerDependencies:
-      embla-carousel: 9.0.0-rc02
-
   embla-carousel-auto-scroll@9.0.0-rc02:
     resolution: {integrity: sha512-np1uEHeagZKm+1A6cdTaufgUooxxE2I+wfzoJ4S5OxfyRLj+mOBeJG18HOrrusK+FiDcsZ+6ZkLgFVh2z3/K8Q==}
     peerDependencies:
       embla-carousel: 9.0.0-rc02
 
-  embla-carousel-autoplay@9.0.0-rc02:
-    resolution: {integrity: sha512-xmHUL/dVL0EN9Tf6EeWirc1eEYEr8uxEG4l4QxzRPrUbHhshTzPcKfB0DatAmOI6rcTldqQsslbffNqQmg9E3Q==}
-    peerDependencies:
-      embla-carousel: 9.0.0-rc02
-
   embla-carousel-class-names@9.0.0-rc02:
     resolution: {integrity: sha512-BYfYe2OnUvP4IyniFaiY+UDtrcYAOQi5M9k3LLKPOWxYC/G1eMPQ3FrnFlvAuMZCPqxPE0H9z2f4yJzYaVpYcQ==}
-    peerDependencies:
-      embla-carousel: 9.0.0-rc02
-
-  embla-carousel-fade@9.0.0-rc02:
-    resolution: {integrity: sha512-k65hqC7I482aSJPfKFkAuBbVDsDLo/AgD9nTHtROCSNz///7xs2oKZcxsoRol70ZVWzb//KHVZ1BkJr7LQhKWg==}
     peerDependencies:
       embla-carousel: 9.0.0-rc02
 
@@ -4949,23 +4925,11 @@ snapshots:
     dependencies:
       embla-carousel: 9.0.0-rc02
 
-  embla-carousel-auto-height@9.0.0-rc02(embla-carousel@9.0.0-rc02):
-    dependencies:
-      embla-carousel: 9.0.0-rc02
-
   embla-carousel-auto-scroll@9.0.0-rc02(embla-carousel@9.0.0-rc02):
     dependencies:
       embla-carousel: 9.0.0-rc02
 
-  embla-carousel-autoplay@9.0.0-rc02(embla-carousel@9.0.0-rc02):
-    dependencies:
-      embla-carousel: 9.0.0-rc02
-
   embla-carousel-class-names@9.0.0-rc02(embla-carousel@9.0.0-rc02):
-    dependencies:
-      embla-carousel: 9.0.0-rc02
-
-  embla-carousel-fade@9.0.0-rc02(embla-carousel@9.0.0-rc02):
     dependencies:
       embla-carousel: 9.0.0-rc02
 

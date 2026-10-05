@@ -1,17 +1,13 @@
-"use client";
-
 import { ArrowRight, Check, Mail } from "lucide-react";
 import * as motion from "motion/react-client";
-import { Button } from "@/components/ui/button";
-import { m } from "@/paraglide/messages";
+import { Button } from "#/components/ui/button";
+import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
 import { buildContactEmailHref, CONTACT_EMAIL } from "../lib/contact-email";
-import { revealTransform, revealTransition } from "./animation";
+import { revealOnView } from "./animation";
 import { SectionKicker } from "./section-kicker";
 
 export function CTA() {
-  const reveal = revealTransform(16);
-  const itemReveal = revealTransform(10);
   const contactEmailHref = buildContactEmailHref({
     subject: m.contact_email_subject(),
     body: m.contact_email_body(),
@@ -45,12 +41,7 @@ export function CTA() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <motion.div
-            initial={reveal.initial}
-            whileInView={reveal.visible}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={revealTransition({
-              duration: 0.36,
-            })}
+            {...revealOnView({ offset: 16, duration: 0.36, margin: "-80px" })}
             className="max-w-xl"
           >
             <SectionKicker>{m.contact_kicker()}</SectionKicker>
@@ -65,10 +56,8 @@ export function CTA() {
               {benefits.map((benefit, index) => (
                 <motion.li
                   key={benefit}
-                  initial={itemReveal.initial}
-                  whileInView={itemReveal.visible}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={revealTransition({
+                  {...revealOnView({
+                    offset: 10,
                     duration: 0.28,
                     delay: 0.08 + index * 0.04,
                   })}
@@ -83,13 +72,7 @@ export function CTA() {
             </ul>
 
             <motion.div
-              initial={itemReveal.initial}
-              whileInView={itemReveal.visible}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={revealTransition({
-                duration: 0.28,
-                delay: 0.2,
-              })}
+              {...revealOnView({ offset: 10, duration: 0.28, delay: 0.2 })}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Button
@@ -122,10 +105,8 @@ export function CTA() {
                   className="border-border border-b bg-card p-6 last:border-b-0"
                 >
                   <motion.div
-                    initial={itemReveal.initial}
-                    whileInView={itemReveal.visible}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={revealTransition({
+                    {...revealOnView({
+                      offset: 10,
                       duration: 0.3,
                       delay: index * 0.055,
                     })}
@@ -145,13 +126,7 @@ export function CTA() {
               ))}
             </div>
             <motion.p
-              initial={itemReveal.initial}
-              whileInView={itemReveal.visible}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={revealTransition({
-                duration: 0.28,
-                delay: 0.18,
-              })}
+              {...revealOnView({ offset: 10, duration: 0.28, delay: 0.18 })}
               className="mt-4 font-mono text-xs text-muted-foreground"
             >
               {m.contact_response_note()}

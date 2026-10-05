@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BrainCircuit,
   Code2,
@@ -8,9 +6,14 @@ import {
   Workflow,
 } from "lucide-react";
 import * as motion from "motion/react-client";
-import { m } from "@/paraglide/messages";
+import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { revealTransform, revealTransition } from "./animation";
+import { revealOnView } from "./animation";
+import {
+  SectionDescription,
+  SectionHeading,
+  SectionTitle,
+} from "./section-heading";
 import { SectionKicker } from "./section-kicker";
 
 type Service = {
@@ -74,8 +77,6 @@ function getServices(): Service[] {
 }
 
 export function Services() {
-  const headingReveal = revealTransform(18);
-  const reveal = revealTransform(16);
   const { ids } = getLandingAnchors();
 
   return (
@@ -84,39 +85,24 @@ export function Services() {
       className="border-b border-border py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <motion.div
-          initial={headingReveal.initial}
-          whileInView={headingReveal.visible}
-          style={headingReveal.initial}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={revealTransition({
-            duration: 0.38,
-          })}
-          className="max-w-2xl"
-        >
+        <SectionHeading className="max-w-2xl">
           <SectionKicker>{m.services_kicker()}</SectionKicker>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
-            {m.services_title()}
-          </h2>
-          <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-            {m.services_description()}
-          </p>
-        </motion.div>
+          <SectionTitle>{m.services_title()}</SectionTitle>
+          <SectionDescription>{m.services_description()}</SectionDescription>
+        </SectionHeading>
 
         <div className="mt-12 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2">
           {getServices().map((s, i) => (
             <article
               key={s.title}
-              className="group bg-card p-7 transition-colors duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-accent/40"
+              className="group bg-card p-7 transition-colors duration-150 ease-out-strong hover:bg-accent/40"
             >
               <motion.div
-                initial={reveal.initial}
-                whileInView={reveal.visible}
-                style={reveal.initial}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={revealTransition({
+                {...revealOnView({
+                  offset: 16,
                   duration: 0.34,
                   delay: i * 0.05,
+                  margin: "-80px",
                 })}
               >
                 <div className="flex size-11 items-center justify-center border border-border bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">

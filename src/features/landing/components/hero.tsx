@@ -1,17 +1,11 @@
-"use client";
-
 import { ArrowRight, Sparkles } from "lucide-react";
-import * as motion from "motion/react-client";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { m } from "@/paraglide/messages";
+import { Button } from "#/components/ui/button";
+import { cn } from "#/lib/utils";
+import { m } from "#/paraglide/messages";
 import { getLandingAnchors } from "../lib/anchors";
-import { revealTransform, revealTransition } from "./animation";
 import { ConnectionsCanvas } from "./connections-canvas";
 
 export function Hero() {
-  const badgeReveal = revealTransform(12);
-  const heroReveal = revealTransform(18);
   const { hrefs, ids } = getLandingAnchors();
 
   return (
@@ -35,57 +29,31 @@ export function Hero() {
       </div>
 
       <div className="mx-auto flex min-h-svh max-w-6xl flex-col items-center justify-center px-5 pb-16 pt-28 text-center sm:px-6 sm:pb-16 sm:pt-32">
-        <motion.a
+        {/* `will-change-transform` keeps each element on its own layer after
+            the CSS entrance ends; otherwise the browser demotes the layer and
+            re-rasterizes the text, which reads as a 1px snap. */}
+        <a
           href={hrefs.flow}
-          initial={badgeReveal.initial}
-          animate={badgeReveal.visible}
-          transition={revealTransition({
-            duration: 0.36,
-          })}
-          className="inline-flex items-center gap-2 border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground animate-in fade-in fill-mode-backwards will-change-transform animation-duration-360 ease-out-strong motion-safe:slide-in-from-bottom-[12px]"
         >
           <Sparkles className="size-3.5 text-primary dark:brightness-175" />
           <span className="sm:hidden">{m.hero_kicker_short()}</span>
           <span className="hidden sm:inline">{m.hero_kicker()}</span>
-        </motion.a>
+        </a>
 
-        <motion.h1
-          initial={heroReveal.initial}
-          animate={heroReveal.visible}
-          transition={revealTransition({
-            duration: 0.42,
-            delay: 0.04,
-          })}
-          className="mt-6 w-full max-w-88 text-balance wrap-break-word font-heading text-[1.875rem] font-semibold leading-[1.12] tracking-tight min-[380px]:text-[2rem] sm:mt-7 sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl"
-        >
+        <h1 className="mt-6 w-full max-w-88 text-balance wrap-break-word font-heading text-[1.875rem] font-semibold leading-[1.12] tracking-tight min-[380px]:text-[2rem] sm:mt-7 sm:max-w-5xl sm:text-6xl sm:leading-[1.05] lg:text-7xl animate-in fade-in fill-mode-backwards will-change-transform animation-duration-420 delay-40 ease-out-strong motion-safe:slide-in-from-bottom-[18px]">
           {m.hero_title_prefix()}{" "}
           <span className="text-primary dark:brightness-175">
             {m.hero_title_highlight()}
           </span>{" "}
           {m.hero_title_suffix()}
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={heroReveal.initial}
-          animate={heroReveal.visible}
-          transition={revealTransition({
-            duration: 0.42,
-            delay: 0.08,
-          })}
-          className="mt-5 w-full max-w-84 text-pretty text-[0.9375rem] leading-6 text-muted-foreground sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-relaxed"
-        >
+        <p className="mt-5 w-full max-w-84 text-pretty text-[0.9375rem] leading-6 text-muted-foreground sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-relaxed animate-in fade-in fill-mode-backwards will-change-transform animation-duration-420 delay-80 ease-out-strong motion-safe:slide-in-from-bottom-[18px]">
           {m.hero_description()}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={heroReveal.initial}
-          animate={heroReveal.visible}
-          transition={revealTransition({
-            duration: 0.42,
-            delay: 0.12,
-          })}
-          className="mt-8 flex w-full max-w-68 flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-3.5"
-        >
+        <div className="mt-8 flex w-full max-w-68 flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-3.5 animate-in fade-in fill-mode-backwards will-change-transform animation-duration-420 delay-120 ease-out-strong motion-safe:slide-in-from-bottom-[18px]">
           <Button
             render={<a href={hrefs.contact} />}
             nativeButton={false}
@@ -104,7 +72,7 @@ export function Hero() {
           >
             {m.hero_services_button()}
           </Button>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

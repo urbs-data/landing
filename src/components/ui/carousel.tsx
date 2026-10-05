@@ -94,9 +94,7 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return;
-    const { autoScroll, autoplay } = api.plugins();
-    autoScroll?.play?.();
-    autoplay?.play?.();
+    api.plugins().autoScroll?.play?.();
   }, [api]);
 
   React.useEffect(() => {

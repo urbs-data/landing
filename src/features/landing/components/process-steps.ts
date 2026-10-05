@@ -5,7 +5,7 @@ import {
   UsersRound,
   Workflow,
 } from "lucide-react";
-import { m } from "@/paraglide/messages";
+import { m } from "#/paraglide/messages";
 
 export type ProcessStep = {
   icon: LucideIcon;

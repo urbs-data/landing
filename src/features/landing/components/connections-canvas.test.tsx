@@ -154,4 +154,62 @@ describe("ConnectionsCanvas", () => {
     expect(context.clearRect).toHaveBeenCalledTimes(paintedFrames + 1);
     expect(animationFrames.size).toBe(1);
   });
+
+  it("paints one static frame and never loops when reduced motion is preferred", async () => {
+    vi.stubGlobal("ResizeObserver", undefined);
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query: string) => ({
+        matches: query === "(prefers-reduced-motion: reduce)",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+
+    const { container } = render(<ConnectionsCanvas />);
+    const canvas = container.querySelector("canvas");
+
+    await waitFor(() => expect(canvas?.style.opacity).toBe("1"));
+    expect(context.arc).toHaveBeenCalled();
+    expect(animationFrames.size).toBe(0);
+  });
+
+  it("pauses the loop while off-screen and resumes when visible again", async () => {
+    vi.stubGlobal("ResizeObserver", undefined);
+    let onIntersect: IntersectionObserverCallback | undefined;
+    const disconnect = vi.fn();
+
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: IntersectionObserverCallback) {
+          onIntersect = callback;
+        }
+
+        observe = vi.fn();
+        disconnect = disconnect;
+      },
+    );
+
+    const { unmount } = render(<ConnectionsCanvas />);
+    expect(animationFrames.size).toBe(1);
+
+    const intersect = (isIntersecting: boolean) =>
+      act(async () => {
+        onIntersect?.(
+          [{ isIntersecting } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        );
+      });
+
+    await intersect(false);
+    expect(animationFrames.size).toBe(0);
+
+    await intersect(true);
+    expect(animationFrames.size).toBe(1);
+
+    unmount();
+    expect(disconnect).toHaveBeenCalled();
+    expect(animationFrames.size).toBe(0);
+  });
 });

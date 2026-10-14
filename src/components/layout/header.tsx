@@ -471,7 +471,7 @@ export function Header() {
           side="top"
           showCloseButton={false}
           overlayClassName="top-16 z-40 bg-background/55 backdrop-blur-[2px] md:hidden dark:bg-background/50"
-          className="top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-auto border-border bg-background/95 p-0 shadow-lg backdrop-blur-md duration-180 ease-out-strong md:hidden data-[side=top]:top-16 data-[side=top]:border-b data-[side=top]:data-ending-style:-translate-y-2 data-[side=top]:data-starting-style:-translate-y-2"
+          className="top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-auto overscroll-contain border-border bg-background/95 p-0 shadow-lg backdrop-blur-md duration-180 ease-out-strong md:hidden data-[side=top]:top-16 data-[side=top]:border-b data-[side=top]:data-ending-style:-translate-y-2 data-[side=top]:data-starting-style:-translate-y-2"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>{m.nav_mobile_label()}</SheetTitle>

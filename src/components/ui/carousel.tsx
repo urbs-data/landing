@@ -149,7 +149,11 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
       <div
         className={cn(
           "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+          // The carousel owns the drag axis; the browser keeps the other one
+          // (and pinch-zoom) so a swipe never jitters the page.
+          orientation === "horizontal"
+            ? "-ml-4 touch-pan-y touch-pinch-zoom"
+            : "-mt-4 flex-col touch-pan-x touch-pinch-zoom",
           className,
         )}
         {...props}

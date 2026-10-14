@@ -262,6 +262,24 @@
     html {
         scroll-behavior: smooth;
         scroll-padding-top: 4rem;
+        /* Controls give their own :active feedback; drop the browser's flash. */
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Fire taps immediately (no double-tap-zoom wait). */
+    a,
+    button,
+    summary,
+    [role="button"] {
+        touch-action: manipulation;
+    }
+
+    /* A long-press on a control shouldn't select its label. Links stay
+       selectable: in prose they are content. */
+    button,
+    [role="button"] {
+        -webkit-user-select: none;
+        user-select: none;
     }
 
     body {

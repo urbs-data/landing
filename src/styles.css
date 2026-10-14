@@ -279,14 +279,6 @@
             stroke-dashoffset: -1000;
         }
     }
-    @keyframes beam-flow {
-        from {
-            transform: translateX(0%);
-        }
-        to {
-            transform: translateX(300%);
-        }
-    }
     .animated-beam-path {
         will-change: stroke-dashoffset;
     }

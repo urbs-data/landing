@@ -176,39 +176,6 @@ const AnimatedBeam = ({
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-
-        {/* Mask for animated beam */}
-        <mask id={`beam-mask-${uniqueId}`}>
-          <rect
-            className="beam-mask-rect"
-            x="-100%"
-            y="0"
-            width="50%"
-            height="100%"
-            fill="url(#beam-mask-gradient)"
-            style={{
-              animationName: "beam-flow",
-              animationDuration: `${duration}s`,
-              animationTimingFunction: "linear",
-              animationIterationCount: "infinite",
-              animationDelay: `${delay}s`,
-              animationDirection: reverse ? "reverse" : "normal",
-            }}
-          />
-        </mask>
-
-        <linearGradient
-          id="beam-mask-gradient"
-          x1="0%"
-          y1="0%"
-          x2="100%"
-          y2="0%"
-        >
-          <stop offset="0%" stopColor="black" />
-          <stop offset="25%" stopColor="white" />
-          <stop offset="75%" stopColor="white" />
-          <stop offset="100%" stopColor="black" />
-        </linearGradient>
       </defs>
 
       {/* Background path */}

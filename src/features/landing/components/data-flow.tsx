@@ -14,7 +14,7 @@ import {
   Target,
   Warehouse,
 } from "lucide-react";
-import { useReducedMotion } from "motion/react";
+import { useInView, useReducedMotion } from "motion/react";
 import * as motion from "motion/react-client";
 import * as React from "react";
 import {
@@ -616,15 +616,20 @@ function FlowDiagram({
   const gatewayPosition = GATEWAY_POSITIONS[layout];
   const containerRef = React.useRef<HTMLDivElement>(null);
   const nodeRefs = React.useMemo(createNodeRefs, []);
+  // The beams repaint a blurred stroke every frame; pause them off screen like
+  // the hero canvas does.
+  const inView = useInView(containerRef, { margin: "100px" });
 
   return (
     <BeamContainer
       ref={containerRef}
+      data-paused={inView ? undefined : true}
       className={cn(
         "relative isolate overflow-visible text-border",
-        // AnimatedBeam drives its dash/mask with inline CSS keyframes; drop them
+        "data-paused:[&_.animated-beam-path]:[animation-play-state:paused]",
+        // AnimatedBeam drives its dash with inline CSS keyframes; drop them
         // (important beats inline) so only the static connector remains.
-        "motion-reduce:[&_.animated-beam-path]:animate-none! motion-reduce:[&_.beam-mask-rect]:animate-none!",
+        "motion-reduce:[&_.animated-beam-path]:animate-none!",
         className,
       )}
     >

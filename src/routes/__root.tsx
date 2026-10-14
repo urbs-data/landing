@@ -20,7 +20,7 @@ import {
   SITE_NAME,
 } from "#/features/landing/lib/seo";
 import { type LocalizedPaths, normalizePath, toAppLocale } from "#/i18n";
-import { themeInitScript } from "#/lib/theme";
+import { THEME_COLORS, themeInitScript } from "#/lib/theme";
 import { m } from "#/paraglide/messages";
 import { getLocale } from "#/paraglide/runtime";
 import appCss from "../styles.css?url";
@@ -71,7 +71,7 @@ export const Route = createRootRoute({
         },
         { name: "keywords", content: home.keywords },
         { name: "author", content: SITE_NAME },
-        { name: "theme-color", content: "#ffffff" },
+        { name: "theme-color", content: THEME_COLORS.light },
         { name: "application-name", content: SITE_NAME },
         { name: "apple-mobile-web-app-title", content: SITE_NAME },
         { name: "geo.region", content: "AR" },

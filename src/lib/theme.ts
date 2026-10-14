@@ -16,6 +16,15 @@ export const DEFAULT_THEME_STATE: ThemeState = {
 
 export const PREFERS_DARK_QUERY = "(prefers-color-scheme: dark)";
 
+/**
+ * `--background` of each theme as sRGB hex, for `<meta name="theme-color">`
+ * (the mobile browser chrome / status bar). Keep in sync with `styles.css`.
+ */
+export const THEME_COLORS: Record<ResolvedTheme, string> = {
+  light: "#fcfcfd",
+  dark: "#111113",
+};
+
 type ThemeRoot = {
   classList: Pick<DOMTokenList, "add" | "remove">;
   setAttribute(name: string, value: string): void;

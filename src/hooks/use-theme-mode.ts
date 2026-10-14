@@ -4,6 +4,7 @@ import {
   DEFAULT_THEME_STATE,
   PREFERS_DARK_QUERY,
   type ResolvedTheme,
+  THEME_COLORS,
   THEME_STORAGE_KEY,
   type ThemeMode,
   type ThemeState,
@@ -47,6 +48,7 @@ function publish(next: ThemeState) {
   }
 
   snapshot = next;
+  syncThemeColor(next.resolvedTheme);
   for (const listener of listeners) listener();
 }
 
@@ -64,6 +66,19 @@ function withoutTransitions(apply: () => void) {
   // computed values, removing the override cannot start a transition.
   window.getComputedStyle(document.body).getPropertyValue("color");
   style.remove();
+}
+
+/**
+ * Points the mobile browser chrome at the active theme. The theme is a class,
+ * not the OS setting, so a `media`-scoped pair of tags would be wrong whenever
+ * the chosen mode differs from the system one.
+ */
+function syncThemeColor(resolvedTheme: ResolvedTheme) {
+  for (const meta of document.querySelectorAll<HTMLMetaElement>(
+    'meta[name="theme-color"]',
+  )) {
+    meta.content = THEME_COLORS[resolvedTheme];
+  }
 }
 
 /** Applies the theme to `<html>` and publishes the new preference. */

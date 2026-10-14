@@ -25,6 +25,7 @@ function getCompanies() {
     {
       name: "Cahpsa",
       src: "/assets/companies/cahpsa.svg",
+      aspectRatio: 796 / 200,
       sector: m.company_cahpsa_sector(),
       location: m.company_cahpsa_location(),
       detail: m.company_cahpsa_detail(),
@@ -33,6 +34,7 @@ function getCompanies() {
     {
       name: "CIGRA",
       src: "/assets/companies/cigra.svg",
+      aspectRatio: 474 / 134,
       sector: m.company_cigra_sector(),
       location: m.company_cigra_location(),
       detail: m.company_cigra_detail(),
@@ -41,6 +43,7 @@ function getCompanies() {
     {
       name: "Byontek",
       src: "/assets/companies/byontek.svg",
+      aspectRatio: 665 / 200,
       sector: m.company_byontek_sector(),
       location: m.company_byontek_location(),
       detail: m.company_byontek_detail(),
@@ -49,6 +52,7 @@ function getCompanies() {
     {
       name: "Credito Argentino",
       src: "/assets/companies/credito-argentino.svg",
+      aspectRatio: 685 / 200,
       sector: m.company_credito_argentino_sector(),
       location: m.company_credito_argentino_location(),
       detail: m.company_credito_argentino_detail(),
@@ -57,6 +61,7 @@ function getCompanies() {
     {
       name: "4Plus",
       src: "/assets/companies/4plus.svg",
+      aspectRatio: 499 / 200,
       sector: m.company_fourplus_sector(),
       location: m.company_fourplus_location(),
       detail: m.company_fourplus_detail(),
@@ -65,6 +70,7 @@ function getCompanies() {
     {
       name: "MacroAgro",
       src: "/assets/companies/macroagro.svg",
+      aspectRatio: 1072 / 200,
       sector: m.company_macroagro_sector(),
       location: m.company_macroagro_location(),
       detail: m.company_macroagro_detail(),
@@ -73,6 +79,7 @@ function getCompanies() {
     {
       name: "LBO",
       src: "/assets/companies/lbo.svg",
+      aspectRatio: 416 / 200,
       sector: m.company_lbo_sector(),
       location: m.company_lbo_location(),
       detail: m.company_lbo_detail(),
@@ -81,6 +88,7 @@ function getCompanies() {
     {
       name: "Nexo",
       src: "/assets/companies/nexo.svg",
+      aspectRatio: 569 / 200,
       sector: m.company_nexo_sector(),
       location: m.company_nexo_location(),
       detail: m.company_nexo_detail(),
@@ -89,6 +97,7 @@ function getCompanies() {
     {
       name: "Corteva",
       src: "/assets/companies/corteva.svg",
+      aspectRatio: 1012 / 200,
       sector: m.company_corteva_sector(),
       location: m.company_corteva_location(),
       detail: m.company_corteva_detail(),
@@ -97,6 +106,7 @@ function getCompanies() {
     {
       name: "Hemisphere",
       src: "/assets/companies/hemisphere.svg",
+      aspectRatio: 1021 / 200,
       sector: m.company_hemisphere_sector(),
       location: m.company_hemisphere_location(),
       detail: m.company_hemisphere_detail(),
@@ -105,6 +115,7 @@ function getCompanies() {
     {
       name: "Rosental",
       src: "/assets/companies/rosental.svg",
+      aspectRatio: 545 / 200,
       sector: m.company_rosental_sector(),
       location: m.company_rosental_location(),
       detail: m.company_rosental_detail(),
@@ -113,6 +124,7 @@ function getCompanies() {
     {
       name: "On City",
       src: "/assets/companies/on-city.svg",
+      aspectRatio: 740 / 633,
       sector: m.company_on_city_sector(),
       location: m.company_on_city_location(),
       detail: m.company_on_city_detail(),
@@ -330,7 +342,7 @@ export function TrustedCompanies() {
             {companies.map((company) => (
               <CarouselItem
                 key={company.name}
-                className="flex h-16 basis-44 items-center justify-center pl-0 opacity-60 transition-opacity duration-300 sm:h-20 sm:basis-56 [&.is-in-view]:opacity-80"
+                className="flex h-16 basis-auto items-center justify-center pl-0 opacity-60 transition-opacity duration-300 sm:h-20 [&.is-in-view]:opacity-80"
               >
                 <HoverCard
                   open={activeCompanyCard === company.name}
@@ -342,7 +354,7 @@ export function TrustedCompanies() {
                     delay={140}
                     closeDelay={80}
                     aria-label={company.name}
-                    className="flex h-full w-full items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                    className="flex h-full items-center justify-center rounded-md px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 sm:px-8"
                     onPointerDown={(event) =>
                       handleCompanyPointerDown(company.name, event)
                     }
@@ -354,8 +366,9 @@ export function TrustedCompanies() {
                   >
                     <span
                       aria-hidden="true"
-                      className="h-10 w-36 bg-current text-foreground sm:h-12 sm:w-48"
+                      className="h-10 max-w-36 bg-current text-foreground sm:h-12 sm:max-w-48"
                       style={{
+                        aspectRatio: company.aspectRatio,
                         mask: `url(${company.src}) center / contain no-repeat`,
                         WebkitMask: `url(${company.src}) center / contain no-repeat`,
                       }}

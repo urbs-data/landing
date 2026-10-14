@@ -110,6 +110,14 @@ function getCompanies() {
       detail: m.company_rosental_detail(),
       website: "https://www.rosental.com/",
     },
+    {
+      name: "On City",
+      src: "/assets/companies/on-city.svg",
+      sector: m.company_on_city_sector(),
+      location: m.company_on_city_location(),
+      detail: m.company_on_city_detail(),
+      website: "https://www.oncity.com/",
+    },
   ];
 }
 

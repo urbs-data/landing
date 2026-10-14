@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrandWordmark } from "#/components/brand-wordmark";
+import { CrossfadeIcon } from "#/components/crossfade-icon";
 import { LocaleDropdown } from "#/components/locale-dropdown";
 import { ThemeToggle } from "#/components/theme-toggle";
 import { Button } from "#/components/ui/button";
@@ -454,12 +455,13 @@ export function Header() {
               <LocaleDropdown variant="compact" />
               <button
                 type="button"
-                className="inline-flex size-9 items-center justify-center text-foreground transition-transform duration-150 ease-out-strong active:scale-95"
+                className="relative inline-flex size-9 items-center justify-center text-foreground transition-transform duration-150 ease-out-strong active:scale-95"
                 aria-label={open ? m.menu_close_label() : m.menu_open_label()}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
               >
-                {open ? <X className="size-5" /> : <Menu className="size-5" />}
+                <CrossfadeIcon icon={Menu} visible={!open} className="size-5" />
+                <CrossfadeIcon icon={X} visible={open} className="size-5" />
               </button>
             </div>
           </div>

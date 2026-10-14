@@ -50,14 +50,33 @@ function publish(next: ThemeState) {
   for (const listener of listeners) listener();
 }
 
+/**
+ * Runs `apply` with every CSS transition disabled, so a theme swap repaints in
+ * a single frame instead of each surface easing to its new colour at its own
+ * speed (the page background would snap while cards and the header lag).
+ */
+function withoutTransitions(apply: () => void) {
+  const style = document.createElement("style");
+  style.textContent = "*,*::before,*::after{transition:none!important}";
+  document.head.appendChild(style);
+  apply();
+  // Flush styles while transitions are off; once the new colours are the
+  // computed values, removing the override cannot start a transition.
+  window.getComputedStyle(document.body).getPropertyValue("color");
+  style.remove();
+}
+
 /** Applies the theme to `<html>` and publishes the new preference. */
 function applyAndPublish(storage: Pick<Storage, "getItem"> | null) {
-  const { mode } = applyStoredTheme(
-    document.documentElement,
-    storage,
-    THEME_STORAGE_KEY,
-    getMediaQuery()?.matches ?? false,
-  );
+  let mode: ThemeMode = snapshot.mode;
+  withoutTransitions(() => {
+    mode = applyStoredTheme(
+      document.documentElement,
+      storage,
+      THEME_STORAGE_KEY,
+      getMediaQuery()?.matches ?? false,
+    ).mode;
+  });
   // Read back from the DOM in case something else also touched <html>.
   publish({ mode, resolvedTheme: readDocumentTheme() });
 }

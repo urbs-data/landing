@@ -286,7 +286,8 @@
 
 @layer components {
     /* Top progress bar for client-side navigations. Shown only after 150ms so
-       fast transitions never flash it; hides quickly once the route settles. */
+       fast transitions never flash it; once the route settles it fills to the
+       end and then fades (`done`, timed by DONE_MS in the component). */
     .route-activity-indicator {
         position: fixed;
         inset-inline: 0;
@@ -303,7 +304,7 @@
             transform 0ms linear 200ms;
     }
 
-    .route-activity-indicator[data-visible="true"] {
+    .route-activity-indicator[data-state="loading"] {
         opacity: 1;
         transform: scaleX(0.85);
         transition:
@@ -311,10 +312,22 @@
             transform 2.5s var(--ease-out-strong) 150ms;
     }
 
+    .route-activity-indicator[data-state="done"] {
+        opacity: 0;
+        transform: scaleX(1);
+        transition:
+            transform 200ms var(--ease-out-strong),
+            opacity 200ms ease 160ms;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-        .route-activity-indicator[data-visible="true"] {
+        .route-activity-indicator[data-state="loading"] {
             transform: scaleX(1);
             transition: opacity 150ms ease 150ms;
+        }
+
+        .route-activity-indicator[data-state="done"] {
+            transition: opacity 200ms ease;
         }
     }
 }

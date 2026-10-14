@@ -1,5 +1,9 @@
 import { useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useIsHydrated } from "#/hooks/use-is-hydrated";
+
+/** Matches the `done` fill + fade in `.route-activity-indicator` (styles.css). */
+const DONE_MS = 360;
 
 /**
  * Decorative top progress bar for client-side navigations. Hidden from
@@ -17,11 +21,26 @@ export function RouteActivityIndicator() {
   // Keep the indicator hidden until after hydration, then reflect real state.
   const visible = isHydrated && isLoading;
 
+  // When loading ends, fill the bar before fading it so it reads as finished
+  // rather than abandoned mid-way.
+  const [prevVisible, setPrevVisible] = useState(visible);
+  const [done, setDone] = useState(false);
+  if (visible !== prevVisible) {
+    setPrevVisible(visible);
+    setDone(!visible);
+  }
+
+  useEffect(() => {
+    if (!done) return;
+    const timeout = window.setTimeout(() => setDone(false), DONE_MS);
+    return () => window.clearTimeout(timeout);
+  }, [done]);
+
   return (
     <div
       aria-hidden="true"
       className="route-activity-indicator"
-      data-visible={visible ? "true" : "false"}
+      data-state={visible ? "loading" : done ? "done" : "idle"}
     />
   );
 }
